@@ -1,0 +1,15 @@
+.DS_Store
+.build/
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcuserdatad/
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+.env
+.env.*
+!.env.example
+*.safetensors
+*.gguf
+*.mlmodelc/
+/models/

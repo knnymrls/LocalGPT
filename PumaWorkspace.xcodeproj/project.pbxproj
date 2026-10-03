@@ -1,0 +1,715 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		29BE8AEB47CDDC6F5E0F7A15 /* RootShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5797F2EA8CC0F3B31F4FF1A /* RootShell.swift */; };
+		6E068ED605E029F4EF913179 /* PumaWorkspaceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87CECD9897A7BB95ED36CC9 /* PumaWorkspaceApp.swift */; };
+		D5FDE6CF1010CA6BEF4B94B1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF4B36780B885670392C935A /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		037948D1FBFD3141A4274054 /* 0001-ui-first-build.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0001-ui-first-build.md"; sourceTree = "<group>"; };
+		0669C69A11765AD1EF50DCA6 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		08A6B6FF0970472C51457F59 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		128D1919C3BD03683C835B77 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		1973169DFB689A44E3799CDA /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		1B575CB0328D53CBCC9D72DA /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		1CA9626716A13A92CD820D5C /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		1D387085FE00D8124A97B6AE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		21E11674DD91A32265EAD9CE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		2FE11859DF47DE68D25D7C10 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		3C6560DC135959E2CF7DBE0C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		43E15448C746925AB14AD993 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		47DE09667E815872CC43282F /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		50ACA87F80B00D840EA67497 /* prd.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = prd.md; sourceTree = "<group>"; };
+		540934395C12FDB5A927354C /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		5E019CEA970B6EC0E8E08A89 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		60427238ADD16EA3D9FA63D4 /* 0003-project-scaffold.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0003-project-scaffold.md"; sourceTree = "<group>"; };
+		6D3198575DD5025D957E162E /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		6EA4B6A8863CCD0AE86C0229 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		7C5D50139A5052C112821452 /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
+		80B58E613D2DDD4C95A42787 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		8178CFBCC85BF6C117B23847 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		870A9D38B06C4DA239977982 /* 0002-assistant-ownership.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0002-assistant-ownership.md"; sourceTree = "<group>"; };
+		9106AE84B57C3167B4161260 /* design.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = design.md; sourceTree = "<group>"; };
+		A87CECD9897A7BB95ED36CC9 /* PumaWorkspaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PumaWorkspaceApp.swift; sourceTree = "<group>"; };
+		A988CA266F9D4875DCF773FC /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		AE142BBC538E6DA2013F00A4 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		B6363228373471DC1B4E360E /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		BCD91F4AB31FD53BCC79E813 /* architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = architecture.md; sourceTree = "<group>"; };
+		BF4B36780B885670392C935A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D59324BF4258105DA7B83204 /* PumaWorkspace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PumaWorkspace.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D680BA2E48C502702D1E11D0 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		D9867F32F41AAEA9DEA1BF4B /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		E29DADC4551DE2F9E005E71D /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		E3C1DB1049317E5AB50FE032 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		E5797F2EA8CC0F3B31F4FF1A /* RootShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootShell.swift; sourceTree = "<group>"; };
+		E63CAEA5C6C00150114A25E4 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		F5FB34440B0804557EA76C38 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		FC9A8CAEED644F4493575806 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		FCC0BA31F72D2AEF7CE58BC1 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		FD9D65592B221ABD7A4AA1BE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		FF1478F7DC7B602D21DA6FC8 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		FF70EA1F3391CFC6DD34B876 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0C09F7D741662411374AFE88 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				1D387085FE00D8124A97B6AE /* .gitkeep */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		1F64AC969FAC49D02C18203C /* MockServices */ = {
+			isa = PBXGroup;
+			children = (
+				B6363228373471DC1B4E360E /* .gitkeep */,
+			);
+			path = MockServices;
+			sourceTree = "<group>";
+		};
+		314480AC93F82C5975758D4E /* ModelPicker */ = {
+			isa = PBXGroup;
+			children = (
+				6D3198575DD5025D957E162E /* .gitkeep */,
+			);
+			path = ModelPicker;
+			sourceTree = "<group>";
+		};
+		3497CF2396304490A7AF5237 /* Samples */ = {
+			isa = PBXGroup;
+			children = (
+				6EA4B6A8863CCD0AE86C0229 /* .gitkeep */,
+			);
+			path = Samples;
+			sourceTree = "<group>";
+		};
+		38C0B7F486A78839C2B68558 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				7F94A950DC5B3641554A5B26 /* Contracts */,
+				4A9F1946CB9B318CC929D70E /* Models */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		38DF8BD36B4BA2539EE30267 /* Integration */ = {
+			isa = PBXGroup;
+			children = (
+				F5FB34440B0804557EA76C38 /* .gitkeep */,
+			);
+			path = Integration;
+			sourceTree = "<group>";
+		};
+		3B46C0DE15EB57FD38E10BE8 /* decisions */ = {
+			isa = PBXGroup;
+			children = (
+				037948D1FBFD3141A4274054 /* 0001-ui-first-build.md */,
+				870A9D38B06C4DA239977982 /* 0002-assistant-ownership.md */,
+				60427238ADD16EA3D9FA63D4 /* 0003-project-scaffold.md */,
+			);
+			path = decisions;
+			sourceTree = "<group>";
+		};
+		3F36B724E30A25AD0E57D9AC /* Speech */ = {
+			isa = PBXGroup;
+			children = (
+				D9867F32F41AAEA9DEA1BF4B /* .gitkeep */,
+			);
+			path = Speech;
+			sourceTree = "<group>";
+		};
+		4469FAA331860968143DE54B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				AE142BBC538E6DA2013F00A4 /* .gitkeep */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		494E9643A02010908532AE87 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				9B5360CCB7528B7F9583F50F /* Components */,
+				BC66FBF9C4BCE22FDECB17E1 /* Tokens */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		4972E501B7F74FCFACEFCBE6 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				540934395C12FDB5A927354C /* .gitkeep */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
+		4A9F1946CB9B318CC929D70E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FF1478F7DC7B602D21DA6FC8 /* .gitkeep */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4C08141BF1BE8FB3B27CBB31 /* Validation */ = {
+			isa = PBXGroup;
+			children = (
+				2FE11859DF47DE68D25D7C10 /* .gitkeep */,
+			);
+			path = Validation;
+			sourceTree = "<group>";
+		};
+		4E1F0A349CF647A791536B12 /* PreviewSupport */ = {
+			isa = PBXGroup;
+			children = (
+				0C09F7D741662411374AFE88 /* Fixtures */,
+				1F64AC969FAC49D02C18203C /* MockServices */,
+			);
+			path = PreviewSupport;
+			sourceTree = "<group>";
+		};
+		4E9B98D6AFFD1F79F1C6C150 /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				E29DADC4551DE2F9E005E71D /* .gitkeep */,
+			);
+			path = Documents;
+			sourceTree = "<group>";
+		};
+		58E0DE6CA8D67830DBC3613E /* PumaWorkspace */ = {
+			isa = PBXGroup;
+			children = (
+				836F577DAC385AA7529563C8 /* App */,
+				8E7DAB748B75EDB4AAA47396 /* Assistant */,
+				494E9643A02010908532AE87 /* DesignSystem */,
+				38C0B7F486A78839C2B68558 /* Domain */,
+				63D6E685D3155A1721DBAD91 /* Features */,
+				5CCF4E10CCF603EA1D9935FA /* Infrastructure */,
+				4E1F0A349CF647A791536B12 /* PreviewSupport */,
+				ED78B266C6CEBE6069FF8072 /* Resources */,
+			);
+			path = PumaWorkspace;
+			sourceTree = "<group>";
+		};
+		598F47C3AA5D92021C502021 /* Context */ = {
+			isa = PBXGroup;
+			children = (
+				FC9A8CAEED644F4493575806 /* .gitkeep */,
+			);
+			path = Context;
+			sourceTree = "<group>";
+		};
+		5CCF4E10CCF603EA1D9935FA /* Infrastructure */ = {
+			isa = PBXGroup;
+			children = (
+				4E9B98D6AFFD1F79F1C6C150 /* Documents */,
+				D6D565102CDC071DA29EC3EE /* LocalInference */,
+				C39E748410E90410A697A780 /* Persistence */,
+				D401D2329D9D3692BE25C5EB /* Retrieval */,
+				3F36B724E30A25AD0E57D9AC /* Speech */,
+			);
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
+		63D6E685D3155A1721DBAD91 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				D71D88ECD7913D839FB4299E /* Attachments */,
+				D8E3547BADE80FE8902EECE8 /* Chat */,
+				DA4DB8DBFE85D59F42B78E73 /* ChatHistory */,
+				97AE742991F40A6CF8EB85E5 /* Comparisons */,
+				E8D543794DCBA4A1DA67F34F /* Evidence */,
+				E3A25724623D17439A0B2A99 /* Memory */,
+				314480AC93F82C5975758D4E /* ModelPicker */,
+				CC2C029A3EDBFAFD0D751F2B /* Voice */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		7F94A950DC5B3641554A5B26 /* Contracts */ = {
+			isa = PBXGroup;
+			children = (
+				43E15448C746925AB14AD993 /* .gitkeep */,
+			);
+			path = Contracts;
+			sourceTree = "<group>";
+		};
+		8180681A11243784EC804FE8 /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				BCD91F4AB31FD53BCC79E813 /* architecture.md */,
+				FCC0BA31F72D2AEF7CE58BC1 /* CHANGELOG.md */,
+				9106AE84B57C3167B4161260 /* design.md */,
+				50ACA87F80B00D840EA67497 /* prd.md */,
+				3C6560DC135959E2CF7DBE0C /* README.md */,
+				3B46C0DE15EB57FD38E10BE8 /* decisions */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		836F577DAC385AA7529563C8 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A87CECD9897A7BB95ED36CC9 /* PumaWorkspaceApp.swift */,
+				E5797F2EA8CC0F3B31F4FF1A /* RootShell.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		8AEBB289819702677636C780 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				1B575CB0328D53CBCC9D72DA /* .gitkeep */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
+		8E7DAB748B75EDB4AAA47396 /* Assistant */ = {
+			isa = PBXGroup;
+			children = (
+				598F47C3AA5D92021C502021 /* Context */,
+				ACB8C67EB0E8F219E003EEEB /* Orchestration */,
+				8AEBB289819702677636C780 /* Tools */,
+				4C08141BF1BE8FB3B27CBB31 /* Validation */,
+			);
+			path = Assistant;
+			sourceTree = "<group>";
+		};
+		97AE742991F40A6CF8EB85E5 /* Comparisons */ = {
+			isa = PBXGroup;
+			children = (
+				128D1919C3BD03683C835B77 /* .gitkeep */,
+			);
+			path = Comparisons;
+			sourceTree = "<group>";
+		};
+		9B5360CCB7528B7F9583F50F /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0669C69A11765AD1EF50DCA6 /* .gitkeep */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		AC1429C537A38975ADC30956 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A988CA266F9D4875DCF773FC /* .gitkeep */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		ACB8C67EB0E8F219E003EEEB /* Orchestration */ = {
+			isa = PBXGroup;
+			children = (
+				21E11674DD91A32265EAD9CE /* .gitkeep */,
+			);
+			path = Orchestration;
+			sourceTree = "<group>";
+		};
+		BC66FBF9C4BCE22FDECB17E1 /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				47DE09667E815872CC43282F /* .gitkeep */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
+		C39E748410E90410A697A780 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				1CA9626716A13A92CD820D5C /* .gitkeep */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		CC2C029A3EDBFAFD0D751F2B /* Voice */ = {
+			isa = PBXGroup;
+			children = (
+				FD9D65592B221ABD7A4AA1BE /* .gitkeep */,
+			);
+			path = Voice;
+			sourceTree = "<group>";
+		};
+		D401D2329D9D3692BE25C5EB /* Retrieval */ = {
+			isa = PBXGroup;
+			children = (
+				5E019CEA970B6EC0E8E08A89 /* .gitkeep */,
+			);
+			path = Retrieval;
+			sourceTree = "<group>";
+		};
+		D53A219A8DFBBB27A2289C9D = {
+			isa = PBXGroup;
+			children = (
+				7C5D50139A5052C112821452 /* AGENTS.md */,
+				8178CFBCC85BF6C117B23847 /* README.md */,
+				8180681A11243784EC804FE8 /* docs */,
+				58E0DE6CA8D67830DBC3613E /* PumaWorkspace */,
+				DF7203FA841C7D59A7B38D3D /* Tests */,
+				E5280CDA87EC95FD5658E52F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D6D565102CDC071DA29EC3EE /* LocalInference */ = {
+			isa = PBXGroup;
+			children = (
+				FF70EA1F3391CFC6DD34B876 /* .gitkeep */,
+			);
+			path = LocalInference;
+			sourceTree = "<group>";
+		};
+		D71D88ECD7913D839FB4299E /* Attachments */ = {
+			isa = PBXGroup;
+			children = (
+				D680BA2E48C502702D1E11D0 /* .gitkeep */,
+			);
+			path = Attachments;
+			sourceTree = "<group>";
+		};
+		D8E3547BADE80FE8902EECE8 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				4469FAA331860968143DE54B /* Components */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		DA4DB8DBFE85D59F42B78E73 /* ChatHistory */ = {
+			isa = PBXGroup;
+			children = (
+				1973169DFB689A44E3799CDA /* .gitkeep */,
+			);
+			path = ChatHistory;
+			sourceTree = "<group>";
+		};
+		DB0D5E70A946198702D07E4E /* Unit */ = {
+			isa = PBXGroup;
+			children = (
+				08A6B6FF0970472C51457F59 /* .gitkeep */,
+			);
+			path = Unit;
+			sourceTree = "<group>";
+		};
+		DF7203FA841C7D59A7B38D3D /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				80B58E613D2DDD4C95A42787 /* README.md */,
+				38DF8BD36B4BA2539EE30267 /* Integration */,
+				AC1429C537A38975ADC30956 /* UI */,
+				DB0D5E70A946198702D07E4E /* Unit */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		E3A25724623D17439A0B2A99 /* Memory */ = {
+			isa = PBXGroup;
+			children = (
+				E63CAEA5C6C00150114A25E4 /* .gitkeep */,
+			);
+			path = Memory;
+			sourceTree = "<group>";
+		};
+		E5280CDA87EC95FD5658E52F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D59324BF4258105DA7B83204 /* PumaWorkspace.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E8D543794DCBA4A1DA67F34F /* Evidence */ = {
+			isa = PBXGroup;
+			children = (
+				E3C1DB1049317E5AB50FE032 /* .gitkeep */,
+			);
+			path = Evidence;
+			sourceTree = "<group>";
+		};
+		ED78B266C6CEBE6069FF8072 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				BF4B36780B885670392C935A /* Assets.xcassets */,
+				4972E501B7F74FCFACEFCBE6 /* Localization */,
+				3497CF2396304490A7AF5237 /* Samples */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		95DC5FF0FE0807BFA5F3F42C /* PumaWorkspace */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1C8A5A297C8449E373E60D04 /* Build configuration list for PBXNativeTarget "PumaWorkspace" */;
+			buildPhases = (
+				FBE654F183FA01DEF9610092 /* Sources */,
+				F84E85B76E8E2E1456A5DB85 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PumaWorkspace;
+			packageProductDependencies = (
+			);
+			productName = PumaWorkspace;
+			productReference = D59324BF4258105DA7B83204 /* PumaWorkspace.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0497AA71E36A9ED82C3106A8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = BD2602EBF85C8CF0E5A90FF0 /* Build configuration list for PBXProject "PumaWorkspace" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D53A219A8DFBBB27A2289C9D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E5280CDA87EC95FD5658E52F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				95DC5FF0FE0807BFA5F3F42C /* PumaWorkspace */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F84E85B76E8E2E1456A5DB85 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5FDE6CF1010CA6BEF4B94B1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FBE654F183FA01DEF9610092 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E068ED605E029F4EF913179 /* PumaWorkspaceApp.swift in Sources */,
+				29BE8AEB47CDDC6F5E0F7A15 /* RootShell.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		85227116C610960434D286F6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		C2883AC8E39E4427C47B26F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Puma Workspace";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.knnymrls.PumaWorkspace;
+				PRODUCT_NAME = PumaWorkspace;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		CB33D7E3AF346359BFA09EDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Puma Workspace";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.knnymrls.PumaWorkspace;
+				PRODUCT_NAME = PumaWorkspace;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		E3ED2AF5800C5E968AAC0D41 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1C8A5A297C8449E373E60D04 /* Build configuration list for PBXNativeTarget "PumaWorkspace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB33D7E3AF346359BFA09EDE /* Debug */,
+				C2883AC8E39E4427C47B26F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BD2602EBF85C8CF0E5A90FF0 /* Build configuration list for PBXProject "PumaWorkspace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3ED2AF5800C5E968AAC0D41 /* Debug */,
+				85227116C610960434D286F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0497AA71E36A9ED82C3106A8 /* Project object */;
+}
