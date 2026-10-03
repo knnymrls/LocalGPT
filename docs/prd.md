@@ -1,110 +1,63 @@
-# Puma Workspace PRD
+# LocalGPT PRD
 
-Puma Workspace is a native iPhone assistant for private conversations over your own documents. People can type or speak, choose a local model, inspect the evidence behind an answer, and return to their conversations later.
+LocalGPT is a native iPhone assistant for private conversations over personal documents. People can type or speak, inspect the evidence behind an answer, create useful files, and carry context into future chats through visible memories.
 
-The first implementation phase is the interface with realistic sample data. Real local inference, audio, retrieval, and persistence follow after the UI has been reviewed.
+## Goal
 
-## Problem and product goal
+Deliver a polished local-first assistant that demonstrates usable chat, real on-device replies, durable history, and clear architecture. The defining workflow is comparing two venue proposals, changing a requirement, and getting an updated answer with inspectable sources.
 
-People often need to compare a few documents, understand their differences, and make a decision. A useful assistant should make that process easy while keeping the material private and making its answers verifiable.
+The product should feel continuous across voice and text. Its saved state and output receipts must be trustworthy: a “saved” label means a durable write succeeded, and a file link opens a real file.
 
-The goal is a small, polished experience: start a conversation, add relevant material, ask by voice or text, inspect a useful answer, and continue without losing context. The prototype must eventually satisfy Puma's core assignment: usable local-first chat, replies, on-device history, and a clear architecture note. [Puma take-home assignment](https://puma.tech/take-home-task/)
+## Experience
 
-## Primary user and use case
+The approved interface remains one chat feed and composer. The top-left control opens the chat drawer with history, search, pinned chats, and Memories. The right module contains New chat, Outputs, and the chat menu. The composer's plus adds files, photos, or camera images. Supporting content opens in sheets.
 
-The primary user has a small set of personal or work documents and wants help understanding them on their phone. The initial demonstration uses two venue proposals and a screenshot update: compare capacity, price, and accessibility, then revise the comparison when the required guest count changes.
+Typing, dictation, and voice conversation share the active chat, draft, sources, and history. Dictation adds editable text without sending and stays on through pauses until Finish. Finish includes the remaining captured speech. Voice conversation is a continuous foreground session: it sends a completed utterance, speaks the answer, then listens again without another tap. Quiet pauses and inspecting outputs do not end the call. Leaving voice, switching chats, or backgrounding ends capture. Returning to the keyboard keeps partial text and an ongoing reply. Capture pauses during playback; full-duplex interruption is outside this release.
 
-This single workflow demonstrates the product's value without requiring a large collection of unrelated features. Ordinary conversation also works without attachments.
+## Requirements
 
-## Product experience
-
-The main screen is a readable conversation with one composer. A left control opens past chats and New chat. A right control opens all workspace attachments. The top area stays minimal. Model selection and voice controls sit beside the composer.
-
-Voice and text are two inputs to the same conversation. They share the draft, history, selected attachments, model, and editable notes. Supporting details appear in focused sheets rather than permanent panels.
-
-## Core user flows
-
-### Start or resume a conversation
-
-Open the chat drawer, start a new chat or choose an existing one, and type a message. Sending shows reply progress and a readable response. The person can stop a reply, recover from a failure, and continue the conversation. Returning to another chat restores its draft and selections.
-
-### Add and inspect context
-
-Open the attachment modal, add a text file, PDF, or screenshot, and select which ready sources the current chat may use. Preview a file before closing the modal. The conversation makes the selected context clear without displaying an extra document deck above the feed.
-
-### Move between voice and typing
-
-Enter voice mode and see the transcript as speech is captured. Return to the keyboard to review or edit it before Send. Existing typed text is retained, and switching input never submits automatically. Replies remain visible and may also be played aloud, with an accessible stop control.
-
-### Inspect and revise an answer
-
-Ask for a comparison. The reply includes a compact comparison card, source references, missing information, and editable user notes. Tapping a reference opens the supporting passage. Changing a requirement produces a revised comparison while preserving the person's notes.
-
-### Choose what carries forward
-
-The assistant can suggest a useful preference to remember. The person previews its wording and workspace scope before saving it, and can later inspect, edit, or forget it. Saving is always explicit.
-
-## Functional requirements
-
-| Area | Required behavior |
+| Area | Behavior |
 | --- | --- |
-| Chat | New chat, local history, readable messages, reply progress, stop, failure, and retry. Empty chats provide a clear starting point. |
-| Navigation | Left chat drawer and right attachments modal. Each chat retains its draft, selected sources, model, and user notes. |
-| Model selection | A compact picker shows the selected model and its availability. Changes apply to future replies; earlier answers retain their model identity. |
-| Attachments | Support text, PDF, and screenshot inputs. Show readiness and failures. Only selected, ready sources are available to the assistant. |
-| Voice | Shared draft, visible transcript, keyboard handoff, microphone state, optional reply playback, and recovery from unavailable or interrupted audio. |
-| Evidence | Source references open the original supporting passage. Unknown, missing, or deleted sources are shown clearly. Unsupported details remain unknown. |
-| Comparison | Structured criteria and options, source references, visible revisions, and preserved editable notes. |
-| Memory | Preview, explicit save, inspect, edit, and forget within the workspace. |
-| Privacy | Inference and private content remain on the device during normal use. No silent cloud fallback. Model acquisition and asset readiness are explained separately. |
+| Chat | Stream real local answers; stop, retry, copy, read aloud; persist history and drafts; recover interrupted replies as stopped. |
+| Navigation | Preserve the approved drawer, composer, Outputs, file viewer, search, pin, rename, and delete interactions. |
+| Model | One Apple on-device system model. Show preparation, unsupported-device, disabled-model, and failure states truthfully. |
+| Inputs | Read selected PDFs, text, Markdown, code, JSON, CSV, and image text. OCR scanned PDF pages and photos. Preserve original files. Unsupported formats give an actionable explanation. |
+| Evidence | Only selected, ready sources enter a request. Numbered references open the supporting excerpt and source. Missing facts stay unknown. |
+| Revisions | Follow the latest question and changed requirements while keeping conversation context. Comparisons use readable Markdown tables. |
+| Memory | Save only stable preferences, enduring personal context, or explicit requests to remember. Most messages save nothing. Temporary task requirements, budgets, guest counts, and one-off plans stay in chat history. Retain supporting words and origin internally, reject questions/guesses/document facts, and deduplicate. |
+| Memory receipt | Show **Saved to memory** after commit. Tap to read that exact memory in a simple sheet. Keep removal in a long-press menu on the memory list; no edit/forget detail card. Saved memories also appear in Memories and the originating chat's Outputs. Failed writes never show a saved receipt. |
+| Outputs | Create actual PDF, CSV, JSON, Markdown, text, and R files, plus locally rendered chart/diagram PNGs. Preview and share files through system surfaces. No script execution. |
+| Voice | Visible preparation/transcript/microphone state; separate dictation and conversation modes; retain draft on handoff; reject callbacks from old sessions; recover from unavailable/interrupted audio. |
+| Performance | Cache extraction by content, keep speech assets/model warm, debounce draft writes, checkpoint replies, and avoid document work on the UI actor. |
+| Privacy | Process private inputs locally. No cloud fallback, PCC, analytics, or account. Explain initial public-model asset downloads. User data remains in the application sandbox, excluded from backup. |
 
-## Scope and build order
+## Demonstration
 
-### Phase 1 Interface
+The sidebar begins with four complete, authored conversations: meeting notes to a plan, trip expenses to CSV, a workshop checklist to PDF, and a budget chart. They look and behave like regular chats, with natural titles and no special section or labels. Each includes a follow-up exchange; file outputs open normally. Users can continue, rename, pin, or delete them. See [demo guide](demo-guide.md) for follow-up ideas and additional use cases.
 
-Build the native SwiftUI shell, chat feed and composer, history drawer, attachment modal, model picker, voice presentation, evidence viewer, comparison card, and memory sheet. Use fixtures and mock services to exercise their normal, empty, loading, interrupted, and error states.
+1. Import two venue proposals and ask for capacity, price, and accessibility in a table.
+2. Open a citation and inspect the original supporting passage.
+3. Change the required seated capacity and ask which venue still qualifies. Unspecified accessibility remains unknown.
+4. Share a venue preference naturally. Open the resulting memory receipt, then recall the preference in a new chat.
+5. Continue with voice, switch to typing, and retain context without losing or accidentally sending the partial draft.
+6. Generate a budget CSV or plan PDF and open the actual file in Outputs.
+7. Relaunch and recover chats, drafts, files, and memories.
 
-This phase establishes the visual and interaction quality. It does not include database setup, model downloads, actual inference, document indexing, or real microphone and speech integration.
+## Acceptance
 
-### Phase 2 Working local chat
+- A normal launch uses real inference and storage; fixture mode is explicit and DEBUG-only.
+- Deletion and cancellation cannot be undone by a late callback or stale save.
+- A memory receipt is bound to a committed record and remains inspectable after relaunch; removing it changes future memory context.
+- A reviewer can complete the demonstration and see truthful loading/error/recovery states.
+- Required assets can be installed once, with subsequent operation verified offline.
+- Setup instructions, architecture, measured results, and remaining platform limits are documented separately from product requirements.
 
-Connect one local model and on-device conversation storage. Complete send, reply, stop, retry, and history recovery. Verify the runnable path and model readiness on the target device before expanding the workflow.
+## Scope
 
-### Phase 3 Complete the demonstrated workflow
+This build targets iOS 26+ using the installed toolchain. General image reasoning on iOS 27 is a later integration; OCR is the available image input path. AI-generated pictures are deferred. Office documents should be exported to PDF/text/CSV. Audio/video file transcription, web browsing, accounts, cloud sync, unrestricted subagents, external actions, arbitrary code execution, and full-duplex voice are outside this release.
 
-Connect selected-document retrieval, source-backed comparisons, voice/text handoff, spoken replies, and explicit memory. Keep the implementation centered on the venue comparison and revision flow.
-
-## Acceptance criteria
-
-The UI phase is ready for integration when:
-
-- The approved shell works across the supported iPhone layouts, light/dark appearance, keyboard states, and larger text sizes.
-- Navigation, attachments, and model selection preserve the active chat's draft and edits.
-- Voice-to-keyboard handoff produces an editable draft and never sends it automatically.
-- The sample comparison can be revised, its original evidence inspected, and its user notes retained.
-- Empty, loading, unavailable, interrupted, and failed states have clear recovery actions.
-- Controls support VoiceOver, comfortable touch targets, and reduced motion.
-
-The complete take-home is ready when a reviewer can:
-
-- Run the app, send a message, receive a real local reply, and reopen saved history after relaunch.
-- Complete the demonstrated document comparison and revision using both voice and text.
-- Inspect supporting passages and see missing evidence accurately represented.
-- Stop generation and audio without stale updates changing a newer conversation.
-- Verify normal operation with connectivity disabled after required assets are installed.
-- Read concise setup instructions, the architecture note, observed device measurements, and known limitations.
-
-## Out of scope
-
-Accounts, cloud sync, cloud inference fallback, external actions, unrestricted agents, web browsing, a share extension, a separate desktop app, and hands-free full duplex conversation are outside the initial prototype. Additional artifact types follow only if the comparison workflow is complete.
-
-## Decisions still needed
-
-The target physical device, local runtime, default model, and supported speech assets will be selected during integration. Their availability and measured quality determine the final service implementation; they do not block the interface phase.
+This is a bounded take-home implementation: large-history pagination, extensive multilingual evaluation, physical-device latency/energy measurement, and broad accessibility QA remain release-quality work. Current evidence belongs in [verification](verification.md), not inferred from a successful build.
 
 ## Supporting documents
 
-- [Design](design.md): visual rules and interaction states.
-- [Architecture](architecture.md): folder ownership and system connections.
-- [Change log](CHANGELOG.md): completed work and observed status.
-- [Decision records](decisions/): choices, rationale, and consequences.
+[Design](design.md) · [Architecture](architecture.md) · [Decisions](decisions/) · [Verification](verification.md) · [Change log](CHANGELOG.md)
