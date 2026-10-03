@@ -68,6 +68,7 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 
 - **Work.** While the assistant does something specific, such as reading a file, each step appears as a line of plain text in the reply's size, the current one shimmering on a time-driven gradient that stays animated across layout changes. When the answer starts they fold into "Worked for 3s", which expands on tap. A plain answer shows only a shimmering "Thinking" and nothing afterwards. Work rows have no icons.
 - **Answer.** Markdown drawn as native text: headings, lists, bold and italic, code, quotes, rules, and tables. Text is 16pt on a 21pt line with 8pt between blocks. A table keeps its columns' natural width and scrolls sideways when it is wider than the screen.
+- **Conversation recovery.** Ordinary chat can hold its opening while checking for a repeated prior answer. One local regeneration attempts recovery; persistent repetition becomes a retryable error. There is no canned replacement reply.
 - **No generated UI.** A comparison is a Markdown table in the answer, not a card.
 - **Documents.** The files a reply worked from are listed at its end as capsule rows: type glyph, name, arrow. A row opens the file.
 - **Actions.** Every finished reply ends with exactly three: Copy, Retry, Read aloud. Retry replaces the newest reply; on an older reply it asks the same question again at the end of the chat. A failed reply shows "Reply interrupted." and a retry.

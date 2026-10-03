@@ -33,10 +33,16 @@ struct LocalAssistantClient: AssistantClient {
                     if policy.diagrams { tools.append(CreateDiagramTool(service: service)) }
                     let memoryContext = try await memories.context(for: request.prompt)
                     let evidenceContext = try await service.initialEvidence()
-                    let prompt = try await ContextBuilder.build(request,sources:sources,memories:memoryContext,evidence:evidenceContext,tools:tools)
+                    let isConversation = tools.isEmpty && selected.isEmpty
+                    let conversation = isConversation ? try await ConversationContext.prepare(request, memories: memoryContext) : nil
+                    let prompt: String
+                    if let conversation { prompt = conversation.prompt }
+                    else { prompt = try await ContextBuilder.build(request,sources:sources,memories:memoryContext,evidence:evidenceContext,tools:tools) }
                     try scope.check()
                     let instructions = tools.isEmpty && selected.isEmpty ? ContextBuilder.conversationInstructions : ContextBuilder.instructions
-                    var session = LanguageModelSession(model:model,tools:tools,instructions:instructions)
+                    var session: LanguageModelSession
+                    if let conversation { session = LanguageModelSession(model: model, transcript: conversation.transcript) }
+                    else { session = LanguageModelSession(model:model,tools:tools,instructions:instructions) }
                     var answerPrompt = prompt
                     let structuredAnswer = !selected.isEmpty && !policy.files && !policy.charts && !policy.diagrams
                     if structuredAnswer {
@@ -78,6 +84,10 @@ struct LocalAssistantClient: AssistantClient {
                             try scope.check()
                             answer = SourceAnswer.markdown(snapshot.content)
                             if !answer.isEmpty { continuation.yield(.text(answer)) }
+                        }
+                    } else if let conversation {
+                        answer = try await ConversationResponder.respond(session: session, context: conversation, request: request, scope: scope) {
+                            continuation.yield(.text($0))
                         }
                     } else {
                         for try await snapshot in session.streamResponse(to:answerPrompt,options:GenerationOptions(maximumResponseTokens:1200)) {

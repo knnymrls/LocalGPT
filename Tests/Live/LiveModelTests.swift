@@ -25,11 +25,50 @@ final class LiveModelTests: XCTestCase {
         var complete = false
     }
 
+    func testCasualConversationDoesNotRepeatGreeting() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        var history: [Message] = []
+        var previous = ""
+        for prompt in ["Hey, I'm just asking this if this works.", "Nothing I was just trying to have conversation.", "What are you doing?"] {
+            let result = try await answer(prompt, client: client, history: history)
+            print("CONVERSATION_CHECK \(prompt) => \(result.text)")
+            let normalized = result.text.lowercased().split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+            XCTAssertNotEqual(normalized, previous, "The next turn must not repeat the previous greeting")
+            history += [Message(role: .user, text: prompt), Message(role: .assistant, text: result.text)]
+            previous = normalized
+        }
+        let fact = "For this chat, the imaginary spaceship is named Juniper."
+        let acknowledgment = try await answer(fact, client: client, history: history)
+        history += [Message(role: .user, text: fact), Message(role: .assistant, text: acknowledgment.text)]
+        let recalled = try await answer("What did I name it?", client: client, history: history)
+        print("CONVERSATION_RECALL \(recalled.text)")
+        XCTAssertTrue(recalled.text.localizedCaseInsensitiveContains("Juniper"), "Follow-ups must retain user context")
+    }
+
+    func testConversationRecoversFromRepeatedReplies() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        let repeated = "I'm here to help you with whatever you need. What's on your mind?"
+        let history = [
+            Message(role: .user, text: "Hey, I'm just asking this if this works."),
+            Message(role: .assistant, text: "Hey! " + repeated),
+            Message(role: .user, text: "Nothing I was just trying to have conversation."),
+            Message(role: .assistant, text: repeated)
+        ]
+        let result = try await answer("What are you doing?", client: client, history: history)
+        print("CONVERSATION_RECOVERY \(result.text)")
+        XCTAssertFalse(ConversationResponder.repeats(ConversationResponder.normalized(result.text), ConversationResponder.normalized(repeated)), "Must move beyond the repeated answer: \(result.text)")
+    }
+
     private func answer(_ prompt: String, client: LocalAssistantClient, sources: Set<UUID> = [], history: [Message] = []) async throws -> Answer {
         let start = Date()
         var firstToken: TimeInterval?
         var result = Answer()
-        let request = ReplyRequest(conversationID: UUID(), prompt: prompt, history: history, modelID: SystemModelCatalog.modelID, selectedSourceIDs: sources)
+        let current = Message(role: .user, text: prompt)
+        let request = ReplyRequest(conversationID: UUID(), prompt: prompt,
+                                   history: history + [current, Message(role: .assistant, text: "", status: .streaming)],
+                                   modelID: SystemModelCatalog.modelID, selectedSourceIDs: sources, userMessageID: current.id)
         for await event in client.send(request) {
             switch event {
             case .text(let text):
@@ -64,7 +103,7 @@ final class LiveModelTests: XCTestCase {
         XCTAssertTrue(saved.allSatisfy { prompt.contains($0.sourceQuote) })
         let client = LocalAssistantClient(database: db, attachments: files, memories: service, writer: writer)
         let result = try await answer("What kind of venue do I prefer, and what is my event budget?", client: client)
-        XCTAssertTrue(result.text.localizedCaseInsensitiveContains("quiet"))
+        XCTAssertTrue(result.text.localizedCaseInsensitiveContains("quiet"), "Saved: \(saved.map(\.text)); answer: \(result.text)")
         XCTAssertFalse(saved.contains { $0.text.contains("4200") }, "The event budget belongs in chat history, not long-term memory")
         XCTAssertTrue(result.outputs.isEmpty)
     }

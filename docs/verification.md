@@ -1,6 +1,12 @@
 # Verification — 2026-10-03
 
-## Current revision — live installation and preview identity
+## Current revision — native conversation history and bounded repetition
+
+Ordinary conversation now restores native speaker roles, budgets whole completed turns, and has a single guided-generation recovery attempt for substantially repeated text. There are no scripted replacement replies. All 29 deterministic checks passed after the transcript and repetition logic changes. Four targeted live checks passed together on Pro Max after the final prompt/recovery changes: the reported three-turn exchange plus a subsequent invented-name recall, a seeded repetition case, memory extraction/recall, and a brief context acknowledgment. The live request helper now includes the current user entry and streaming placeholder, matching the UI. The recorded two-turn voice workflow passed before the final prompt/guided-recovery refinement.
+
+Important limit: isolated checks initially passed while retrying the real saved chat still produced repetition failures twice. The final Pro Max retry returned different wording, but remained a generic offer of assistance. This is NOT acceptance of natural conversation quality. Some fresh replies were also generic or awkward; memory recall missed a supplied fact during intermediate runs before clarifying the background prompt. Tests establish narrow mechanics and sampled recall, not robust model quality or semantic recovery. Further model/prompt evaluation should use varied conversations and human review, not exact-duplicate checks alone.
+
+## Previous revision — live installation and preview identity
 
 The iPhone 17 Pro Max Simulator was running an old UI-only binary, despite the dedicated Audio QA Simulator having live services. Its repeated upload-documents response matched the mock assistant exactly. Updated Pro Max in place to the current Debug build, without uninstalling. Voice preparation was visible afterward; microphone acceptance was not established.
 

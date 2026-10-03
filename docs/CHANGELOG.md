@@ -2,6 +2,12 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Conversation roles and repeated-answer recovery
+
+- Replaced pasted chat logs with bounded native user/assistant transcript entries for ordinary conversation; latest messages are sent separately and incomplete replies are excluded.
+- Added one bounded model regeneration for repeated answers to distinct messages, retaining user context without feeding repetitive assistant prose back in. Explicit repeat requests bypass recovery; persistent repetition fails visibly.
+- Added checks for the reported three-turn exchange, recovery from seeded repeated answers, within-chat recall, role restoration, and changed facts versus repeated text. Conversational wording remains generic in some observed responses.
+
 ## 2026-10-03 — Distinguish previews from the live assistant
 
 - Traced repeated document-upload replies to an old UI-only build on the iPhone 17 Pro Max Simulator, then updated that exact Simulator to live services.

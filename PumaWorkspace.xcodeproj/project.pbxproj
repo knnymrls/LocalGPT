@@ -28,6 +28,7 @@
 		2AEF4B35FE68BFC6F71A863A /* WorkspaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEF13333E029C0141EFD385 /* WorkspaceTests.swift */; };
 		2C103F538A01F2CE1BB86A98 /* MemoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C04F9C5EC7806CC946B91B /* MemoryService.swift */; };
 		35F92D5A1073BE903CEDF7F9 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F54204A1FD3B6357B3C6B1 /* Typography.swift */; };
+		36B5E70EEE0DCDA1B16F3A18 /* ConversationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE472884E9ED82907B8668B /* ConversationContext.swift */; };
 		3C0FECA031AE5D5A3594BB23 /* UploadedFilesSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FC87E2359FD6BDA92471CC /* UploadedFilesSheet.swift */; };
 		3F5AC0F09790E80331C6AC2A /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C58559D73DDC5669621749 /* MarkdownText.swift */; };
 		3FBA527772F9EED64E652E58 /* MemoryExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE59823779FFFED6A668F694 /* MemoryExtractor.swift */; };
@@ -47,6 +48,7 @@
 		69D9E8EF61CBD008CBBE5B8A /* Attachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A6DFE6C5FAE6E5969CE5D /* Attachment.swift */; };
 		6AC08A545592C3C0A0A25820 /* PhotoOriginal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9DFFAF750A8AC751937083 /* PhotoOriginal.swift */; };
 		6E068ED605E029F4EF913179 /* PumaWorkspaceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87CECD9897A7BB95ED36CC9 /* PumaWorkspaceApp.swift */; };
+		7814A66592725C4F6C7272EF /* ConversationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8ED281B24FD1DDDA9EACA8 /* ConversationResponder.swift */; };
 		78C1CE7AA5D38A5879CB2B67 /* FoundationTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945A75C5B53EBF6FC4DF5857 /* FoundationTools.swift */; };
 		7BE30217480CF07D067BF939 /* InMemoryRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3453B5C97F2C184348697AFB /* InMemoryRepositories.swift */; };
 		7EEAAD7EB6B58680BC032CAD /* SourceComparison.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB54A3366E224522A7B207FE /* SourceComparison.swift */; };
@@ -127,7 +129,9 @@
 		037948D1FBFD3141A4274054 /* 0001-ui-first-build.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0001-ui-first-build.md"; sourceTree = "<group>"; };
 		0451E0AD385678AAC7D090B6 /* InteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
 		08A6B6FF0970472C51457F59 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		0BE472884E9ED82907B8668B /* ConversationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationContext.swift; sourceTree = "<group>"; };
 		0C58D7FE7A0BE5DC58C8AA02 /* DebugLaunchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLaunchState.swift; sourceTree = "<group>"; };
+		0C8ED281B24FD1DDDA9EACA8 /* ConversationResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationResponder.swift; sourceTree = "<group>"; };
 		109CB42AD39A254FE9FCCEC2 /* ChatPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPreview.swift; sourceTree = "<group>"; };
 		12F838CDE4CD7023706019E9 /* EvidenceSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceSheet.swift; sourceTree = "<group>"; };
 		1B575CB0328D53CBCC9D72DA /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -506,6 +510,7 @@
 			children = (
 				FC9A8CAEED644F4493575806 /* .gitkeep */,
 				2F152032425394E327A16141 /* ContextBuilder.swift */,
+				0BE472884E9ED82907B8668B /* ConversationContext.swift */,
 				EE59823779FFFED6A668F694 /* MemoryExtractor.swift */,
 				AAF0FEB797608FF9E526515B /* MemoryPolicy.swift */,
 				01C04F9C5EC7806CC946B91B /* MemoryService.swift */,
@@ -680,6 +685,7 @@
 			isa = PBXGroup;
 			children = (
 				21E11674DD91A32265EAD9CE /* .gitkeep */,
+				0C8ED281B24FD1DDDA9EACA8 /* ConversationResponder.swift */,
 				31F59FF31F76E861CD855FDF /* LocalAssistantClient.swift */,
 				DF994CBC75DB92D8FBBC2C21 /* RequestScope.swift */,
 			);
@@ -1006,6 +1012,8 @@
 				216BE38A51C563D9334F541F /* Composer.swift in Sources */,
 				C32ABB951BDF35BBA90B14BD /* ContextBuilder.swift in Sources */,
 				57F3539D7BB5050BAC8272F9 /* Conversation.swift in Sources */,
+				36B5E70EEE0DCDA1B16F3A18 /* ConversationContext.swift in Sources */,
+				7814A66592725C4F6C7272EF /* ConversationResponder.swift in Sources */,
 				FA7DC7E74F3A9B7A551FFBB9 /* DebugLaunchState.swift in Sources */,
 				D6702B82F769DDACE0F7EABC /* DictationBars.swift in Sources */,
 				944801313723D40DF0904DE8 /* DocumentImporter.swift in Sources */,

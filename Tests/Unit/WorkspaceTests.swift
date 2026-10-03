@@ -1,8 +1,41 @@
 import XCTest
 import PDFKit
+import FoundationModels
 @testable import PumaWorkspace
 
 final class WorkspaceTests: XCTestCase {
+    func testConversationRepetitionIgnoresGreetingButAllowsChangedFactsAndRepeatRequests() {
+        let reply = "I'm here to help you with whatever you need. What's on your mind?"
+        XCTAssertTrue(ConversationResponder.repeats(ConversationResponder.normalized("Hey! " + reply), ConversationResponder.normalized(reply)))
+        XCTAssertTrue(ConversationResponder.repeats(ConversationResponder.normalized("I'm just here to help you with whatever you need. What's on your mind?"), ConversationResponder.normalized(reply)))
+        XCTAssertTrue(ConversationResponder.repeats(ConversationResponder.normalized("I'm just an AI assistant here to help you with whatever you need. What's on your mind?"), ConversationResponder.normalized(reply)))
+        XCTAssertFalse(ConversationResponder.repeats("the room seats 140 guests and meets all of your requirements", "the room seats 120 guests and meets all of your requirements"))
+        XCTAssertFalse(ConversationResponder.repeats("this room does not meet all of the requirements you specified earlier", "this room does meet all of the requirements you specified earlier"))
+        let request = ReplyRequest(conversationID: UUID(), prompt: "Repeat that verbatim", history: [Message(role: .assistant, text: reply)], modelID: "test", selectedSourceIDs: [])
+        XCTAssertTrue(ConversationResponder.repetitionCandidates(for: request).isEmpty)
+    }
+
+    func testConversationRestoresRolesAndExcludesCurrentAndFailedTurns() throws {
+        let current = Message(role: .user, text: "What did I name it?")
+        let request = ReplyRequest(conversationID: UUID(), prompt: current.text, history: [
+            Message(role: .user, text: "An earlier failed request"),
+            Message(role: .assistant, text: "A partial failed answer", status: .failed),
+            Message(role: .user, text: "The ship is Juniper."),
+            Message(role: .assistant, text: "Juniper it is."),
+            current,
+            Message(role: .assistant, text: "", status: .streaming)
+        ], modelID: "test", selectedSourceIDs: [], userMessageID: current.id)
+        let turns = ConversationContext.completedTurns(in: request)
+        XCTAssertEqual(turns.count, 1)
+        let pair = try XCTUnwrap(turns.first)
+        guard case .prompt(let user) = pair[0], case .response(let assistant) = pair[1],
+              case .text(let userText) = user.segments[0], case .text(let assistantText) = assistant.segments[0] else {
+            return XCTFail("Stored speakers must become native model roles")
+        }
+        XCTAssertEqual(userText.content, "The ship is Juniper.")
+        XCTAssertEqual(assistantText.content, "Juniper it is.")
+    }
+
     private func root() throws -> URL {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
