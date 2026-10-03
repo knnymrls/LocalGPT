@@ -1,5 +1,28 @@
 # Verification — 2026-10-03
 
+## Current core acceptance — 2026-10-03, source 74f84a4
+
+On Xcode 26.6 / iOS 26.5, the dedicated **Puma – Audio QA** Simulator completed **32 deterministic checks and all 18 live checks with no failures or skips**. The live suite used the real local model for ordinary conversation, source-backed comparison and revision, selective memory, CSV calculations, and real PDF/CSV/R/PNG outputs. Two recorded voice turns used actual recognition, inference, and synthesis, and returned to listening. Recorded input is not live microphone acceptance.
+
+Fresh conversation checks retained the spaceship name Juniper, changed Omar's deadline from Wednesday to Friday while preserving Maya's Tuesday deadline, recalled Miso/Sundays within a chat, and treated the plant name as unknown in a separate chat. A conversation saved through SQLite reopened with its draft and history intact; its project remained Cedar while its release day changed from Monday to Thursday. These checks use temporary empty workspaces, not the preloaded transcripts.
+
+Manual response review found useful sky/sunset explanations and a correct three-heart octopus fact in this run. Limits remain: a request for two sentences produced three, and recovery from a saved greeting loop still produced a generic offer of help. Earlier prompt experiments fabricated missing personal details and confused speakers; they were discarded. Passing sampled checks does not make the local model broadly reliable or eliminate hallucinations.
+
+### Live interface and reviewer build
+
+- In a fresh normal UI chat, the model retained Lantern and changed its workshop day from Tuesday to Saturday. A new chart request rendered Paper 20 / Pens 12 / Tape 8 inline, with correct relative bar lengths; tapping opened the actual PNG in Quick Look. The composer stayed free of automatically selected outputs.
+- Left an unsent draft, terminated the app, installed the clean-checkout build in place, and relaunched. The same history, generated chart, and draft remained visible.
+- Built committed source 74f84a4 from a separate clone with separate build and package directories using the README's generic Simulator build. Package resolution and compilation succeeded. This is a clean source/build check on a configured Mac, not proof of model availability or microphone permissions on an unconfigured reviewer device.
+- Latest UI evidence below is live generation, not an authored preloaded chat or a DEBUG fixture.
+
+<img src="evidence/core-live-chart.png" width="320" alt="Real model correction to Lantern on Saturday and newly generated supplies chart shown inline">
+
+### Remaining device checks
+
+Live microphone capture and an actually disconnected physical-device run remain pending. Prepare model assets first, disable Wi-Fi as well as cellular, send a new request, generate a file, and reopen the saved conversation. The [recording outline](video-walkthrough.md) describes this without treating cached content or status-bar appearance as offline proof. Do not describe recorded-audio checks as a live microphone call.
+
+The following sections preserve earlier observations; the current acceptance above supersedes their test counts and build state.
+
 ## Current branding — LocalGPT
 
 The generic Simulator Debug build passes with LocalGPT as its bundle display name. Updated the Pro Max Simulator in place and observed both the LocalGPT app label and drawer heading. The existing chat remained available after relaunch. This branding change does not establish any improvement in conversation quality.

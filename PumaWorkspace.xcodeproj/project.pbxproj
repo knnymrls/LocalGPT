@@ -194,6 +194,7 @@
 		6EA4B6A8863CCD0AE86C0229 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		78D7E15B8E95AA8747082C50 /* ExampleConversationInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleConversationInstaller.swift; sourceTree = "<group>"; };
 		79135955B65DD3B23CA3AE42 /* VoiceSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceSessionController.swift; sourceTree = "<group>"; };
+		79BF5CB9257149ED4D0C9679 /* core-live-chart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "core-live-chart.png"; sourceTree = "<group>"; };
 		7A068F0E8CB108F7562DF084 /* PressableButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressableButtonStyle.swift; sourceTree = "<group>"; };
 		7C5D50139A5052C112821452 /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
 		7D2C396887CA60E87294237E /* AnalyzerCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzerCapture.swift; sourceTree = "<group>"; };
@@ -667,6 +668,7 @@
 		8D4E52F5ED97250804C06C2E /* evidence */ = {
 			isa = PBXGroup;
 			children = (
+				79BF5CB9257149ED4D0C9679 /* core-live-chart.png */,
 				D50F4A02A39E28C349F62F58 /* dictation-waveform.gif */,
 				8CA72B36DF8A756417E9887E /* generated-report.png */,
 				A2D5753614D1CE8D9E702ADC /* imported-file-preview.png */,
