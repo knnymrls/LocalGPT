@@ -15,6 +15,7 @@ struct Conversation: Identifiable, Hashable, Codable, Sendable {
     var revision: Int = 0
     /// Present only for authored onboarding examples; optional for older stored chats.
     var exampleID: String? = nil
+    var exampleVersion: Int? = nil
 
     init(
         id: UUID = UUID(),

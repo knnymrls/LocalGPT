@@ -152,3 +152,9 @@ Four authored, two-exchange chats now replace prompt starters. They appear in or
 The final full deterministic suite passed all 30 tests. The added persistence test covers concurrent installation without duplicates, preservation of an existing chat, valid CSV/PDF/PNG files, no seeded memories, preservation of edits/drafts, and no resurrection after deletion. The seeded CSV totals 80; the PDF contains the added microphone check; the PNG decodes.
 
 In the normal Audio QA Simulator app, the four conversations appeared alongside existing history without starter buttons or a special section. Opening the workshop conversation showed both exchanges and its actual PDF, which was opened and visually inspected. The budget conversation displayed its breakdown; its PNG attachment was opened and visually inspected. This pass does not establish live-model follow-up quality or voice behavior.
+
+## Generated-image previews and composer inputs — October 3, 2026
+
+All 31 deterministic tests passed. The new regression models an older seeded chart with a missing thumbnail and preselected output, then verifies that upgrade removes only the original output selection, preserves an imported selection/title/draft/messages, produces a decodable preview no larger than 360 pixels, retains the original file, and respects a later intentional reselection. New generated PNGs carry thumbnails immediately.
+
+The updated normal Audio QA Simulator build opens the budget conversation with an empty composer and its PNG still linked in the reply. The full chart opens through Quick Look. The blank composer tile in the earlier screenshot was caused by a missing thumbnail on a wrongly preselected output, not a missing PNG original.

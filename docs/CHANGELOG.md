@@ -2,6 +2,12 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Output previews and composer inputs
+
+- Removed automatic output-file selection from preloaded chats and added a one-time repair for already installed chats, preserving user uploads, messages, titles, and drafts.
+- Generated charts and diagrams now include cached image thumbnails; previously generated images receive persisted thumbnails on startup.
+- Outputs remain available in reply receipts and the Outputs sheet without appearing as unsent composer attachments.
+
 ## 2026-10-03 — Preloaded conversations, not prompts
 
 - Corrected the onboarding interpretation: four complete regular chats, each with a follow-up exchange, replace composer prompt starters.

@@ -24,7 +24,8 @@ final class WorkspaceTests: XCTestCase {
         for chat in seeded where chat.exampleID != nil {
             XCTAssertEqual(chat.messages.map(\.role), [.user, .assistant, .user, .assistant])
             XCTAssertTrue(chat.messages.allSatisfy { $0.savedMemoryIDs.isEmpty && $0.steps.isEmpty })
-            XCTAssertEqual(Set(chat.messages.flatMap(\.documentIDs)), chat.selectedSourceIDs)
+            XCTAssertTrue(chat.selectedSourceIDs.isEmpty)
+            XCTAssertEqual(chat.exampleVersion, 2)
         }
         let outputs = try await attachments.all()
         XCTAssertEqual(outputs.count, 3)
@@ -59,6 +60,56 @@ final class WorkspaceTests: XCTestCase {
         let data = try JSONEncoder().encode(personal)
         let decoded = try JSONDecoder().decode(Conversation.self, from: data)
         XCTAssertNil(decoded.exampleID)
+    }
+
+    func testLegacySeedUpgradeClearsOnlyOriginalInputsAndRepairsPNGThumbnail() async throws {
+        let directory = try root()
+        let database = try WorkspaceDatabase(url: directory.appendingPathComponent("workspace.sqlite"))
+        let files = WorkspaceFiles(root: directory)
+        let attachments = LocalAttachmentRepository(database: database, files: files)
+        let conversations = LocalConversationRepository(database: database)
+        let writer = ArtifactWriter(files: files, repository: attachments, database: database)
+        try await ExampleConversationInstaller(database: database, writer: writer).install()
+        let loaded = try await conversations.all()
+        var chart = try XCTUnwrap(loaded.first { $0.id == ExampleConversation.catalog[3].id })
+        let outputID = try XCTUnwrap(chart.messages.last?.documentIDs.first)
+        let importedID = UUID()
+        chart.exampleVersion = nil // Model the already installed version 1 chats.
+        chart.selectedSourceIDs = [outputID, importedID]
+        chart.title = "My chart"
+        chart.draft = "Keep my draft"
+        chart.revision += 1
+        try await conversations.save(chart)
+        let originalFiles = try await attachments.all()
+        var png = try XCTUnwrap(originalFiles.first { $0.id == outputID })
+        XCTAssertNotNil(png.thumbnail, "Newly generated PNGs include a preview immediately")
+        png.thumbnail = nil // Model images generated before thumbnail support.
+        try await attachments.save(png)
+
+        try await ExampleConversationInstaller(database: database, writer: writer).install()
+        let upgradedChats = try await conversations.all()
+        let upgraded = try XCTUnwrap(upgradedChats.first { $0.id == chart.id })
+        XCTAssertEqual(upgraded.selectedSourceIDs, [importedID])
+        XCTAssertEqual(upgraded.title, "My chart")
+        XCTAssertEqual(upgraded.draft, "Keep my draft")
+        XCTAssertEqual(upgraded.messages, chart.messages)
+        XCTAssertEqual(upgraded.exampleVersion, 2)
+        let upgradedFiles = try await attachments.all()
+        let image = try XCTUnwrap(upgradedFiles.first { $0.id == outputID })
+        let thumbnail = try XCTUnwrap(image.thumbnail)
+        let source = try XCTUnwrap(CGImageSourceCreateWithData(thumbnail as CFData, nil))
+        let decoded = try XCTUnwrap(CGImageSourceCreateImageAtIndex(source, 0, nil))
+        XCTAssertLessThanOrEqual(max(decoded.width, decoded.height), 360)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: try XCTUnwrap(image.fileURL).path))
+
+        // Once migrated, an intentional later selection remains selected.
+        var selectedAgain = upgraded
+        selectedAgain.selectedSourceIDs.insert(outputID)
+        selectedAgain.revision += 1
+        try await conversations.save(selectedAgain)
+        try await ExampleConversationInstaller(database: database, writer: writer).install()
+        let again = try await conversations.all()
+        XCTAssertEqual(again.first { $0.id == chart.id }?.selectedSourceIDs, [importedID, outputID])
     }
 
     func testConversationRepetitionIgnoresGreetingButAllowsChangedFactsAndRepeatRequests() {

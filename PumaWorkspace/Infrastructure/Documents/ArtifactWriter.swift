@@ -72,6 +72,7 @@ actor ArtifactWriter {
         var item = Attachment(name:basename+"."+ext,kind:.init(fileExtension:ext),readiness:.ready)
         item.conversationID = conversationID; item.isGenerated = true
         item.previewText = String(text.prefix(12000))
+        if item.kind == .image { item.thumbnail = ImageThumbnail.make(from: data) }
         item.fingerprint = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
         item.fileURL = try files.write(data,id:item.id,name:item.name)
         do {
@@ -88,6 +89,17 @@ actor ArtifactWriter {
             throw error
         }
         return item
+    }
+
+    /// Upgrade previously generated images once; repository URLs resolve against
+    /// the current app sandbox. Persist previews so later launches only read them.
+    func repairImageThumbnails() async throws {
+        for var item in try await repository.all()
+            where item.isGenerated && item.kind == .image && item.thumbnail == nil && item.readiness == .ready {
+            guard let url = item.fileURL, let thumbnail = ImageThumbnail.make(from: url) else { continue }
+            item.thumbnail = thumbnail
+            try await repository.save(item)
+        }
     }
 
     static func pdf(_ content: String) throws -> Data {

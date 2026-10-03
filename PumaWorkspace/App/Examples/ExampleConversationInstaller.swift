@@ -16,8 +16,20 @@ actor ExampleConversationInstaller {
         if let installation { return try await installation.value }
         let database = database, writer = writer
         let task = Task {
+            try await writer.repairImageThumbnails()
+            let existing = try await database.readAll(.conversations, as: Conversation.self)
             let installedAt = Date.now
             for (index, example) in ExampleConversation.catalog.enumerated() {
+                if var conversation = existing.first(where: { $0.id == example.id }),
+                   conversation.exampleID == example.id.uuidString, (conversation.exampleVersion ?? 1) < 2 {
+                    // Version 1 selected seeded outputs as composer inputs. Remove
+                    // only those original files, preserving uploads and later selections.
+                    let seededOutputs = Set(conversation.messages.prefix(4).flatMap(\.documentIDs))
+                    conversation.selectedSourceIDs.subtract(seededOutputs)
+                    conversation.exampleVersion = 2
+                    conversation.revision += 1
+                    try await database.save(conversation, id: conversation.id, in: .conversations, revision: conversation.revision)
+                }
                 guard try await !database.hasRecordOrTombstone(example.id, in: .conversations) else { continue }
                 // Recover only unfinished installation files, never user-owned files.
                 let leftovers = try await database.readAll(.attachments, as: Attachment.self)
@@ -40,10 +52,10 @@ actor ExampleConversationInstaller {
                 let date = installedAt.addingTimeInterval(-Double(index))
                 var conversation = Conversation(id: example.id, title: example.title,
                     createdAt: date, updatedAt: date, messages: example.messages,
-                    selectedSourceIDs: Set(output.map { [$0.id] } ?? []),
                     modelID: SystemModelCatalog.modelID,
                     notes: "This chat begins with an authored, fictional example. Sample details are not facts about the person. Do not save example details to memory. Subsequent questions are live requests.")
                 conversation.exampleID = example.id.uuidString
+                conversation.exampleVersion = 2
                 for i in conversation.messages.indices { conversation.messages[i].createdAt = date }
                 if let output { conversation.messages[conversation.messages.count - 1].documentIDs = [output.id] }
                 try await database.save(conversation, id: conversation.id, in: .conversations)
