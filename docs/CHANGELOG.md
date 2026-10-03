@@ -2,6 +2,12 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Four editable conversation starters
+
+- Replaced the three venue-specific empty-chat suggestions with four self-contained examples: notes to actions, CSV expense tracker, PDF checklist, and budget chart.
+- Added short capability descriptions. Each tap fills the draft; Send invokes the real model and tools. Fictional details explicitly opt out of memory.
+- Added a demo guide with follow-up ideas, other supported use cases, and the distinction between iOS 27 on-device vision and cloud-backed picture generation.
+
 ## 2026-10-03 — LocalGPT name
 
 - Renamed the installed app display name, drawer heading, assistant identity, and current product documentation to LocalGPT.

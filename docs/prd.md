@@ -33,6 +33,8 @@ Typing, dictation, and voice conversation share the active chat, draft, sources,
 
 ## Demonstration
 
+An empty chat offers four immediately usable conversation starters with editable fictional input: organize notes, build a CSV expense tracker, create a PDF checklist, and render a budget chart. See [demo guide](demo-guide.md) for follow-up ideas and additional use cases.
+
 1. Import two venue proposals and ask for capacity, price, and accessibility in a table.
 2. Open a citation and inspect the original supporting passage.
 3. Change the required seated capacity and ask which venue still qualifies. Unspecified accessibility remains unknown.

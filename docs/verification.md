@@ -136,3 +136,11 @@ The generated PDF was opened from the final reply and visually inspected. It pre
 The synthetic seating requirement was edited through its saved-memory sheet from 140 to 150 guests. The record retained the original quote, and a new chat with no sources answered 150. After an intentional terminate/relaunch, Memories still displayed the edited value and the active composer retained its unsent draft. Entering and finishing dictation also retained that draft without adding a user message. This checks UI state transitions, not successful microphone transcription.
 
 <img src="evidence/memory-edit.png" width="280" alt="Edited memory with the original quote preserved"> <img src="evidence/memory-edited-recall.png" width="280" alt="New chat recalls the edited 150-person requirement">
+
+## Editable starters — October 3, 2026
+
+The final four catalog prompts passed a focused real-model check on iOS 26.5 Simulator with Xcode 26.6: notes retained the three owners, tasks, and deadlines; the generated CSV parsed with a total of 75; the PDF decoded and contained projector and feedback tasks; the PNG decoded as an image. Every prompt explicitly opts out of memory. This is a sample acceptance check, not a general quality benchmark or verification of all suggested follow-ups.
+
+On a fresh normal launch of the installed build in the Audio QA Simulator, all four starter rows fit above the composer. Tapping the PDF starter filled the complete editable draft without creating a message or starting generation. New chat restored the four rows. This UI pass covers the default text size in light mode, not all accessibility sizes or devices.
+
+Earlier candidate prompts exposed omissions in open-ended notes and comparison responses, including a runaway blank-line response. The final notes example uses a short, explicit task; the comparison example was replaced with CSV generation. Those broader model-quality limitations remain unresolved. iOS 27 image understanding has not been integrated or tested in this iOS 26 build.

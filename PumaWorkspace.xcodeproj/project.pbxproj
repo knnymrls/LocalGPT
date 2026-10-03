@@ -101,6 +101,7 @@
 		F13916210E9EFA800B18E3D6 /* ArtifactWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F95B1C946680264CB6F1C5 /* ArtifactWriter.swift */; };
 		F2E96567CCB57CFBEF96A721 /* LiveModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9846906C0D678A1AD0D106 /* LiveModelTests.swift */; };
 		F4227224AF4A9BE0B723C642 /* EvidenceSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F838CDE4CD7023706019E9 /* EvidenceSheet.swift */; };
+		F42614523F9AE1C0B6C93119 /* ConversationStarters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5013442D231534340B618486 /* ConversationStarters.swift */; };
 		F565B92A6393B118A003BE16 /* SearchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C25155E0E64F27CA8FDA34 /* SearchScreen.swift */; };
 		FA7DC7E74F3A9B7A551FFBB9 /* DebugLaunchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C58D7FE7A0BE5DC58C8AA02 /* DebugLaunchState.swift */; };
 		FE2076DBB18D7639897348F1 /* LocalAssistantClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F59FF31F76E861CD855FDF /* LocalAssistantClient.swift */; };
@@ -125,6 +126,7 @@
 
 /* Begin PBXFileReference section */
 		00AAD4BC98DFE86762E844EE /* AssistantClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantClient.swift; sourceTree = "<group>"; };
+		00BDB6EE39272392790D2382 /* 0012-editable-conversation-starters.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0012-editable-conversation-starters.md"; sourceTree = "<group>"; };
 		01C04F9C5EC7806CC946B91B /* MemoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryService.swift; sourceTree = "<group>"; };
 		037948D1FBFD3141A4274054 /* 0001-ui-first-build.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0001-ui-first-build.md"; sourceTree = "<group>"; };
 		0451E0AD385678AAC7D090B6 /* InteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 		4B1C51478622EA0C9194F467 /* FloatingTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingTranscript.swift; sourceTree = "<group>"; };
 		4B312DEAA39571BB5F7BDD11 /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixtures.swift; sourceTree = "<group>"; };
 		4EE72CE8D5819ECCD32CB646 /* WorkspaceSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSheets.swift; sourceTree = "<group>"; };
+		5013442D231534340B618486 /* ConversationStarters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationStarters.swift; sourceTree = "<group>"; };
 		50ACA87F80B00D840EA67497 /* prd.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = prd.md; sourceTree = "<group>"; };
 		523E363663A0D236B03A6CC8 /* PumaWorkspaceTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PumaWorkspaceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		540934395C12FDB5A927354C /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -219,6 +222,7 @@
 		A87CECD9897A7BB95ED36CC9 /* PumaWorkspaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PumaWorkspaceApp.swift; sourceTree = "<group>"; };
 		A988CA266F9D4875DCF773FC /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		AA0E4E7A04E27E5034BAC99F /* LocalDocumentImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDocumentImporter.swift; sourceTree = "<group>"; };
+		AA75313EF3F20128C948F689 /* demo-guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "demo-guide.md"; sourceTree = "<group>"; };
 		AAF0FEB797608FF9E526515B /* MemoryPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryPolicy.swift; sourceTree = "<group>"; };
 		AB0F00E58799ECB6ECE0E0F0 /* Composer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Composer.swift; sourceTree = "<group>"; };
 		AC7B7F93C7C9F2C5F270DA69 /* WorkspaceDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceDatabase.swift; sourceTree = "<group>"; };
@@ -396,6 +400,7 @@
 				E74BEAB45CFD6D2F515C6790 /* 0009-selective-memory-continuous-voice.md */,
 				D26B060ABE596B050ABB1B74 /* 0010-consistent-clear-glass.md */,
 				C79B8233255ED8449AA55883 /* 0011-localgpt-name.md */,
+				00BDB6EE39272392790D2382 /* 0012-editable-conversation-starters.md */,
 			);
 			path = decisions;
 			sourceTree = "<group>";
@@ -577,6 +582,7 @@
 			children = (
 				BCD91F4AB31FD53BCC79E813 /* architecture.md */,
 				FCC0BA31F72D2AEF7CE58BC1 /* CHANGELOG.md */,
+				AA75313EF3F20128C948F689 /* demo-guide.md */,
 				9106AE84B57C3167B4161260 /* design.md */,
 				50ACA87F80B00D840EA67497 /* prd.md */,
 				3C6560DC135959E2CF7DBE0C /* README.md */,
@@ -769,6 +775,7 @@
 			isa = PBXGroup;
 			children = (
 				F7A900DA2A3FD15471135AF3 /* ChatScreen.swift */,
+				5013442D231534340B618486 /* ConversationStarters.swift */,
 				4469FAA331860968143DE54B /* Components */,
 				8353DD1FAFA14D60F1AB0141 /* State */,
 			);
@@ -1016,6 +1023,7 @@
 				57F3539D7BB5050BAC8272F9 /* Conversation.swift in Sources */,
 				36B5E70EEE0DCDA1B16F3A18 /* ConversationContext.swift in Sources */,
 				7814A66592725C4F6C7272EF /* ConversationResponder.swift in Sources */,
+				F42614523F9AE1C0B6C93119 /* ConversationStarters.swift in Sources */,
 				FA7DC7E74F3A9B7A551FFBB9 /* DebugLaunchState.swift in Sources */,
 				D6702B82F769DDACE0F7EABC /* DictationBars.swift in Sources */,
 				944801313723D40DF0904DE8 /* DocumentImporter.swift in Sources */,

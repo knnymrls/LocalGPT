@@ -6,24 +6,24 @@ struct SuggestionList: View {
     @Environment(ChatSessionStore.self) private var chat
     @State private var taps = 0
 
-    private static let items: [(icon: NucleoIcon, text: String)] = [
-        (.ai, "Compare the two venues"),
-        (.search, "What's missing from the proposals"),
-        (.images, "Summarize the screenshot update"),
-    ]
-
     var body: some View {
         VStack(alignment: .leading, spacing: pt(8)) {
-            ForEach(Self.items, id: \.text) { item in
+            ForEach(ConversationStarter.examples) { item in
                 Button {
                     taps += 1
-                    chat.applySuggestion(item.text)
+                    chat.applySuggestion(item.prompt)
                 } label: {
-                    HStack(spacing: pt(8)) {
+                    HStack(spacing: pt(12)) {
                         Icon(item.icon, size: 20)
-                        Text(item.text)
-                            .font(.text)
-                            .foregroundStyle(Tokens.foreground)
+                        VStack(alignment: .leading, spacing: pt(3)) {
+                            Text(item.title)
+                                .font(.text)
+                                .foregroundStyle(Tokens.foreground)
+                            Text(item.detail)
+                                .font(.caption)
+                                .foregroundStyle(Tokens.foregroundMuted)
+                        }
+                        .multilineTextAlignment(.leading)
                     }
                     .padding(.leading, pt(14))
                     .padding(.trailing, pt(8))
@@ -31,7 +31,8 @@ struct SuggestionList: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.pressable)
-                .accessibilityLabel(Text(item.text))
+                .accessibilityLabel(Text(item.title))
+                .accessibilityHint(Text("\(item.detail). Adds an editable example to the message field."))
             }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: taps)

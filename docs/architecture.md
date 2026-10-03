@@ -50,6 +50,8 @@ Application Support contains `workspace.sqlite`, durable originals/generated fil
 
 ## Assistant requests
 
+`ConversationStarter.examples` holds four presentation-level example prompts and their labels. `SuggestionList` writes the selected prompt into the existing shared draft. Sending uses the same inference/tool path as authored text. Samples contain explicit memory opt-outs; no fixture services or seeded replies are involved.
+
 Ordinary chat restores bounded complete turns as native Foundation Models `Transcript` prompt/response entries. The current message is sent once, separately; failed/streaming answers never become completed model history. The context budget removes whole oldest turns. A request owns its reconstructed session, so retries, cancellation, and chat changes cannot leak state.
 
 Conversation responses are checked for substantial repetition of recent answers to different prompts. Short answers are held briefly while checked; a repeated answer gets one fresh model attempt retaining user context but excluding prior assistant prose. An explicit repeat request bypasses this check. Numeric and polarity changes are not treated as copies. If recovery also repeats, the app reports a failure rather than presenting the repeated answer as successful. This bounds one observed failure mode; it does not establish broad conversational quality.
