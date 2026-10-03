@@ -1,6 +1,17 @@
 # Verification — 2026-10-03
 
-## Current core acceptance — 2026-10-03, source 74f84a4
+## Current architecture cleanup acceptance — source 45bd05d
+
+On Xcode 26.6 / iOS 26.5, **39 deterministic tests and all 19 live integration tests pass, with no failures or skips**, followed by a successful generic Simulator **Release** build. The committed state/orchestration files also pass strict Swift formatter checks. No database migration or model-prompt change was introduced.
+
+New deterministic coverage exercises replaced import failures, deleted imports' late completions, stable attachment order, canceled/replaced memory receipts, concurrent memory deduplication, active conversation/draft invariants, and output capability isolation. The additional live check creates a chart and then revises its values without repeating the output type; the second file is a distinct readable image with Monday 15 and Friday 20. An initial assertion incorrectly required an exact label spelling; it now parses each rendered label/value row and checks the actual numeric values.
+
+Normal Simulator UI review confirmed existing history, the inline chart, and an unsent draft after relaunch; starting a new chat; opening the drawer and switching back with the original draft retained; and Read Aloud's visible playback controls appearing and dismissing through the injected reader. The app remains installed on **Puma – Audio QA**.
+
+Model-quality limit observed during that UI check: after being told the project was called Birch, the response gave the right name but incorrectly added that LocalGPT was developing it. This is not semantic acceptance of every reply. The unchanged model/context limits, live-microphone gate, and disconnected-physical-device gate below still apply. Whole-conversation storage and bounded intent parsing remain deliberate prototype limits, documented in decision 0017.
+
+
+## Previous core acceptance — 2026-10-03, source 74f84a4
 
 On Xcode 26.6 / iOS 26.5, the dedicated **Puma – Audio QA** Simulator completed **32 deterministic checks and all 18 live checks with no failures or skips**. The live suite used the real local model for ordinary conversation, source-backed comparison and revision, selective memory, CSV calculations, and real PDF/CSV/R/PNG outputs. Two recorded voice turns used actual recognition, inference, and synthesis, and returned to listening. Recorded input is not live microphone acceptance.
 
