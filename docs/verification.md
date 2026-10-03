@@ -54,3 +54,9 @@ Whisper model assets occupied approximately 149 MB after installation; tokenizer
 Use the commands in [README](../README.md). The default scheme does not require a model or network. `PumaWorkspaceLiveChecks` requires available Foundation Models and local speech assets; a missing system model skips its model-dependent cases with an explicit reason. The recorded-audio case tests speech separately and may acquire public assets on first use.
 
 Run automated tests before manual Simulator inspection: Xcode intentionally relaunches the test host. For a manual pass, launch the app without `-preview`/`-uiState`, then follow the PRD demonstration. Turn off capture when finished.
+
+## Simulator memory receipt
+
+Synthetic venue-preference test, normal live services, after retry and relaunch. The receipt opens the exact saved quote and its controls.
+
+<img src="evidence/memory-chat.png" width="280" alt="Chat with a saved memory receipt"> <img src="evidence/memory-detail.png" width="280" alt="The saved memory detail sheet">
