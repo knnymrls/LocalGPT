@@ -115,6 +115,22 @@ final class WorkspaceTests: XCTestCase {
         XCTAssertTrue(MemoryPolicy.shouldSave(.init(text: budget, evidence: budget, kind: .explicitlyRequested), in: "Remember that " + budget))
     }
 
+    func testMemoryClausesSeparateIndependentFactsWithoutDroppingQualifications() {
+        XCTAssertEqual(MemoryExtractor.clauses(in: "I prefer quiet venues and my event budget is 4200 dollars."), ["I prefer quiet venues", "my event budget is 4200 dollars."])
+        let qualified = "I prefer quiet venues and outdoor seating only when it is warm."
+        XCTAssertEqual(MemoryExtractor.clauses(in: qualified), [qualified])
+    }
+
+    func testExplicitMemoryCommandIsGroundedWithoutItsRequestPrefix() {
+        let message = "Please remember that my event budget is 4200 dollars."
+        let extracted = ExtractedMemory(text: "my event budget is 4200 dollars", evidence: message, kind: .explicitlyRequested)
+        let quote = MemoryExtractor.factQuote(extracted)
+        XCTAssertEqual(quote, "my event budget is 4200 dollars.")
+        XCTAssertTrue(MemoryPolicy.shouldSave(.init(text: quote, evidence: quote, kind: .explicitlyRequested), in: message))
+        XCTAssertFalse(MemoryPolicy.shouldSave(.init(text: quote, evidence: quote, kind: .explicitlyRequested), in: quote))
+        XCTAssertFalse(MemoryPolicy.shouldSave(.init(text: quote, evidence: quote, kind: .explicitlyRequested), in: message + " Do not save this."))
+    }
+
     func testMemoryRejectsQuestionsEvenWhenModelDropsPunctuation() {
         let message = "Now we need seating for 140 guests. Which venue qualifies, and what accessibility information still needs checking?"
         let fact = "Now we need seating for 140 guests"

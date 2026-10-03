@@ -2,6 +2,13 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Apple model recovery and grounded memory selection
+
+- Confirmed real model inference after host Apple Intelligence setup completed.
+- Separated independent first-person clauses for extraction, so a temporary budget does not suppress an adjacent lasting preference.
+- Removed a leading explicit memory command before fact grounding; source evidence, opt-outs, and consent checks still apply.
+- Corrected the repeated-voice-fact check to require the original committed receipt and no duplicate save. See verification.md for observed results and remaining microphone/offline limits.
+
 ## 2026-10-03 — Dictation, waveform, shimmer, and Read Aloud
 
 - Kept dictation active across sentence boundaries and quiet capture windows. Finish now flushes remaining audio before returning to typing; a stalled flush preserves the existing draft and reports the problem.

@@ -242,7 +242,10 @@ final class LiveModelTests: XCTestCase {
         XCTAssertEqual(chat.messages.filter { $0.role == .user }.count, 2)
         XCTAssertTrue(chat.messages.first?.text.localizedCaseInsensitiveContains("quiet gardens") == true)
         XCTAssertEqual(chat.messages.last?.status, .complete)
-        XCTAssertFalse(chat.messages.last?.savedMemoryIDs.isEmpty ?? true)
+        let receiptIDs = chat.messages.filter { $0.role == .assistant }.flatMap(\.savedMemoryIDs)
+        XCTAssertFalse(receiptIDs.isEmpty, "The originating reply must carry the committed memory receipt")
+        XCTAssertTrue(receiptIDs.allSatisfy { id in chat.memories.contains { $0.id == id } })
+        XCTAssertTrue(chat.messages.last?.savedMemoryIDs.isEmpty == true, "Repeating the same fact must not claim another memory was saved")
         let played = await speech.probe.playbackCount
         let spoke = await speech.probe.sawSpeechRange
         XCTAssertEqual(played, 2, "Both real synthesis passes must finish before returning to listening")

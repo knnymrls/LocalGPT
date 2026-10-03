@@ -1,13 +1,21 @@
 # Verification — 2026-10-03
 
-## Current revision — dictation and playback feedback
+## Current revision — Apple model assets restored
+
+After Apple Intelligence was enabled on the host Mac and its assets became usable, a real Simulator reply succeeded. The missing-model-catalog failure is no longer reproduced.
+
+The full 13-case integration run then exposed memory false negatives: a broad quote mixed a lasting preference with a temporary budget, and a leading “Please remember” was rejected as an ordinary request. Extraction now presents independent first-person clauses and strips only the explicit memory-command prefix before grounding. Existing conservative policy gates remain. The voice test also incorrectly expected a new receipt on a repeated fact; it now checks the originating committed receipt and no duplicate receipt.
+
+All 27 deterministic tests pass on the repaired revision. The four affected live checks pass together after that repair: explicit/lasting memory, mixed preference/budget extraction and recall, temporary-context rejection, and two recorded voice turns with the real model and actual speech playback. The other nine cases passed in the preceding full run; a single all-green 13-case run on the final revision has not been claimed. Microphone capture is still replaced by recorded PCM in the voice check.
+
+## Previous revision — dictation and playback feedback
 
 - **Deterministic checks:** 25 tests pass. Dictation accumulates sentences across capture windows and silence, stays separate from sending, and flushes the last transcript on Finish. Microphone level mapping and the smoothed visual envelope are covered.
 - **Actual audio services:** three targeted checks pass together: finishing recorded dictation flushes pending PCM through Whisper; Read Aloud speaks two consecutive replies with system synthesis callbacks and completion; two recorded voice turns use real recognition and synthesis with scripted assistant replies and return to listening.
 - **Visual checks:** the Thinking highlight visibly moves across its text; dictation bars respond and scroll. A DEBUG mock-input session remained dictating for over a minute without sending a message, then Finish restored the composer. The GIFs below use DEBUG fixtures, not live microphone input.
 - **Release:** the generic Simulator Release build passes. Manual checks use a separate “Puma – Audio QA” Simulator so the user's existing session is undisturbed.
 - **Asset preparation:** the first audio run timed out while acquiring speech assets; subsequent checks prepare assets before measuring conversational behavior. This is not a first-install latency claim.
-- **Limits:** full microphone-to-model conversation and disconnected-network acceptance remain pending. The previously observed Apple model-catalog blocker below has not been retested in this audio-focused pass.
+- **Limits:** full microphone-to-model conversation and disconnected-network acceptance remain pending. The Apple model-catalog blocker was subsequently resolved as described above.
 
 <img src="evidence/thinking-shimmer.gif" width="280" alt="DEBUG Thinking highlight moving across the label"> <img src="evidence/dictation-waveform.gif" width="280" alt="DEBUG dictated draft and waveform responding to mock input">
 
@@ -18,7 +26,7 @@ Kenny’s latest feedback supersedes broad automatic memory and the detailed Edi
 - **Deterministic checks:** 23 tests pass, including two voice turns, playback/capture ordering, quiet recognizer rollover, mute and keyboard handoff, long pre-speech silence, and rejection of temporary/task memory candidates.
 - **Audio integration:** two recorded speech turns pass with real Whisper recognition and Apple speech synthesis, using explicitly scripted assistant replies to isolate audio from model availability. After both replies the controller remains listening and the audio category remains play-and-record.
 - **Release:** the generic Simulator Release build passes.
-- **Current model-runtime blocker:** the expanded live suite fails because Apple’s runtime reports missing model-catalog assets (`com.apple.UnifiedAssetFramework`, code 5000) despite reporting the system model available. One restart of the dedicated Simulator did not recover it. New memory classification and two-turn real-model integration therefore remain unverified on this revision. Earlier successful inference runs below are historical evidence, not a pass for this changed policy.
+- **Earlier model-runtime blocker (subsequently resolved):** the expanded live suite fails because Apple’s runtime reports missing model-catalog assets (`com.apple.UnifiedAssetFramework`, code 5000) despite reporting the system model available. One restart of the dedicated Simulator did not recover it. New memory classification and two-turn real-model integration therefore remain unverified on this revision. Earlier successful inference runs below are historical evidence, not a pass for this changed policy.
 
 ## Environment
 
