@@ -25,6 +25,7 @@ final class VoiceSessionController {
     /// Dictation: speech goes into the draft, the composer stays in text mode,
     /// and nothing is sent.
     private(set) var isDictating = false
+    private(set) var isFinishingDictation = false
 
     var isActive: Bool { state != .idle }
     var isMuted: Bool { state == .muted }
@@ -43,6 +44,7 @@ final class VoiceSessionController {
     @ObservationIgnored private var session = UUID()
     @ObservationIgnored private var conversationID: UUID?
     @ObservationIgnored private var conversationTask: Task<Void, Never>?
+    @ObservationIgnored private var dictationFinishTask: Task<Void, Never>?
 
     init(speech: any SpeechClient, chat: ChatSessionStore) {
         self.speech = speech
@@ -53,7 +55,7 @@ final class VoiceSessionController {
 
     func start() {
         guard !isActive else { return }
-        stopDictation()
+        if isDictating { exit() }
         session = UUID()
         SpeechReader.shared.stop()
         startEnvelope()
@@ -74,6 +76,8 @@ final class VoiceSessionController {
     /// Leaves voice mode; transcript stays in the draft and is never sent.
     func exit() {
         isDictating = false
+        isFinishingDictation = false
+        dictationFinishTask?.cancel(); dictationFinishTask = nil
         conversationTask?.cancel(); conversationTask = nil
         if let id = conversationID {
             conversationID = nil
@@ -103,6 +107,12 @@ final class VoiceSessionController {
         session = UUID()
         isDictating = true
         startEnvelope()
+        listenForDictation()
+    }
+
+    private func listenForDictation() {
+        captureTask?.cancel()
+        session = UUID()
         let current = chat.draft.trimmingCharacters(in: .whitespacesAndNewlines)
         draftPrefix = current.isEmpty ? "" : current + " "
         let stream = speech.listen()
@@ -113,14 +123,28 @@ final class VoiceSessionController {
                 self.handle(event)
             }
             guard let self, self.session == token, self.isDictating, !Task.isCancelled else { return }
-            self.stopDictation()
+            if self.isFinishingDictation { self.exit(); return }
+            do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
+            guard self.session == token, self.isDictating else { return }
+            if self.isFinishingDictation { self.exit() } else { self.listenForDictation() }
         }
     }
 
-    /// Ends dictation and keeps whatever was transcribed in the draft.
+    /// Finish flushes the last audio; sentence boundaries and quiet windows never stop dictation.
     func stopDictation() {
-        guard isDictating else { return }
-        exit()
+        guard isDictating, !isFinishingDictation else { return }
+        isFinishingDictation = true
+        let token = session
+        dictationFinishTask = Task { [weak self, speech] in
+            guard !Task.isCancelled else { return }
+            let flushing = await speech.finishListening()
+            guard let self, self.session == token, self.isDictating, !Task.isCancelled else { return }
+            if !flushing { self.exit(); return }
+            do { try await Task.sleep(for: .seconds(12)) } catch { return }
+            guard self.session == token, self.isFinishingDictation else { return }
+            self.exit()
+            self.chat.operationError = "Dictation could not finish the remaining audio. The text already transcribed is still in your draft."
+        }
     }
 
     func toggleMute() {
@@ -171,9 +195,8 @@ final class VoiceSessionController {
             case .level(let level): targetLevel = level
             case .partial(let text): chat.draft = draftPrefix + text
             case .final(let text):
-                chat.draft = draftPrefix + text
-                stopDictation()
-            case .unavailable(let reason): stopDictation(); chat.operationError = reason
+                if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { chat.draft = draftPrefix + text }
+            case .unavailable(let reason): exit(); chat.operationError = reason
             }
             return
         }

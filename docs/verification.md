@@ -1,6 +1,17 @@
 # Verification — 2026-10-03
 
-## Current revision — selective memory and continuous voice
+## Current revision — dictation and playback feedback
+
+- **Deterministic checks:** 25 tests pass. Dictation accumulates sentences across capture windows and silence, stays separate from sending, and flushes the last transcript on Finish. Microphone level mapping and the smoothed visual envelope are covered.
+- **Actual audio services:** three targeted checks pass together: finishing recorded dictation flushes pending PCM through Whisper; Read Aloud speaks two consecutive replies with system synthesis callbacks and completion; two recorded voice turns use real recognition and synthesis with scripted assistant replies and return to listening.
+- **Visual checks:** the Thinking highlight visibly moves across its text; dictation bars respond and scroll. A DEBUG mock-input session remained dictating for over a minute without sending a message, then Finish restored the composer. The GIFs below use DEBUG fixtures, not live microphone input.
+- **Release:** the generic Simulator Release build passes. Manual checks use a separate “Puma – Audio QA” Simulator so the user's existing session is undisturbed.
+- **Asset preparation:** the first audio run timed out while acquiring speech assets; subsequent checks prepare assets before measuring conversational behavior. This is not a first-install latency claim.
+- **Limits:** full microphone-to-model conversation and disconnected-network acceptance remain pending. The previously observed Apple model-catalog blocker below has not been retested in this audio-focused pass.
+
+<img src="evidence/thinking-shimmer.gif" width="280" alt="DEBUG Thinking highlight moving across the label"> <img src="evidence/dictation-waveform.gif" width="280" alt="DEBUG dictated draft and waveform responding to mock input">
+
+## Previous revision — selective memory and continuous voice
 
 Kenny’s latest feedback supersedes broad automatic memory and the detailed Edit/Forget sheet. Current memory selection is limited to lasting context or explicit requests; current sheets show only saved text. Voice owns an ongoing foreground audio session across turns and quiet windows.
 
@@ -55,7 +66,7 @@ Whisper model assets occupied approximately 149 MB after installation; tokenizer
 - **Images:** Vision OCR reads image text. General scene reasoning and AI picture generation are not supported in this build.
 - **Context:** recent history and memories are bounded; up to six selected sources per request. Retrieval is lexical FTS, not semantic embeddings. Long/complex documents can exceed the local model's budget and return an actionable error.
 - **Evidence:** references must name retrieved passages. This validates provenance, not factual entailment; inspect the excerpt. A “Sources read” fallback explicitly signals when inline attribution was not produced.
-- **Memory:** extraction is probabilistic. Stored context requires a verbatim user quote; edit/forget remain available. Forget removes the memory record, while original chat messages remain. Deleting a chat does not implicitly forget its already-saved global memories.
+- **Memory:** extraction is probabilistic. Stored context requires a verbatim user quote. Remove in the memory list’s long-press menu removes the memory record, while original chat messages remain. Deleting a chat does not implicitly forget its already-saved global memories.
 - **History:** conversation payloads currently load in full. Large-history pagination is future work.
 - **Formats:** Office files require export to PDF/text/CSV. R files are not executed. Charts are bounded nonnegative bar charts and diagrams are ordered flows.
 - **UI:** broad accessibility, large text, all device sizes, and complete light/dark regression checks remain beyond the observed Simulator pass.

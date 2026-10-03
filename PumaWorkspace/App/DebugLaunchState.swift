@@ -4,7 +4,7 @@ import Foundation
 /// Opens a specific UI state for review screenshots: `-uiState <name>`.
 /// Names: empty, drawer, history, streaming, stopped, failed, comparison, revised,
 /// sources, outputs, voice, voiceReply, micUnavailable, evidence,
-/// evidenceMissing, memory, liveCompare, liveVoice.
+/// evidenceMissing, memory, liveCompare, liveVoice, thinking, dictation.
 @MainActor
 enum DebugLaunchState {
     static var requested: String? {
@@ -27,6 +27,14 @@ enum DebugLaunchState {
         ]
 
         switch state {
+        case "thinking":
+            chat.debugSeed(messages: [
+                Message(role: .user, text: "Help me plan the day"),
+                Message(role: .assistant, text: "", modelID: model, status: .streaming),
+            ], title: "Thinking preview")
+        case "dictation":
+            chat.debugSeed(messages: [], title: "Dictation preview")
+            // Tap Dictate after the seeded conversation has mounted.
         case "drawer":
             navigation.drawerOpen = true
         case "history":

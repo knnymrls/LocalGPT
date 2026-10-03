@@ -69,6 +69,7 @@
 		A60FCBF4B7736F6B2E4D7108 /* ReplyFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224DFF6A970B65BE4839BE76 /* ReplyFooter.swift */; };
 		A70EC450D3B4AE79E2F87E54 /* ComparisonCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F6ED3D049F4FAD96FFBB32 /* ComparisonCard.swift */; };
 		ACD1EA76F0DE88B7862D5597 /* NucleoIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 861B130E2D38376A280C52EE /* NucleoIcons.swift */; };
+		ADE2DC2364894572D3FBE74D /* MicrophoneLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388B13F1F086451E2167CBC0 /* MicrophoneLevel.swift */; };
 		ADEC11776359BA6E7E844ECE /* SourcePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CD3B7F6E3197940548E072 /* SourcePickers.swift */; };
 		B8EE9BA7A5015534E5FC8E09 /* Repositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C44A1552E169DF5E5A1C5C /* Repositories.swift */; };
 		BBDC6BAEBBA28C55FF8F535D /* AttachmentKind+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53761F5E5DDEDE28D817C2 /* AttachmentKind+Display.swift */; };
@@ -151,6 +152,7 @@
 		3453B5C97F2C184348697AFB /* InMemoryRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryRepositories.swift; sourceTree = "<group>"; };
 		368CF789D6D0746295564617 /* memory-detail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "memory-detail.png"; sourceTree = "<group>"; };
 		37E9E8C32A2D20042209AA5B /* costs.csv */ = {isa = PBXFileReference; path = costs.csv; sourceTree = "<group>"; };
+		388B13F1F086451E2167CBC0 /* MicrophoneLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneLevel.swift; sourceTree = "<group>"; };
 		3A0CC7C365E6FF5A583E29E8 /* memory-chat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "memory-chat.png"; sourceTree = "<group>"; };
 		3C6560DC135959E2CF7DBE0C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3D011267750AF0D8F216728F /* SuggestionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionList.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 		CBEF13333E029C0141EFD385 /* WorkspaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTests.swift; sourceTree = "<group>"; };
 		CFB855044636638B46CD590F /* MemoriesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoriesSheet.swift; sourceTree = "<group>"; };
 		D2DF567E1BD1891342770270 /* DocumentImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentImporter.swift; sourceTree = "<group>"; };
+		D50F4A02A39E28C349F62F58 /* dictation-waveform.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "dictation-waveform.gif"; sourceTree = "<group>"; };
 		D59324BF4258105DA7B83204 /* PumaWorkspace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PumaWorkspace.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9867F32F41AAEA9DEA1BF4B /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		D9AC20F4BB22DE7715B21660 /* GlassSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSurface.swift; sourceTree = "<group>"; };
@@ -250,6 +253,7 @@
 		ED1F945D876E07632DE965B2 /* CSVTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVTable.swift; sourceTree = "<group>"; };
 		EE59823779FFFED6A668F694 /* MemoryExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryExtractor.swift; sourceTree = "<group>"; };
 		F36FFD132A78BCE4D8B117A7 /* ProgressiveBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressiveBlur.swift; sourceTree = "<group>"; };
+		F5577CD834702A15C1750565 /* thinking-shimmer.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "thinking-shimmer.gif"; sourceTree = "<group>"; };
 		F5747FF40BB0C7AF7A669934 /* SheetScaffold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetScaffold.swift; sourceTree = "<group>"; };
 		F5FB34440B0804557EA76C38 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		F6FD5F9FFB9CB13EB2F486F4 /* WorkDisclosure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkDisclosure.swift; sourceTree = "<group>"; };
@@ -392,6 +396,7 @@
 				D9867F32F41AAEA9DEA1BF4B /* .gitkeep */,
 				7D2C396887CA60E87294237E /* AnalyzerCapture.swift */,
 				806BA4DF53E0296B5B73CF37 /* LocalSpeechClient.swift */,
+				388B13F1F086451E2167CBC0 /* MicrophoneLevel.swift */,
 				EA15F45DFC48A2A2313A0D55 /* SpeechReader.swift */,
 				E49676565F84B93E0B2EB094 /* WhisperCapture.swift */,
 				C97EAE1502B9B39A90A7EE93 /* WhisperRuntime.swift */,
@@ -614,6 +619,7 @@
 		8D4E52F5ED97250804C06C2E /* evidence */ = {
 			isa = PBXGroup;
 			children = (
+				D50F4A02A39E28C349F62F58 /* dictation-waveform.gif */,
 				8CA72B36DF8A756417E9887E /* generated-report.png */,
 				A2D5753614D1CE8D9E702ADC /* imported-file-preview.png */,
 				3A0CC7C365E6FF5A583E29E8 /* memory-chat.png */,
@@ -622,6 +628,7 @@
 				5AA8C421BEADB20F3EAEADA5 /* memory-edited-recall.png */,
 				3039A474CC1C527539A7BBC7 /* source-citation.png */,
 				C4AB52AB28CB979DB67C1356 /* source-revision.png */,
+				F5577CD834702A15C1750565 /* thinking-shimmer.gif */,
 			);
 			path = evidence;
 			sourceTree = "<group>";
@@ -1019,6 +1026,7 @@
 				87CFA902579700F70ED3AB02 /* MemoryPolicy.swift in Sources */,
 				5441D14E1A4067F88C118E20 /* MemoryProposalSheet.swift in Sources */,
 				2C103F538A01F2CE1BB86A98 /* MemoryService.swift in Sources */,
+				ADE2DC2364894572D3FBE74D /* MicrophoneLevel.swift in Sources */,
 				93FCCE8F20D745BB07776295 /* MockAssistantClient.swift in Sources */,
 				15BF4B76A7EBF79A3F180BE4 /* MockSpeechClient.swift in Sources */,
 				967AB76E7A302F499482B97D /* NavigationState.swift in Sources */,

@@ -6,6 +6,7 @@ import Foundation
 struct LocalSpeechClient: SpeechClient {
     func beginConversation(id: UUID) async { await LocalAudioSession.shared.beginConversation(id: id) }
     func endConversation(id: UUID) async { await LocalAudioSession.shared.endConversation(id: id) }
+    func finishListening() async -> Bool { await LocalAudioSession.shared.finishListening() }
 
     func listen() -> AsyncStream<TranscriptEvent> {
         let id = UUID()
@@ -120,7 +121,7 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
                 guard let samples = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return }
                 var sum: Float = 0
                 for i in 0..<Int(buffer.frameLength) { sum += samples[i] * samples[i] }
-                let level = min(1, Double(sqrt(sum / Float(buffer.frameLength))) * 8)
+                let level = MicrophoneLevel.normalized(rms: Double(sqrt(sum / Float(buffer.frameLength))))
                 stream.yield(.level(level))
             }
             self.engine = engine
@@ -173,6 +174,12 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
                 self.emitFinal(id: id)
             }
         } else { emitFinal(id: id) }
+    }
+
+    func finishListening() -> Bool {
+        guard !Task.isCancelled, let id = captureID else { return false }
+        finish(id: id)
+        return true
     }
 
     private func emitFinal(id: UUID) {

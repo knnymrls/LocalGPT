@@ -163,6 +163,57 @@ final class InteractionTests: XCTestCase {
         XCTAssertTrue(buffer.snapshot().ended)
     }
 
+    func testDictationContinuesAcrossSentencesAndQuietWindowsThenFlushesOnFinish() async throws {
+        let speech = CallSpeech()
+        let chat = ChatSessionStore(container: makeContainer(speech: speech))
+        await chat.load()
+        let voice = VoiceSessionController(speech: speech, chat: chat)
+        defer { voice.exit() }
+        chat.draft = "Typed introduction."
+        voice.startDictation()
+        await settle()
+        for sentence in ["First sentence.", "Second sentence."] {
+            await speech.partial(String(sentence.prefix(5)))
+            await settle()
+            await speech.finishInput(sentence)
+            try await Task.sleep(for: .milliseconds(350))
+            XCTAssertTrue(voice.isDictating, "A sentence boundary must not end dictation")
+        }
+        await speech.finishInput(nil)
+        try await Task.sleep(for: .milliseconds(350))
+        XCTAssertTrue(voice.isDictating, "A quiet capture window must not end dictation")
+        XCTAssertEqual(chat.draft, "Typed introduction. First sentence. Second sentence.")
+        await speech.partial("Third sentence")
+        await speech.setFinishText("Third sentence completed.")
+        await settle()
+        voice.stopDictation()
+        XCTAssertTrue(voice.isFinishingDictation)
+        await settle()
+        XCTAssertFalse(voice.isDictating)
+        XCTAssertEqual(chat.draft, "Typed introduction. First sentence. Second sentence. Third sentence completed.")
+        XCTAssertTrue(chat.messages.isEmpty, "Dictation must never submit a turn")
+    }
+
+    func testMicrophoneLevelsDriveTheDictationEnvelope() async throws {
+        XCTAssertEqual(MicrophoneLevel.normalized(rms: 0), 0)
+        XCTAssertEqual(MicrophoneLevel.normalized(rms: .nan), 0)
+        XCTAssertGreaterThan(MicrophoneLevel.normalized(rms: 0.01), 0.3, "Quiet speech should produce visible bars")
+        XCTAssertLessThanOrEqual(MicrophoneLevel.normalized(rms: 1), 1)
+        let speech = CallSpeech()
+        let chat = ChatSessionStore(container: makeContainer(speech: speech))
+        await chat.load()
+        let voice = VoiceSessionController(speech: speech, chat: chat)
+        defer { voice.exit() }
+        voice.startDictation()
+        await settle()
+        await speech.level(0.7)
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertGreaterThan(voice.energy, 0.5)
+        await speech.level(0)
+        try await Task.sleep(for: .milliseconds(500))
+        XCTAssertLessThan(voice.energy, 0.2)
+    }
+
     private func makeContainer(speech: any SpeechClient, assistant: any AssistantClient = ControlledAssistant()) -> AppContainer {
         AppContainer(assistant: assistant, speech: speech, conversations: InMemoryConversationRepository([]),
                      attachments: InMemoryAttachmentRepository([]), memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
@@ -175,6 +226,7 @@ private actor CallSpeech: SpeechClient {
     private(set) var inputs: [AsyncStream<TranscriptEvent>.Continuation] = []
     private var playback: AsyncStream<PlaybackEvent>.Continuation?
     private(set) var conversationID: UUID?
+    private var finishText: String?
     func beginConversation(id: UUID) { conversationID = id }
     func endConversation(id: UUID) { if conversationID == id { conversationID = nil } }
     nonisolated func listen() -> AsyncStream<TranscriptEvent> {
@@ -182,6 +234,9 @@ private actor CallSpeech: SpeechClient {
     }
     private func addInput(_ stream: AsyncStream<TranscriptEvent>.Continuation) { inputs.append(stream); stream.yield(.ready) }
     func partial(_ text: String) { inputs.last?.yield(.partial(text)) }
+    func level(_ value: Double) { inputs.last?.yield(.level(value)) }
+    func setFinishText(_ text: String) { finishText = text }
+    func finishListening() -> Bool { finishInput(finishText); return true }
     func finishInput(_ text: String?) { if let text { inputs.last?.yield(.final(text)) }; inputs.last?.finish() }
     nonisolated func speak(_ text: String) -> AsyncStream<PlaybackEvent> {
         AsyncStream { stream in Task { await self.setPlayback(stream) } }

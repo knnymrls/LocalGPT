@@ -15,6 +15,8 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
     private(set) var isPaused = false
     private(set) var elapsed: TimeInterval = 0
     private(set) var speed: Double = 1
+    private(set) var failure: String?
+    private(set) var spokenRangeCount = 0
 
     @ObservationIgnored private let synthesizer = AVSpeechSynthesizer()
     @ObservationIgnored private var text = ""
@@ -24,6 +26,7 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
     /// Marks the current utterance, so a replaced one ending is ignored.
     @ObservationIgnored private var utterance: AVSpeechUtterance?
     @ObservationIgnored private var clock: Task<Void, Never>?
+    @ObservationIgnored private var watchdog: Task<Void, Never>?
 
     /// About how many characters the voice reads in a second at 1x.
     private static let charactersPerSecond = 15.0
@@ -40,15 +43,17 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
         }
         stop()
         guard !text.isEmpty else { return }
+        failure = nil
+        spokenRangeCount = 0
         self.text = text
         speakingID = id
         elapsed = 0
-        speak(from: 0)
+        guard speak(from: 0) else { return }
         clock = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard let self, self.speakingID != nil else { return }
-                if !self.isPaused { self.elapsed += 0.25 }
+                if !self.isPaused, self.spokenRangeCount > 0 { self.elapsed += 0.25 }
             }
         }
     }
@@ -56,9 +61,11 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
     func togglePause() {
         guard speakingID != nil else { return }
         if isPaused {
-            synthesizer.continueSpeaking()
+            guard synthesizer.continueSpeaking() else { fail("Read aloud could not resume. Please try again."); return }
+            armWatchdog()
         } else {
-            synthesizer.pauseSpeaking(at: .immediate)
+            guard synthesizer.pauseSpeaking(at: .immediate) else { return }
+            watchdog?.cancel(); watchdog = nil
         }
         isPaused.toggle()
     }
@@ -86,6 +93,7 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
         utterance = nil
         clock?.cancel()
         clock = nil
+        watchdog?.cancel(); watchdog = nil
         synthesizer.stopSpeaking(at: .immediate)
         speakingID = nil
         isPaused = false
@@ -93,19 +101,42 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
         LocalAudioSession.shared.releaseAudioIfIdle()
     }
 
-    private func speak(from start: Int) {
+    @discardableResult
+    private func speak(from start: Int) -> Bool {
         utterance = nil
         synthesizer.stopSpeaking(at: .immediate)
         base = start
         offset = start
         isPaused = false
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
-        try? AVAudioSession.sharedInstance().setActive(true)
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            fail("Read aloud is unavailable: \(error.localizedDescription)")
+            return false
+        }
         let utterance = AVSpeechUtterance(string: (text as NSString).substring(from: start))
+        utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.identifier)
         // The system's scale runs 0...1 with 0.5 as normal speech.
         utterance.rate = Float(min(0.5 + (speed - 1) * 0.12, 0.65))
         self.utterance = utterance
         synthesizer.speak(utterance)
+        armWatchdog()
+        return true
+    }
+
+    private func armWatchdog() {
+        watchdog?.cancel()
+        watchdog = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(20)) } catch { return }
+            guard let self, self.speakingID != nil, !self.isPaused else { return }
+            self.fail("Read aloud stopped responding. Your reply is still in the chat; please try again.")
+        }
+    }
+
+    private func fail(_ reason: String) {
+        stop()
+        failure = reason
     }
 
     nonisolated func speechSynthesizer(
@@ -117,6 +148,8 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
         Task { @MainActor in
             guard let current = self.utterance, ObjectIdentifier(current) == identity else { return }
             self.offset = self.base + location
+            self.spokenRangeCount += 1
+            if !self.isPaused { self.armWatchdog() }
         }
     }
 
@@ -125,6 +158,14 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
         Task { @MainActor in
             guard let current = self.utterance, ObjectIdentifier(current) == identity else { return }
             self.stop()
+        }
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let identity = ObjectIdentifier(utterance)
+        Task { @MainActor in
+            guard let current = self.utterance, ObjectIdentifier(current) == identity else { return }
+            self.fail("Read aloud was interrupted. Your reply is still available in the chat.")
         }
     }
 }

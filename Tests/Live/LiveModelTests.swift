@@ -216,6 +216,7 @@ final class LiveModelTests: XCTestCase {
     @MainActor
     func testRecordedVoiceCallContinuesThroughTwoTurns() async throws {
         let (_, db, files, memory, writer) = try workspace()
+        try await WhisperRuntime.shared.prepare()
         let service = MemoryService(repository: memory)
         let speech = RecordedSpeechInput(samples: try recordedSamples())
         let assistant = LocalAssistantClient(database: db, attachments: files, memories: service, writer: writer)
@@ -252,6 +253,7 @@ final class LiveModelTests: XCTestCase {
     /// Isolates audio continuity when the independent Foundation Models runtime is unavailable.
     @MainActor
     func testTwoRecordedSpeechTurnsWithScriptedReplies() async throws {
+        try await WhisperRuntime.shared.prepare() // First-install download is setup, not conversational latency.
         let speech = RecordedSpeechInput(samples: try recordedSamples())
         let container = AppContainer(assistant: ScriptedVoiceReplies(), speech: speech,
                                      conversations: InMemoryConversationRepository([]), attachments: InMemoryAttachmentRepository([]),
@@ -276,6 +278,39 @@ final class LiveModelTests: XCTestCase {
         voice.handoffToKeyboard()
         try await Task.sleep(for: .milliseconds(150))
         XCTAssertEqual(voice.state, .idle)
+    }
+
+    @MainActor
+    func testReadAloudPlaysTwoRepliesInSequence() async throws {
+        let reader = SpeechReader()
+        defer { reader.stop() }
+        for text in ["Your draft stays here until you send it.", "The second reply can be read aloud too."] {
+            reader.toggle(UUID(), text: text)
+            let deadline = Date().addingTimeInterval(20)
+            while reader.speakingID != nil, Date() < deadline {
+                try await Task.sleep(for: .milliseconds(100))
+            }
+            XCTAssertNil(reader.failure)
+            XCTAssertGreaterThan(reader.spokenRangeCount, 0, "A real synthesizer callback must confirm playback")
+            XCTAssertNil(reader.speakingID, "Playback should finish and clear the player")
+        }
+    }
+
+    @MainActor
+    func testFinishingRecordedDictationFlushesRemainingAudio() async throws {
+        let samples = try recordedSamples()
+        let format = try XCTUnwrap(AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16000, channels: 1, interleaved: false))
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count)))
+        buffer.frameLength = AVAudioFrameCount(samples.count)
+        let channel = try XCTUnwrap(buffer.floatChannelData?[0])
+        samples.withUnsafeBufferPointer { channel.update(from: $0.baseAddress!, count: $0.count) }
+        let capture = try await WhisperCapture.make(format: format, onText: { _ in }, onEnd: {}, onError: { XCTFail($0) })
+        defer { capture.cancel() }
+        capture.feed(buffer)
+        // Finish before the periodic recognition loop: the final flush must recover the words.
+        let result = await capture.finish()
+        let final = try XCTUnwrap(result)
+        XCTAssertTrue(final.localizedCaseInsensitiveContains("quiet gardens"), final)
     }
 }
 

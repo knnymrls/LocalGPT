@@ -12,7 +12,7 @@ The product should feel continuous across voice and text. Its saved state and ou
 
 The approved interface remains one chat feed and composer. The top-left control opens the chat drawer with history, search, pinned chats, and Memories. The right module contains New chat, Outputs, and the chat menu. The composer's plus adds files, photos, or camera images. Supporting content opens in sheets.
 
-Typing, dictation, and voice conversation share the active chat, draft, sources, and history. Dictation adds editable text without sending. Voice conversation is a continuous foreground session: it sends a completed utterance, speaks the answer, then listens again without another tap. Quiet pauses and inspecting outputs do not end the call. Leaving voice, switching chats, or backgrounding ends capture. Returning to the keyboard keeps partial text and an ongoing reply. Capture pauses during playback; full-duplex interruption is outside this release.
+Typing, dictation, and voice conversation share the active chat, draft, sources, and history. Dictation adds editable text without sending and stays on through pauses until Finish. Finish includes the remaining captured speech. Voice conversation is a continuous foreground session: it sends a completed utterance, speaks the answer, then listens again without another tap. Quiet pauses and inspecting outputs do not end the call. Leaving voice, switching chats, or backgrounding ends capture. Returning to the keyboard keeps partial text and an ongoing reply. Capture pauses during playback; full-duplex interruption is outside this release.
 
 ## Requirements
 

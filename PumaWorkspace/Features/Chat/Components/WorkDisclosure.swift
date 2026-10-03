@@ -88,27 +88,26 @@ struct ShimmerText: View {
     let base: Color
     let sheen: Color
 
-    @State private var width: CGFloat = 0
-    @State private var sweeping = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var started = Date()
     private static let band: CGFloat = 80
 
     var body: some View {
         label
             .foregroundStyle(base)
             .overlay {
-                // The band travels inside a layer the size of the label, and
-                // the label masks that whole layer.
-                Color.clear
-                    .overlay {
+                GeometryReader { geometry in
+                    TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion)) { timeline in
+                        let phase = reduceMotion ? 0.5 : timeline.date.timeIntervalSince(started).truncatingRemainder(dividingBy: 1.35) / 1.35
                         LinearGradient(colors: [.clear, sheen, .clear], startPoint: .leading, endPoint: .trailing)
-                            .frame(width: Self.band)
-                            .offset(x: sweeping ? width / 2 + Self.band : -width / 2 - Self.band)
+                            .frame(width: Self.band, height: geometry.size.height)
+                            .offset(x: -Self.band + (geometry.size.width + Self.band) * phase)
                     }
-                    .mask { label.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading) }
-            }
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.35).repeatForever(autoreverses: false)) { sweeping = true }
+                    .transaction { $0.animation = nil }
+                }
+                .mask { label.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading) }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
             }
     }
 

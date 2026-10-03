@@ -2,6 +2,13 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Dictation, waveform, shimmer, and Read Aloud
+
+- Kept dictation active across sentence boundaries and quiet capture windows. Finish now flushes remaining audio before returning to typing; a stalled flush preserves the existing draft and reports the problem.
+- Replaced linear microphone gain with a bounded perceptual meter and gave the waveform an explicit height. The Finish control remains available even while another reply is streaming.
+- Replaced the layout-dependent repeating shimmer with a time-driven gradient, respecting Reduce Motion.
+- Made Read Aloud setup, cancellation, and stalled playback fail visibly; its timer waits for an actual synthesis callback. Added consecutive-playback and dictation regressions.
+
 ## 2026-10-03 — Selective memory and continuous voice
 
 - Limited memory to lasting preferences, enduring personal context, and explicit remember requests. Removed budgets and current task requirements from default eligibility, with a second policy check after model classification.

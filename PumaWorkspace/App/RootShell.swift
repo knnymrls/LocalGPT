@@ -26,6 +26,9 @@ struct RootShell: View {
             .alert("Workspace", isPresented: Binding(get: { chat.operationError != nil }, set: { if !$0 { chat.operationError = nil } })) {
                 Button("OK") { chat.operationError = nil }
             } message: { Text(chat.operationError ?? "") }
+            .onChange(of: SpeechReader.shared.failure) { _, reason in
+                if let reason { chat.operationError = reason }
+            }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { Task { await chat.refreshAvailability() } }
                 else { chat.flush(); if phase == .background { voice.pause(); SpeechReader.shared.stop() } }

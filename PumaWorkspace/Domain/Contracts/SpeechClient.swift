@@ -24,6 +24,8 @@ protocol SpeechClient: Sendable {
     func beginConversation(id: UUID) async
     func endConversation(id: UUID) async
     func listen() -> AsyncStream<TranscriptEvent>
+    /// Flush remaining audio into a final transcript. False means this client cannot flush.
+    func finishListening() async -> Bool
     /// Speaks text; distinguishes successful completion from interrupted or unavailable audio.
     func speak(_ text: String) -> AsyncStream<PlaybackEvent>
 }
@@ -31,4 +33,5 @@ protocol SpeechClient: Sendable {
 extension SpeechClient {
     func beginConversation(id: UUID) async {}
     func endConversation(id: UUID) async {}
+    func finishListening() async -> Bool { false }
 }

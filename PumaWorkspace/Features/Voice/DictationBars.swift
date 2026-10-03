@@ -22,6 +22,7 @@ struct DictationBars: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
             .animation(.linear(duration: 0.07), value: samples)
         }
+        .frame(height: pt(28))
         .task {
             while !Task.isCancelled {
                 samples.removeFirst()

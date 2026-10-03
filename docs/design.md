@@ -46,7 +46,7 @@ Two bars can appear directly under the top bar:
 One glass card. From top to bottom: the chat's sources as a row of square cards, the text field ("Ask anything…"), and a control row with the plus, an "On-device" label, the microphone, and one primary button.
 
 - The primary button is voice when the field is empty, send when there is text, a filled stop square while a reply is running, and a tick while dictating.
-- The microphone dictates into the field. Voice mode is a continuous spoken conversation with a mute and an exit control and an aura behind the feed. Every completed spoken reply returns to listening. Silence and opening an output leave the call active. Leaving voice keeps the draft and never sends it.
+- The microphone dictates into the field until the user taps Finish; sentence boundaries and quiet windows do not stop it. Finish flushes remaining audio, and the waveform uses perceptual input levels in a fixed-height row. Voice mode is a continuous spoken conversation with a mute and an exit control and an aura behind the feed. Every completed spoken reply returns to listening. Silence and opening an output leave the call active. Leaving voice keeps the draft and never sends it.
 - Source cards scroll sideways. A file card shows its type glyph and name; a photo card shows the image. Each has an X, removing one slides the rest left, and tapping a card opens the file. Open and Remove are separate accessible buttons.
 - Suggestions appear above the composer in an empty chat, and hide once there is a source or a draft.
 - A small glass chevron sits just above the composer whenever the feed is scrolled away from the latest message, and returns to it.
@@ -64,7 +64,7 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 
 ## Replies
 
-- **Work.** While the assistant does something specific, such as reading a file, each step appears as a line of plain text in the reply's size, the current one shimmering. When the answer starts they fold into "Worked for 3s", which expands on tap. A plain answer shows only a shimmering "Thinking" and nothing afterwards. Work rows have no icons.
+- **Work.** While the assistant does something specific, such as reading a file, each step appears as a line of plain text in the reply's size, the current one shimmering on a time-driven gradient that stays animated across layout changes. When the answer starts they fold into "Worked for 3s", which expands on tap. A plain answer shows only a shimmering "Thinking" and nothing afterwards. Work rows have no icons.
 - **Answer.** Markdown drawn as native text: headings, lists, bold and italic, code, quotes, rules, and tables. Text is 16pt on a 21pt line with 8pt between blocks. A table keeps its columns' natural width and scrolls sideways when it is wider than the screen.
 - **No generated UI.** A comparison is a Markdown table in the answer, not a card.
 - **Documents.** The files a reply worked from are listed at its end as capsule rows: type glyph, name, arrow. A row opens the file.

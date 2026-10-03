@@ -26,8 +26,8 @@ struct Composer: View {
     private enum PrimaryAction: CaseIterable { case send, stop, voice, confirm }
 
     private var primaryAction: PrimaryAction {
-        if chat.isStreaming { return .stop }
         if voice.isDictating { return .confirm }
+        if chat.isStreaming { return .stop }
         return chat.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .voice : .send
     }
 
@@ -230,6 +230,7 @@ struct Composer: View {
             .animation(.easeInOut(duration: 0.16), value: action)
         }
         .buttonStyle(.pressable)
+        .disabled(voice.isFinishingDictation)
         .accessibilityLabel(Text(Self.label(for: action)))
     }
 
