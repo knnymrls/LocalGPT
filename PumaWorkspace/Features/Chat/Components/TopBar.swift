@@ -70,15 +70,12 @@ struct TopBar: View {
 
     /// New chat, outputs, and the chat's menu, in one piece of glass.
     ///
-    /// The capsule is the menu's own button, in Apple's glass style, drawing
-    /// all three glyphs. That makes the whole capsule the thing the system
-    /// grows into the menu. New chat and Outputs are clear buttons laid over
-    /// their glyphs, so a tap there never reaches the menu. Apple's style is
-    /// used because a hand-applied `glassEffect` around a `Menu` flashes
-    /// black as the menu opens and closes.
+    /// The label owns the same glass and rim as the left control. Keep the
+    /// system Menu itself plain so it does not add a second filled capsule.
+    /// New chat and Outputs have independent transparent tap targets.
     private var module: some View {
         menu
-            .buttonStyle(.glass)
+            .buttonStyle(.plain)
             .overlay(alignment: .leading) {
                 HStack(spacing: 0) {
                     moduleButton(label: "New chat") { chat.newChat() }
@@ -115,10 +112,7 @@ struct TopBar: View {
                 moduleGlyph(.ballotCircle, filled: chat.outputCount > 0)
                 moduleGlyph(.more)
             }
-            // The system glass style adds its own padding around a label;
-            // take most of it back so the capsule stays bar height.
-            .padding(.horizontal, -pt(6))
-            .padding(.vertical, -pt(7))
+            .glassControl(in: Capsule(), glass: .clear.interactive())
         }
         .menuOrder(.fixed)
         .accessibilityLabel(Text("More"))
@@ -143,7 +137,7 @@ struct TopBar: View {
 
     private func moduleGlyph(_ icon: NucleoIcon, filled: Bool = false) -> some View {
         Icon(icon, size: 22, color: Tokens.foreground, filled: filled)
-            .frame(width: Self.slot, height: Self.barHeight)
+            .frame(width: Self.slot + pt(4), height: Self.barHeight)
     }
 }
 

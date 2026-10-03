@@ -2,6 +2,13 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Clearer, consistent glass
+
+- Switched shared un-tinted surfaces to clear native glass while retaining the directional rim.
+- Matched the right top-bar capsule to the left circle by rendering glass inside the plain system Menu label. Kept separate New chat and Outputs tap targets.
+- Reduced only the sheet background to 55% opacity, cleared the navigation container, and retained an opaque Reduce Transparency fallback.
+- Built and reviewed light/dark chrome, sheet content, Outputs navigation, and recorded dark menu open/close transitions; no solid black flash was seen in the captured frames.
+
 ## 2026-10-03 — Centered file empty state and local voice quality
 
 - Centered the Uploaded files empty state within the sheet body, keeping populated lists top-aligned and oversized content scrollable.

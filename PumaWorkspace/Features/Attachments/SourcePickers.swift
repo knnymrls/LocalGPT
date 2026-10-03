@@ -256,7 +256,7 @@ struct AddSurface: View {
                         .fill(.white)
                         .frame(width: pt(56), height: pt(56))
                         .padding(pt(4))
-                        .glassControl(in: Circle(), glass: .regular.interactive())
+                        .glassControl(in: Circle(), glass: .clear.interactive())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Take photo"))
@@ -282,7 +282,7 @@ struct AddSurface: View {
                 .frame(height: Tokens.scaled(44))
                 .glassControl(
                     in: Capsule(),
-                    glass: count == 0 ? .regular.interactive() : .regular.tint(Tokens.foreground).interactive()
+                    glass: count == 0 ? .clear.interactive() : .regular.tint(Tokens.foreground).interactive()
                 )
         }
         .buttonStyle(.plain)

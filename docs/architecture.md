@@ -32,6 +32,10 @@ flowchart TD
   Events --> Playback[Optional local speech playback]
 ```
 
+## Shared glass rendering
+
+`glassControl` draws clear native glass plus the shared directional rim. The top-right system Menu is plain; its label owns this same surface, avoiding an extra native button fill. The three slots remain separate 48pt hit regions. Sheet background opacity is isolated from foreground content; the navigation background is clear, and Reduce Transparency substitutes the system background. See decision 0010.
+
 ## Startup and storage
 
 `WorkspaceStartup` constructs live services and displays a recoverable error if storage cannot open. A Release build has the same live path as Debug. Mock services require an explicit `-preview` or `-uiState` launch argument in DEBUG.

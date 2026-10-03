@@ -273,7 +273,7 @@ struct Composer: View {
     }
 
     private var muteGlass: Glass {
-        voice.isMuted ? .regular.tint(Tokens.recording).interactive() : .regular.interactive()
+        voice.isMuted ? .regular.tint(Tokens.recording).interactive() : .clear.interactive()
     }
 
     private func statusHint(_ reason: String) -> some View {

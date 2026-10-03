@@ -235,6 +235,7 @@
 		CB314F2A4D9C9C8641BCFFD3 /* LocalSpeechVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalSpeechVoice.swift; sourceTree = "<group>"; };
 		CBEF13333E029C0141EFD385 /* WorkspaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTests.swift; sourceTree = "<group>"; };
 		CFB855044636638B46CD590F /* MemoriesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoriesSheet.swift; sourceTree = "<group>"; };
+		D26B060ABE596B050ABB1B74 /* 0010-consistent-clear-glass.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0010-consistent-clear-glass.md"; sourceTree = "<group>"; };
 		D2DF567E1BD1891342770270 /* DocumentImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentImporter.swift; sourceTree = "<group>"; };
 		D50F4A02A39E28C349F62F58 /* dictation-waveform.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "dictation-waveform.gif"; sourceTree = "<group>"; };
 		D59324BF4258105DA7B83204 /* PumaWorkspace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PumaWorkspace.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -388,6 +389,7 @@
 				E0ABD4DBF142CEEC3C925E78 /* 0007-local-services-and-automatic-memory.md */,
 				817FEC99843B84F0D460A483 /* 0008-verified-document-answers.md */,
 				E74BEAB45CFD6D2F515C6790 /* 0009-selective-memory-continuous-voice.md */,
+				D26B060ABE596B050ABB1B74 /* 0010-consistent-clear-glass.md */,
 			);
 			path = decisions;
 			sourceTree = "<group>";

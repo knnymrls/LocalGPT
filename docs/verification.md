@@ -1,6 +1,10 @@
 # Verification — 2026-10-03
 
-## Current revision — centered file sheet and voice selection
+## Current revision — consistent clear glass
+
+The updated Debug build passes. Light/dark screenshots show the left circle and right capsule sharing the same rim and fill. The right Menu opens and dismisses, and its independent Outputs target opens Outputs. Recorded dark menu transitions were inspected at the recording's 10fps around opening and closing; no solid black flash was observed. Light/dark sheet foreground remained legible with its background alone reduced to 55% opacity. This is visual Simulator review, not a complete accessibility/contrast certification. Appearance was restored to light after review.
+
+## Previous revision — centered file sheet and voice selection
 
 - The Uploaded files empty state was visually inspected at medium and large detents; its icon/text group is centered in the body below the header. Nonempty content retains top alignment and scrolling.
 - The local voice inventory/selection check and both actual synthesis checks pass (consecutive Read Aloud replies and two recorded voice turns with scripted assistant replies). The Debug app build passes after the final comparator adjustment.

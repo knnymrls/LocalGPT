@@ -9,7 +9,7 @@ This document describes the approved interface. Real services now drive normal l
 - **Color.** Neutral backgrounds (#FFFFFF light, #191919 dark) and a near-black or near-white foreground. The drawer sits a step behind the chat: #F8F8F8 light, #111111 dark. There is no accent color in the chat; selection, the text cursor, marks, and highlights use the foreground ink. File types carry the only color: red for PDFs, blue for documents, green for spreadsheets. The voice aura keeps its own color.
 - **Type.** The system sans-serif at four sizes: text 16, caption 13, micro 11, and the 24 heading used only for "Puma". Weights are regular for content, medium for titles and labels, semibold for "Puma" and the Chat pill.
 - **Icons.** Nucleo outline glyphs at one stroke weight. A filled glyph means a state is on.
-- **Glass.** iOS 26 Liquid Glass for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
+- **Glass.** Clear iOS 26 Liquid Glass with a shared directional rim for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
 - **Scale.** Everything is designed at the iPhone 17 Pro's width and scales together, type, icons, controls, spacing, and corners, up to 15% on wider phones.
 
 Values live in `DesignSystem/Tokens`. See [decision 0004](decisions/0004-visual-system.md).
@@ -23,7 +23,7 @@ Opening the drawer pushes the whole chat surface to the right with rounded corne
 ## Top bar
 
 - **Left:** the chats button, then the chat's title in medium weight.
-- **Right:** one glass capsule with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
+- **Right:** one glass capsule using the same clear material and rim as the left circle, with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
 - **Menu** (system): Pin or Unpin, Uploaded files, Find in chat, Delete. Each has an icon. Delete asks for confirmation.
 
 Two bars can appear directly under the top bar:
@@ -76,6 +76,8 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 - Every file opens in Quick Look in its own sheet, from a composer card, a reply's document row, Uploaded files, or Outputs.
 
 ## Sheets
+
+Sheets use a clear navigation-container background and a shared glass background at 55% opacity, with a matching 40pt corner radius. Foreground text remains opaque; Reduce Transparency uses a solid system background.
 
 All sheets share one scaffold: a glass close button, a medium-weight title, and grouped cards of 54pt rows.
 
