@@ -3,6 +3,7 @@ import FoundationModels
 
 struct SystemModelCatalog: ModelCatalog {
     static let modelID = "apple.system.on-device"
+    var defaultModelID: String { Self.modelID }
     func models() async -> [LocalModel] {
         let availability: LocalModel.Availability
         switch SystemLanguageModel.default.availability {

@@ -9,7 +9,7 @@ struct AppContainer: Sendable {
     var memories: any MemoryRepository
     var modelCatalog: any ModelCatalog
     var importer: (any DocumentImporter)? = nil
-    var memoryCapture: MemoryService? = nil
+    var memoryCapture: (any MemoryCapture)? = nil
     var prepareExamples: (@Sendable () async throws -> Void)? = nil
     var isPreview = false
 

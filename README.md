@@ -43,6 +43,8 @@ xcodebuild -project PumaWorkspace.xcodeproj \
 
 The default scheme runs deterministic persistence, import, memory, and interaction tests. Live model checks require available system models; the recorded-audio check may download Whisper assets. Live tests attach responses to the test report and print observed timing. Simulator timing is not an iPhone benchmark.
 
+State and request ownership are explained in [decision 0017](docs/decisions/0017-focused-service-ownership.md). The committed `.swift-format` config uses four-space indentation; format touched Swift files with `xcrun swift-format format --in-place <files>`.
+
 `project.yml` is the project source of truth; regenerate after adding files:
 
 ```sh

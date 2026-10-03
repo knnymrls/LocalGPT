@@ -1,7 +1,7 @@
 import Foundation
 
 /// Only saved user-authored context enters future prompts. Receipts are emitted after a durable write.
-actor MemoryService {
+actor MemoryService: MemoryCapture {
     private let repository: any MemoryRepository
     private let extract: @Sendable (String) async throws -> [ExtractedMemory]
     init(repository: any MemoryRepository, extract: @escaping @Sendable (String) async throws -> [ExtractedMemory] = { try await MemoryExtractor().extract(from: $0) }) {
@@ -19,6 +19,10 @@ actor MemoryService {
             return left == right ? a.updatedAt > b.updatedAt : left > right
         }
         return ranked.prefix(16).map { "- \($0.text)" }.joined(separator: "\n")
+    }
+
+    func capture(_ request: ReplyRequest, onSaved: @Sendable (MemoryItem) async -> Void) async throws {
+        try await capture(request, scope: RequestScope(), onSaved: onSaved)
     }
 
     func capture(_ request: ReplyRequest, scope: RequestScope, onSaved: @Sendable (MemoryItem) async -> Void) async throws {

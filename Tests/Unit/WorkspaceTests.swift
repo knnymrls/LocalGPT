@@ -450,6 +450,7 @@ private actor ReceiptRecorder {
 }
 
 private struct FailingMemoryRepository: MemoryRepository {
+    func insertIfNew(_ item: MemoryItem) async throws -> Bool { throw WorkspaceError.message("Disk full") }
     func all() async throws -> [MemoryItem] { [] }
     func save(_ item: MemoryItem) async throws { throw WorkspaceError.message("Disk full") }
     func delete(id: UUID) async throws {}

@@ -1,5 +1,14 @@
 # LocalGPT change log
 
+## 2026-10-03 — Focused state and assistant ownership
+
+- Separated conversation persistence, attachment imports, and memory extraction lifetimes from the shared chat facade.
+- Added generation guards so replaced/canceled tasks cannot overwrite current state or remove a newer task's bookkeeping.
+- Split stream lifetime, turn routing, and source answering into focused components while preserving model prompts and the verified numeric path.
+- Injected model defaults, memory capture, and UI Read Aloud dependencies. Added conservative output-revision routing and negation checks.
+- Added regression coverage for late callbacks, cancellation, active conversation invariants, and tool capability isolation. Preserved saved-data compatibility and the approved UI.
+
+
 ## 2026-10-03 — Core conversation and reviewer handoff
 
 - Simplified ordinary-chat instructions and selected greedy sampling while preserving native speaker history, bounded context, and shared voice/text state.

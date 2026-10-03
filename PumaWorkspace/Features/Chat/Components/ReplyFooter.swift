@@ -35,7 +35,7 @@ struct ReplyActions: View {
     @Environment(VoiceSessionController.self) private var voice
     @State private var taps = 0
     @State private var copied = false
-    private var reader: SpeechReader { .shared }
+    @Environment(SpeechReader.self) private var reader
 
     var body: some View {
         HStack(spacing: pt(2)) {
@@ -86,7 +86,7 @@ struct ReplyActions: View {
 /// back and forward, and close. It sits under the top bar while a reply is
 /// being read.
 struct ReadAloudBar: View {
-    private var reader: SpeechReader { .shared }
+    @Environment(SpeechReader.self) private var reader
     @State private var taps = 0
 
     var body: some View {

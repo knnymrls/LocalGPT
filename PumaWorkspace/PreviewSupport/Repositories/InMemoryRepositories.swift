@@ -23,6 +23,11 @@ actor InMemoryMemoryRepository: MemoryRepository {
     private var items: [MemoryItem]
     init(_ seed: [MemoryItem]) { items = seed }
     func all() -> [MemoryItem] { items }
+    func insertIfNew(_ item: MemoryItem) -> Bool {
+        guard !items.contains(where: { $0.fingerprint == item.fingerprint }) else { return false }
+        items.append(item)
+        return true
+    }
     func save(_ item: MemoryItem) {
         if let i = items.firstIndex(where: { $0.id == item.id }) { items[i] = item } else { items.append(item) }
     }
@@ -30,6 +35,7 @@ actor InMemoryMemoryRepository: MemoryRepository {
 }
 
 struct FixtureModelCatalog: ModelCatalog {
+    var defaultModelID: String { Fixtures.models.first?.id ?? "preview.model" }
     func models() async -> [LocalModel] { Fixtures.models }
 }
 #endif

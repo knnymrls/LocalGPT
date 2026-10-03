@@ -34,6 +34,7 @@ final class VoiceSessionController {
         if case .unavailable(let reason) = state { reason } else { nil }
     }
 
+    @ObservationIgnored private let stopReading: @MainActor () -> Void
     @ObservationIgnored private let speech: any SpeechClient
     @ObservationIgnored private let chat: ChatSessionStore
     @ObservationIgnored private var captureTask: Task<Void, Never>?
@@ -46,7 +47,8 @@ final class VoiceSessionController {
     @ObservationIgnored private var conversationTask: Task<Void, Never>?
     @ObservationIgnored private var dictationFinishTask: Task<Void, Never>?
 
-    init(speech: any SpeechClient, chat: ChatSessionStore) {
+    init(speech: any SpeechClient, chat: ChatSessionStore, stopReading: @escaping @MainActor () -> Void = {}) {
+        self.stopReading = stopReading
         self.speech = speech
         self.chat = chat
     }
@@ -57,7 +59,7 @@ final class VoiceSessionController {
         guard !isActive else { return }
         if isDictating { exit() }
         session = UUID()
-        SpeechReader.shared.stop()
+        stopReading()
         startEnvelope()
         let id = UUID()
         conversationID = id
@@ -103,7 +105,7 @@ final class VoiceSessionController {
 
     func startDictation() {
         guard !isActive, !isDictating else { return }
-        SpeechReader.shared.stop()
+        stopReading()
         session = UUID()
         isDictating = true
         startEnvelope()

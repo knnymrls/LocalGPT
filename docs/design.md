@@ -99,3 +99,7 @@ Empty, streaming, stopped, and failed replies; importing, ready, and removed sou
 Normal launches use local inference, persistence, file extraction, speech adapters, and automatic memory. Inline numbered references and citation chips open the passage sheet. Model unavailability opens an explanation. Failed replies and imports carry specific reasons.
 
 The live camera, haptics, physical audio interruptions, large Dynamic Type, and a complete light/dark accessibility pass remain device/UI verification work. Simulator microphone routing is separate from recorded-audio speech checks. See [verification](verification.md).
+
+## State ownership — 2026-10-03
+
+The architecture cleanup preserves the approved layout and interactions. Views continue using one chat facade and voice controller. Read Aloud is supplied through the view environment, while conversation and attachment stores surface errors through the existing Workspace alert.

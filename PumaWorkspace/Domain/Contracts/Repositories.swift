@@ -14,19 +14,13 @@ protocol AttachmentRepository: Sendable {
 
 protocol MemoryRepository: Sendable {
     func all() async throws -> [MemoryItem]
+    /// Check the fingerprint and insert atomically; report true only after committing.
     func insertIfNew(_ item: MemoryItem) async throws -> Bool
     func save(_ item: MemoryItem) async throws
     func delete(id: UUID) async throws
 }
 
 protocol ModelCatalog: Sendable {
+    var defaultModelID: String { get }
     func models() async -> [LocalModel]
-}
-
-extension MemoryRepository {
-    func insertIfNew(_ item: MemoryItem) async throws -> Bool {
-        guard try await !all().contains(where: { $0.fingerprint == item.fingerprint }) else { return false }
-        try await save(item)
-        return true
-    }
 }

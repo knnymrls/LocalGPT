@@ -6,6 +6,7 @@ import SwiftUI
 /// bottom content inset always equals the composer's measured height plus
 /// spacing, and the keyboard moves both together.
 struct ChatScreen: View {
+    @Environment(SpeechReader.self) private var reader
     @Environment(ChatSessionStore.self) private var chat
     @Environment(VoiceSessionController.self) private var voice
     @Environment(NavigationState.self) private var navigation
@@ -32,17 +33,17 @@ struct ChatScreen: View {
         .overlay(alignment: .top) {
             VStack(spacing: 0) {
                 TopBar()
-                if SpeechReader.shared.speakingID != nil {
+                if reader.speakingID != nil {
                     ReadAloudBar()
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 if let notice = navigation.notice {
                     NoticeBar(text: notice)
-                        .padding(.top, SpeechReader.shared.speakingID != nil ? pt(8) : 0)
+                        .padding(.top, reader.speakingID != nil ? pt(8) : 0)
                         .transition(.scale(scale: 0.92, anchor: .top).combined(with: .opacity))
                 }
             }
-            .animation(.smooth(duration: 0.25), value: SpeechReader.shared.speakingID)
+            .animation(.smooth(duration: 0.25), value: reader.speakingID)
             .animation(.spring(duration: 0.32, bounce: 0.2), value: navigation.notice)
         }
         // The add surface: a tap anywhere else closes it.

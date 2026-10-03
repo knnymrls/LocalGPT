@@ -282,6 +282,30 @@ final class LiveModelTests: XCTestCase {
         return Array(UnsafeBufferPointer(start: floats, count: Int(converted.frameLength)))
     }
 
+    func testChartRevisionInheritsOutputKind() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        let prompt = "Create a bar chart with Monday 10 and Friday 20."
+        let first = try await answer(prompt, client: client)
+        let original = try XCTUnwrap(first.outputs.first)
+        let history = [Message(role: .user, text: prompt), Message(role: .assistant, text: first.text)]
+        let revised = try await answer("Revise it: Monday is 15 and Friday stays 20.", client: client, history: history)
+        let output = try XCTUnwrap(revised.outputs.first)
+        XCTAssertNotEqual(output.id, original.id)
+        XCTAssertEqual(output.kind, .image)
+        let rows = output.previewText.split(separator: "\n").dropFirst().compactMap { line -> (String, Double)? in
+            guard let colon = line.lastIndex(of: ":"),
+                  let value = Double(line[line.index(after: colon)...].trimmingCharacters(in: .whitespaces)) else { return nil }
+            return (String(line[..<colon]), value)
+        }
+        XCTAssertEqual(rows.count, 2, output.previewText)
+        XCTAssertTrue(rows.contains { $0.0.localizedCaseInsensitiveContains("Monday") && $0.1 == 15 }, output.previewText)
+        XCTAssertTrue(rows.contains { $0.0.localizedCaseInsensitiveContains("Friday") && $0.1 == 20 }, output.previewText)
+        let url = try XCTUnwrap(output.fileURL)
+        let image = try XCTUnwrap(CGImageSourceCreateWithURL(url as CFURL, nil))
+        XCTAssertNotNil(CGImageSourceCreateImageAtIndex(image, 0, nil))
+    }
+
     func testCreatesChartAndDiagramImages() async throws {
         let (_, db, files, memory, writer) = try workspace()
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)

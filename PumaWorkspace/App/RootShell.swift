@@ -4,13 +4,15 @@ import UIKit
 struct RootShell: View {
     @State private var chat: ChatSessionStore
     @State private var voice: VoiceSessionController
+    @State private var reader: SpeechReader
     @Environment(\.scenePhase) private var scenePhase
     @State private var navigation = NavigationState()
 
-    init(container: AppContainer) {
+    init(container: AppContainer, reader: SpeechReader = .shared) {
+        _reader = State(initialValue: reader)
         let chat = ChatSessionStore(container: container)
         _chat = State(initialValue: chat)
-        _voice = State(initialValue: VoiceSessionController(speech: container.speech, chat: chat))
+        _voice = State(initialValue: VoiceSessionController(speech: container.speech, chat: chat, stopReading: { reader.stop() }))
     }
 
     var body: some View {
@@ -26,12 +28,18 @@ struct RootShell: View {
             .alert("Workspace", isPresented: Binding(get: { chat.operationError != nil }, set: { if !$0 { chat.operationError = nil } })) {
                 Button("OK") { chat.operationError = nil }
             } message: { Text(chat.operationError ?? "") }
-            .onChange(of: SpeechReader.shared.failure) { _, reason in
+            .onChange(of: chat.conversationStore.error) { _, reason in
+                if let reason { chat.operationError = reason; chat.conversationStore.error = nil }
+            }
+            .onChange(of: chat.attachmentStore.error) { _, reason in
+                if let reason { chat.operationError = reason; chat.attachmentStore.error = nil }
+            }
+            .onChange(of: reader.failure) { _, reason in
                 if let reason { chat.operationError = reason }
             }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { Task { await chat.refreshAvailability() } }
-                else { chat.flush(); if phase == .background { voice.pause(); SpeechReader.shared.stop() } }
+                else { chat.flush(); if phase == .background { voice.pause(); reader.stop() } }
             }
             .onChange(of: navigation.drawerOpen) { _, open in
                 guard open else { return }
@@ -52,6 +60,7 @@ struct RootShell: View {
                 DebugLaunchState.apply(chat: chat, voice: voice, navigation: navigation)
                 #endif
             }
+            .environment(reader)
             .environment(chat)
             .environment(voice)
             .environment(navigation)
