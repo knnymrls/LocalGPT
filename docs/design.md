@@ -1,56 +1,98 @@
 # Puma Workspace design
 
-Status: the compact conversation layout is approved. The native UI implementation follows the committed project scaffold. This document defines that interface in the product's own terms.
+The interface is one conversation with a composer, kept simple and clean. Controls are icons where an icon is clear. Supporting detail lives in sheets, not permanent panels. System components are used wherever one fits ([decision 0006](decisions/0006-system-components.md)).
 
-## Visual direction
+Status words used here: *implemented* means built and build-verified with sample data; *checked* means looked at on the iPhone 17 Pro or Pro Max simulator. Nothing has been verified on a physical device.
 
-Use a quiet conversation surface with a clear reading hierarchy. Body text uses the system sans-serif; comparison headings and the voice transcript can use the system serif where it supports the accepted preview. Use warm neutral backgrounds, readable text, restrained dividers, and a warm accent for active voice or meaningful changes. Define semantic tokens for surfaces, text, accent, borders, spacing, and motion, with coherent light and dark appearances.
+## Visual system
 
-Use glass treatment on controls and navigation. Keep answers and original documents readable against stable surfaces. Shared primitives belong in DesignSystem; message rows, the composer, and comparison cards belong to their features.
+- **Color.** Neutral backgrounds (#FFFFFF light, #191919 dark) and a near-black or near-white foreground. The drawer sits a step behind the chat: #F8F8F8 light, #111111 dark. There is no accent color in the chat; selection, the text cursor, marks, and highlights use the foreground ink. File types carry the only color: red for PDFs, blue for documents, green for spreadsheets. The voice aura keeps its own color.
+- **Type.** The system sans-serif at four sizes: text 16, caption 13, micro 11, and the 24 heading used only for "Puma". Weights are regular for content, medium for titles and labels, semibold for "Puma" and the Chat pill.
+- **Icons.** Nucleo outline glyphs at one stroke weight. A filled glyph means a state is on.
+- **Glass.** iOS 26 Liquid Glass for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
+- **Scale.** Everything is designed at the iPhone 17 Pro's width and scales together, type, icons, controls, spacing, and corners, up to 15% on wider phones.
+
+Values live in `DesignSystem/Tokens`. See [decision 0004](decisions/0004-visual-system.md).
 
 ## Shell
 
-- Left control opens a drawer containing old chats and New chat.
-- Right control opens the attachment modal. It lists all workspace attachments and makes the selected sources for this chat clear.
-- Keep the top area minimal. Add no document deck, extra toolbar, status dashboard, or permanent inspector above the conversation. A quiet chat label may remain between the two controls.
-- The message feed and composer stay in one shell across keyboard and voice input.
-- A compact model pill opens the local model picker. Speaking controls remain distinct from the assistant model choice.
+The chat fills the screen. A top bar and the composer float over it, each with a progressive blur fading the feed out beneath them, so content never shows as a hard band in the safe areas.
 
-## Conversation and composer
+Opening the drawer pushes the whole chat surface to the right with rounded corners and a soft shadow; dragging it back, or tapping it, closes the drawer.
 
-Typed text and accepted transcription share one draft. Entering voice preserves existing text. Provisional speech appears visibly; returning to the keyboard makes it editable before Send. The interface never submits merely because input mode changed.
+## Top bar
 
-Voice controls expose microphone state, keyboard handoff, and exit. Audio output has a clear stop control. Opening navigation or a modal pauses capture and retains the draft. Changing chats preserves each chat's draft, selected sources, model, and user notes, and ends active work before changing scope.
+- **Left:** the chats button, then the chat's title in medium weight.
+- **Right:** one glass capsule with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
+- **Menu** (system): Pin or Unpin, Uploaded files, Find in chat, Delete. Each has an icon. Delete asks for confirmation.
 
-Keep the model choice next to the composer in either input mode. Changing it applies to future replies; the existing answer retains its model identity. Make downloaded, unavailable, and setup-needed choices legible without pretending assets are installed.
+Two bars can appear directly under the top bar:
 
-## Attachments and evidence
+- **Read aloud player:** play or pause, time read, speed (1x, 1.25x, 1.5x, 2x), back 15 seconds, forward 15 seconds, close.
+- **Notice:** a tick and one line, such as "Message copied", for two seconds.
 
-The attachment modal lists file names, type/readiness, and whether each source is selected for the current chat. File preview and selection are separate actions. Empty, importing, failed, removed, and ready states have clear next actions.
+**Find in chat** replaces the top bar with one glass bar: a search glyph, the field, a match count, previous and next chevrons, and close. It grows out from the menu side and shrinks back. The feed scrolls to the matching message and marks every match in yellow.
 
-A citation opens the original excerpt with a page, text range, or image-text region. Returning restores the conversation position and draft. Unknown or deleted sources show an explicit unavailable state. A citation number alone is never sufficient proof of source support.
+## Drawer
 
-## Answer surfaces
+- "Puma" and a search button share the top bar's row.
+- Chats are plain rows in regular weight. Pinned chats get their own "Pinned" section with a medium-weight label; the rest are labelled "Chats" once something is pinned.
+- Pressing and holding a row shows a preview of the chat with Pin, Rename, and Delete.
+- The bottom row has the "Chat" pill for a new chat on the left and a Memories button on the right, in the same column as search.
+- Search opens a full page with a field docked at the bottom; results match chat titles and message text.
 
-Use a readable text response and one structured comparison card with criteria, options, citations, unknowns, and editable user notes. A revised comparison marks the changed requirement and result, while retaining user-authored notes. Source facts and user notes stay visibly distinct.
+## Composer
 
-Memory is an explicit sheet: inspect wording, origin, and scope, then save, edit, or forget. Activity is an optional detail view of actual operations and model identity, with sample operations clearly confined to the UI development configuration.
+One glass card. From top to bottom: the chat's sources as a row of square cards, the text field ("Ask anything…"), and a control row with the plus, an "On-device" label, the microphone, and one primary button.
 
-## States to review during the UI build
+- The primary button is voice when the field is empty, send when there is text, a filled stop square while a reply is running, and a tick while dictating.
+- The microphone dictates into the field. Voice mode is a spoken conversation with a mute and an exit control and an aura behind the feed. Leaving voice keeps the draft and never sends it.
+- Source cards scroll sideways. A file card shows its type glyph and name; a photo card shows the image. Each has an X, removing one slides the rest left, and tapping a card opens the file.
+- Suggestions appear above the composer in an empty chat, and hide once there is a source or a draft.
+- A small glass chevron sits just above the composer whenever the feed is scrolled away from the latest message, and returns to it.
 
-| Surface | Required sample states |
-| --- | --- |
-| Chat | Empty, existing history, sample streaming, stopped, interrupted, failed, retry |
-| Draft | Typing, voice transcript, editable transcript, preserved per chat |
-| Voice | Idle, listening, muted, finalizing, speaking, permission unavailable, interruption |
-| Attachments | None, available, selected, importing, failed, removed |
-| Model picker | Selected, downloaded, missing assets, unavailable, setup needed |
-| Evidence | Original passage, missing source, deleted source |
-| Comparison | Initial answer, revised constraint, preserved notes, missing evidence |
-| Memory | Proposal, saved, edited, forgotten |
+## Add surface
 
-Use meaningful transitions that preserve reading position and editing focus. Respect reduced motion, Dynamic Type, VoiceOver, light/dark appearance, keyboard presentation, and comfortable touch targets. Follow new replies only while the person is reading at the bottom; otherwise expose a jump-to-latest action.
+The plus opens an app-drawn glass menu: Camera, Photos, Files.
 
-## Current scope
+- It scales up out of the plus and sits over it. Dragging moves the whole menu loosely and it springs back; a swipe down, or a tap outside, closes it into the plus.
+- Photos and Camera stretch that same glass shape from its bottom-left corner into a panel over the composer.
+- **Photos:** a three-column grid of recent photos. Ticking photos adds nothing by itself. The pill reads "All Photos" (which opens the system picker) until something is ticked, then becomes a solid "Add 3 photos"; tapping it adds them.
+- **Camera:** a live viewfinder with a white shutter inside a glass ring.
+- **Files:** the system file browser.
+- A back button returns from the panel to the menu.
 
-The first native UI pass uses fixtures and simulated assistant, speech, and repository behavior. The goal is to review the real SwiftUI layout and interaction states. Real inference, microphone capture, speech output, database work, model downloads, document extraction, and indexing are later integrations.
+## Replies
+
+- **Work.** While the assistant does something specific, such as reading a file, each step appears as a line of plain text in the reply's size, the current one shimmering. When the answer starts they fold into "Worked for 3s", which expands on tap. A plain answer shows only a shimmering "Thinking" and nothing afterwards. Work rows have no icons.
+- **Answer.** Markdown drawn as native text: headings, lists, bold and italic, code, quotes, rules, and tables. Text is 16pt on a 21pt line with 8pt between blocks. A table keeps its columns' natural width and scrolls sideways when it is wider than the screen.
+- **No generated UI.** A comparison is a Markdown table in the answer, not a card.
+- **Documents.** The files a reply worked from are listed at its end as capsule rows: type glyph, name, arrow. A row opens the file.
+- **Actions.** Every finished reply ends with exactly three: Copy, Retry, Read aloud. Retry replaces the newest reply; on an older reply it asks the same question again at the end of the chat. A failed reply shows "Reply interrupted." and a retry.
+
+## Files
+
+- Three glyphs cover every type: Page for PDFs, Report for spreadsheets, Page 2 for documents, text, Markdown, and the rest. They are one size wherever a file is named.
+- Every file opens in Quick Look in its own sheet, from a composer card, a reply's document row, Uploaded files, or Outputs.
+
+## Sheets
+
+All sheets share one scaffold: a glass close button, a medium-weight title, and grouped cards of 54pt rows.
+
+- **Outputs:** the files this chat's replies worked from, then a "Remembered" section.
+- **Uploaded files:** every file and photo added to the app.
+- **Memories:** everything remembered. Each memory is one plain line; press and hold to edit or forget.
+- **Remember this?:** the assistant's proposed memory, saved only when the person chooses.
+
+## States
+
+Empty, streaming, stopped, and failed replies; importing, ready, and removed sources; microphone unavailable; and a muted "On-device" label when the model is preparing, needs setup, or is unsupported. Each can be opened directly with a `-uiState` or `-modelState` launch argument in debug builds.
+
+## Not built or not verified
+
+- Imports, replies, speech recognition, and memory are sample data. Nothing reads a file's contents.
+- Source references inside an answer, and the passage viewer they open, are not reachable from a reply now that comparisons are Markdown tables. The viewer still exists.
+- There is no explanation screen for a model that is not ready.
+- Alerts, context menus, and sheet chrome are drawn by iOS: they do not follow the app's device scale and use the system blue.
+- The live camera, the photo-access prompt, haptics, and read-aloud audio need a physical device.
+- Light mode has been looked at only in places.
