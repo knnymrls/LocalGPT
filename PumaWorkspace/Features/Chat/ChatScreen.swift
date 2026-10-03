@@ -84,19 +84,8 @@ struct ChatScreen: View {
         }
     }
 
-    private var showSuggestions: Bool {
-        chat.isEmpty && !voice.isActive && chat.chatSources.isEmpty
-            && chat.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     private var bottomBar: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if showSuggestions {
-                SuggestionList()
-                    .padding(.horizontal, pt(16))
-                    .padding(.bottom, pt(12))
-                    .transition(.opacity.animation(Tokens.Motion.crossfade))
-            }
             Composer()
                 .padding(.horizontal, pt(16))
                 .overlay(alignment: .top) {

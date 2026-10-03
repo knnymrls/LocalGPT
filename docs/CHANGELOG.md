@@ -2,6 +2,12 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Preloaded conversations, not prompts
+
+- Corrected the onboarding interpretation: four complete regular chats, each with a follow-up exchange, replace composer prompt starters.
+- Added real CSV, PDF, and PNG attachments through the existing local writer. Existing chats remain intact; seeded chats can be continued, renamed, pinned, and deleted without returning on relaunch.
+- No special sidebar section or labels, per the requested presentation. Authored content and synthetic provenance are documented internally; no model runs or memory receipts are fabricated.
+
 ## 2026-10-03 — Four editable conversation starters
 
 - Replaced the three venue-specific empty-chat suggestions with four self-contained examples: notes to actions, CSV expense tracker, PDF checklist, and budget chart.

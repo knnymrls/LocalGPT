@@ -50,7 +50,7 @@ Application Support contains `workspace.sqlite`, durable originals/generated fil
 
 ## Assistant requests
 
-`ConversationStarter.examples` holds four presentation-level example prompts and their labels. `SuggestionList` writes the selected prompt into the existing shared draft. Sending uses the same inference/tool path as authored text. Samples contain explicit memory opt-outs; no fixture services or seeded replies are involved.
+`ExampleConversation.catalog` contains authored onboarding transcripts and output specifications, separate from live inference and DEBUG mocks. `ExampleConversationInstaller` prepares them through the live container before history loads, using the existing artifact writer for actual CSV, PDF, and PNG files. Stable conversation IDs plus record/tombstone checks prevent duplicates, overwriting edits, or resurrection after deletion. A shared installation task serializes concurrent loads. Unfinished installation artifacts are removed before retry. Seeding never invokes the model, speech, or memory capture. Optional internal provenance keeps older conversations decodable; it creates no special UI labels. Existing personal chats remain the startup selection. Continuations use normal inference, with generated files selected as context and fictional-context guidance in chat notes.
 
 Ordinary chat restores bounded complete turns as native Foundation Models `Transcript` prompt/response entries. The current message is sent once, separately; failed/streaming answers never become completed model history. The context budget removes whole oldest turns. A request owns its reconstructed session, so retries, cancellation, and chat changes cannot leak state.
 

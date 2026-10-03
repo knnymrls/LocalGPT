@@ -40,6 +40,8 @@ final class ChatSessionStore {
     private static var fallbackModelID: String { SystemModelCatalog.modelID }
 
     func load() async {
+        do { try await container.prepareExamples?() }
+        catch { operationError = "Could not prepare chats: \(error.localizedDescription)" }
         do {
             let stored = try await container.conversations.all()
             attachments = try await container.attachments.all()
@@ -47,7 +49,13 @@ final class ChatSessionStore {
             memories = try await container.memories.all()
             if !stored.isEmpty {
                 conversations = stored
-                activeID = stored[0].id
+                if let recent = stored.first(where: { $0.exampleID == nil || $0.revision > 0 }) {
+                    activeID = recent.id
+                } else {
+                    let blank = Conversation(modelID: Self.fallbackModelID)
+                    conversations.insert(blank, at: 0)
+                    activeID = blank.id
+                }
             } else {
                 let blank = Conversation(modelID: models.first?.id ?? Self.fallbackModelID)
                 conversations = [blank]
@@ -201,8 +209,6 @@ final class ChatSessionStore {
     }
 
     // MARK: Sending
-
-    func applySuggestion(_ text: String) { draft = text }
 
     func send() {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)

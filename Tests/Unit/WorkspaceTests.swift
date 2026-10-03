@@ -1,9 +1,66 @@
 import XCTest
 import PDFKit
+import ImageIO
 import FoundationModels
 @testable import PumaWorkspace
 
 final class WorkspaceTests: XCTestCase {
+    func testSeededConversationsPersistFilesAndRespectEditsAndDeletion() async throws {
+        let directory = try root()
+        let database = try WorkspaceDatabase(url: directory.appendingPathComponent("workspace.sqlite"))
+        let files = WorkspaceFiles(root: directory)
+        let attachments = LocalAttachmentRepository(database: database, files: files)
+        let conversations = LocalConversationRepository(database: database)
+        let writer = ArtifactWriter(files: files, repository: attachments, database: database)
+        let installer = ExampleConversationInstaller(database: database, writer: writer)
+        let personal = Conversation(title: "My existing chat", messages: [Message(role: .user, text: "Keep this")], modelID: "test")
+        try await conversations.save(personal)
+        async let first: Void = installer.install()
+        async let second: Void = installer.install()
+        _ = try await (first, second)
+        let seeded = try await conversations.all()
+        XCTAssertEqual(seeded.count, 5)
+        XCTAssertEqual(seeded.first(where: { $0.id == personal.id }), personal)
+        for chat in seeded where chat.exampleID != nil {
+            XCTAssertEqual(chat.messages.map(\.role), [.user, .assistant, .user, .assistant])
+            XCTAssertTrue(chat.messages.allSatisfy { $0.savedMemoryIDs.isEmpty && $0.steps.isEmpty })
+            XCTAssertEqual(Set(chat.messages.flatMap(\.documentIDs)), chat.selectedSourceIDs)
+        }
+        let outputs = try await attachments.all()
+        XCTAssertEqual(outputs.count, 3)
+        let csv = try XCTUnwrap(outputs.first { $0.fileURL?.pathExtension == "csv" }?.fileURL)
+        let table = try CSVTable.parse(String(contentsOf: csv, encoding: .utf8))
+        XCTAssertEqual(try table.summary(column: "amount", operation: "sum"), "80.0")
+        let pdf = try XCTUnwrap(outputs.first { $0.kind == .pdf }?.fileURL)
+        XCTAssertTrue(try XCTUnwrap(PDFDocument(url: pdf)?.string).contains("microphone"))
+        let png = try XCTUnwrap(outputs.first { $0.fileURL?.pathExtension == "png" }?.fileURL)
+        let source = try XCTUnwrap(CGImageSourceCreateWithURL(png as CFURL, nil))
+        XCTAssertNotNil(CGImageSourceCreateImageAtIndex(source, 0, nil))
+        let memories = try await database.readAll(.memories, as: MemoryItem.self)
+        XCTAssertTrue(memories.isEmpty)
+
+        var edited = try XCTUnwrap(seeded.first { $0.id == ExampleConversation.catalog[0].id })
+        edited.title = "My plan"
+        edited.draft = "Keep this draft"
+        edited.revision += 1
+        try await conversations.save(edited)
+        let deletedID = ExampleConversation.catalog[1].id
+        try await conversations.delete(id: deletedID)
+        // A new installer models relaunch, after edits and a deleted seeded chat.
+        try await ExampleConversationInstaller(database: database, writer: writer).install()
+        let reopened = try await conversations.all()
+        XCTAssertEqual(reopened.count, 4)
+        XCTAssertEqual(reopened.first { $0.id == edited.id }, edited)
+        XCTAssertFalse(reopened.contains { $0.id == deletedID })
+        let reloadedOutputs = try await attachments.all()
+        XCTAssertEqual(Set(reloadedOutputs.map(\.id)), Set(outputs.map(\.id)))
+
+        // Existing installations have no exampleID key in their saved payloads.
+        let data = try JSONEncoder().encode(personal)
+        let decoded = try JSONDecoder().decode(Conversation.self, from: data)
+        XCTAssertNil(decoded.exampleID)
+    }
+
     func testConversationRepetitionIgnoresGreetingButAllowsChangedFactsAndRepeatRequests() {
         let reply = "I'm here to help you with whatever you need. What's on your mind?"
         XCTAssertTrue(ConversationResponder.repeats(ConversationResponder.normalized("Hey! " + reply), ConversationResponder.normalized(reply)))

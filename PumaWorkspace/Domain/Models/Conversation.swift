@@ -13,6 +13,8 @@ struct Conversation: Identifiable, Hashable, Codable, Sendable {
     /// Pinned chats stay at the top of the drawer.
     var isPinned: Bool = false
     var revision: Int = 0
+    /// Present only for authored onboarding examples; optional for older stored chats.
+    var exampleID: String? = nil
 
     init(
         id: UUID = UUID(),

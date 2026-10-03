@@ -137,10 +137,18 @@ The synthetic seating requirement was edited through its saved-memory sheet from
 
 <img src="evidence/memory-edit.png" width="280" alt="Edited memory with the original quote preserved"> <img src="evidence/memory-edited-recall.png" width="280" alt="New chat recalls the edited 150-person requirement">
 
-## Editable starters — October 3, 2026
+## Editable starters — October 3, 2026 (superseded)
 
 The final four catalog prompts passed a focused real-model check on iOS 26.5 Simulator with Xcode 26.6: notes retained the three owners, tasks, and deadlines; the generated CSV parsed with a total of 75; the PDF decoded and contained projector and feedback tasks; the PNG decoded as an image. Every prompt explicitly opts out of memory. This is a sample acceptance check, not a general quality benchmark or verification of all suggested follow-ups.
 
 On a fresh normal launch of the installed build in the Audio QA Simulator, all four starter rows fit above the composer. Tapping the PDF starter filled the complete editable draft without creating a message or starting generation. New chat restored the four rows. This UI pass covers the default text size in light mode, not all accessibility sizes or devices.
 
 Earlier candidate prompts exposed omissions in open-ended notes and comparison responses, including a runaway blank-line response. The final notes example uses a short, explicit task; the comparison example was replaced with CSV generation. Those broader model-quality limitations remain unresolved. iOS 27 image understanding has not been integrated or tested in this iOS 26 build.
+
+## Preloaded conversations — October 3, 2026
+
+Four authored, two-exchange chats now replace prompt starters. They appear in ordinary history without a special label or section. They are prepared content, not model-generated transcripts. The existing local writer creates real CSV, PDF, and PNG files; no model or memory extraction runs during installation.
+
+The final full deterministic suite passed all 30 tests. The added persistence test covers concurrent installation without duplicates, preservation of an existing chat, valid CSV/PDF/PNG files, no seeded memories, preservation of edits/drafts, and no resurrection after deletion. The seeded CSV totals 80; the PDF contains the added microphone check; the PNG decodes.
+
+In the normal Audio QA Simulator app, the four conversations appeared alongside existing history without starter buttons or a special section. Opening the workshop conversation showed both exchanges and its actual PDF, which was opened and visually inspected. The budget conversation displayed its breakdown; its PNG attachment was opened and visually inspected. This pass does not establish live-model follow-up quality or voice behavior.

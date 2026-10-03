@@ -1,15 +1,15 @@
-# LocalGPT conversation starters
+# LocalGPT preloaded conversations
 
-The empty chat offers four editable examples. Each includes fictional sample input, needs no upload, and starts a real model request only when the person presses Send. No assistant replies or output files are preloaded. Every example opts out of memory.
+Four complete chats appear in regular sidebar history. They contain authored fictional exchanges, not recorded AI runs. The CSV, PDF, and PNG attachments are real files rendered locally. No special labels or section appear in the product, per the requested presentation. Opening them requires no model or download; continuing them uses the live assistant. Seeding does not save personal memories.
 
-| Starter | What to highlight | Follow-up to try |
+| Chat | What to explore | Follow-up to try |
 | --- | --- | --- |
-| Turn notes into a plan | Extract three owners, tasks, and deadlines into a concise checklist. | “Move Lee's deadline to Friday and show only the updated checklist.” |
-| Build a CSV tracker | Create a spreadsheet from three fictional expenses, with numeric amounts. | “Create a new CSV version with a Coffee row for 5 dollars.” |
-| Create a PDF checklist | Open and share an actual generated file from Outputs. | “Create a new PDF version with a reminder to test the microphone.” |
-| Make a budget chart | Produce a locally rendered PNG from supplied numbers. | “Create a new chart with Food increased to 300 dollars.” |
+| From meeting notes to a plan | A checklist followed by a deadline change and shareable update. | “Move Sam's deadline to Monday.” |
+| A trip expense tracker | Four expenses totaling $80, with an openable CSV. | “Create a new CSV with a $20 dinner row.” |
+| A workshop checklist to share | Tasks grouped by timing, then a PDF with a microphone check. | “Add a reminder to send invitations and make a new PDF.” |
+| See where the budget goes | A $1,000 category breakdown and an openable PNG chart. | “Make a new chart with Food increased to $300.” |
 
-These follow-ups are demonstration ideas, not assertions that every response has been verified. Current observed checks are in verification.md. People can replace the sample input with their own details before sending.
+Suggested follow-ups are ideas, not verified guarantees. Chats can be renamed, pinned, continued, and deleted normally. Deletion persists across launches. Existing conversations are preserved. See verification.md for observed checks.
 
 ## Other useful demonstrations
 

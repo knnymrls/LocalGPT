@@ -10,6 +10,7 @@ struct AppContainer: Sendable {
     var modelCatalog: any ModelCatalog
     var importer: (any DocumentImporter)? = nil
     var memoryCapture: MemoryService? = nil
+    var prepareExamples: (@Sendable () async throws -> Void)? = nil
     var isPreview = false
 
     static func make(arguments: [String] = ProcessInfo.processInfo.arguments) throws -> AppContainer {
@@ -24,6 +25,7 @@ struct AppContainer: Sendable {
         let memories = LocalMemoryRepository(database: database)
         let memoryCapture = MemoryService(repository: memories)
         let writer = ArtifactWriter(files: files, repository: attachments, database: database)
+        let examples = ExampleConversationInstaller(database: database, writer: writer)
         return AppContainer(
             assistant: LocalAssistantClient(database: database, attachments: attachments,
                                             memories: memoryCapture, writer: writer),
@@ -31,7 +33,8 @@ struct AppContainer: Sendable {
             conversations: LocalConversationRepository(database: database),
             attachments: attachments, memories: memories, modelCatalog: SystemModelCatalog(),
             importer: LocalDocumentImporter(files: files, database: database, repository: attachments),
-            memoryCapture: memoryCapture
+            memoryCapture: memoryCapture,
+            prepareExamples: { try await examples.install() }
         )
     }
 

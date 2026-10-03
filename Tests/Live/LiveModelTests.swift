@@ -25,39 +25,6 @@ final class LiveModelTests: XCTestCase {
         var complete = false
     }
 
-    func testConversationStartersUseRealRepliesAndOutputs() async throws {
-        let (_, db, files, memory, writer) = try workspace()
-        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
-        for starter in ConversationStarter.examples {
-            let result = try await answer(starter.prompt, client: client)
-            print("STARTER \(starter.id): \(result.text)")
-            XCTAssertTrue(MemoryPolicy.hasOptOut(starter.prompt), "Fictional samples must not become personal memories")
-            switch starter.id {
-            case "notes":
-                for detail in ["Morgan", "Tuesday", "Lee", "Thursday", "Sam", "Friday", "draft", "signup", "announcement"] {
-                    XCTAssertTrue(result.text.localizedCaseInsensitiveContains(detail), result.text)
-                }
-                XCTAssertLessThan(result.text.count, 1000, "A three-item checklist should remain concise")
-                XCTAssertTrue(result.outputs.isEmpty)
-            case "csv":
-                let output = try XCTUnwrap(result.outputs.first { $0.fileURL?.pathExtension == "csv" })
-                let table = try CSVTable.parse(String(contentsOf: XCTUnwrap(output.fileURL), encoding: .utf8))
-                XCTAssertEqual(try table.summary(column: "amount", operation: "sum"), "75.0")
-            case "pdf":
-                let pdf = try XCTUnwrap(result.outputs.first { $0.kind == .pdf })
-                let document = try XCTUnwrap(PDFDocument(url: XCTUnwrap(pdf.fileURL)))
-                let content = try XCTUnwrap(document.string)
-                XCTAssertTrue(content.localizedCaseInsensitiveContains("projector"))
-                XCTAssertTrue(content.localizedCaseInsensitiveContains("feedback"))
-            case "chart":
-                let chart = try XCTUnwrap(result.outputs.first { $0.fileURL?.pathExtension == "png" })
-                let source = try XCTUnwrap(CGImageSourceCreateWithURL(try XCTUnwrap(chart.fileURL) as CFURL, nil))
-                XCTAssertNotNil(CGImageSourceCreateImageAtIndex(source, 0, nil))
-            default: XCTFail("Add acceptance checks for new starters")
-            }
-        }
-    }
-
     func testCasualConversationDoesNotRepeatGreeting() async throws {
         let (_, db, files, memory, writer) = try workspace()
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)

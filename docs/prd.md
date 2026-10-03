@@ -33,7 +33,7 @@ Typing, dictation, and voice conversation share the active chat, draft, sources,
 
 ## Demonstration
 
-An empty chat offers four immediately usable conversation starters with editable fictional input: organize notes, build a CSV expense tracker, create a PDF checklist, and render a budget chart. See [demo guide](demo-guide.md) for follow-up ideas and additional use cases.
+The sidebar begins with four complete, authored conversations: meeting notes to a plan, trip expenses to CSV, a workshop checklist to PDF, and a budget chart. They look and behave like regular chats, with natural titles and no special section or labels. Each includes a follow-up exchange; file outputs open normally. Users can continue, rename, pin, or delete them. See [demo guide](demo-guide.md) for follow-up ideas and additional use cases.
 
 1. Import two venue proposals and ask for capacity, price, and accessibility in a table.
 2. Open a citation and inspect the original supporting passage.

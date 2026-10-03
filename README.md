@@ -14,7 +14,7 @@ Private inputs are processed locally. Public speech-model assets are the only ap
 
 ## Try it
 
-Start with one of the four examples above the empty composer, edit its sample input, then send. See the [demo guide](docs/demo-guide.md) for use cases and follow-up ideas.
+Open the sidebar to browse four preloaded chats, including a plan, CSV expenses, a PDF checklist, and a budget chart. Each contains two authored exchanges; you can open its files or continue with the live assistant. See the [demo guide](docs/demo-guide.md) for use cases and follow-up ideas.
 
 - Say or type **“I generally prefer quiet venues.”** After a lasting preference is committed, **Saved to memory** appears below the reply. Tap it to read the memory in a simple sheet. Temporary budgets and guest counts stay in chat history unless you explicitly ask to remember them. Start a new chat and ask about the preference. A long press in Memories provides Remove.
 - Add two venue proposals through Files. Compare capacity, cost, and accessibility; tap a numbered reference to inspect its passage. Then change the guest count and ask which venue fits.

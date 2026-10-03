@@ -50,7 +50,7 @@ Explicit DEBUG fixture launches show "UI preview" in place of "On-device", with 
 - The primary button is voice when the field is empty, send when there is text, a filled stop square while a reply is running, and a tick while dictating.
 - The microphone dictates into the field until the user taps Finish; sentence boundaries and quiet windows do not stop it. Finish flushes remaining audio, and the waveform uses perceptual input levels in a fixed-height row. Voice mode is a continuous spoken conversation with a mute and an exit control and an aura behind the feed. Every completed spoken reply returns to listening. Silence and opening an output leave the call active. Leaving voice keeps the draft and never sends it.
 - Source cards scroll sideways. A file card shows its type glyph and name; a photo card shows the image. Each has an X, removing one slides the rest left, and tapping a card opens the file. Open and Remove are separate accessible buttons.
-- Four starters appear above the composer in an empty chat: notes to a plan, CSV expense tracker, PDF checklist, and budget chart. Each has a title and short description. Tapping fills an editable prompt with fictional sample input; it never sends. They hide once there is a source or a draft.
+- Four preloaded conversations live in the ordinary sidebar history, with natural titles and no special labels or section. Each contains two exchanges; the CSV, PDF, and chart chats include openable files. The empty composer has no starter-prompt list.
 - A small glass chevron sits just above the composer whenever the feed is scrolled away from the latest message, and returns to it.
 
 ## Add surface

@@ -32,6 +32,15 @@ actor WorkspaceDatabase {
         try migrations.migrate(queue)
     }
 
+    func hasRecordOrTombstone(_ id: UUID, in collection: Collection) throws -> Bool {
+        try queue.read { db in
+            try Bool.fetchOne(db, sql: """
+                SELECT EXISTS(SELECT 1 FROM records WHERE collection=? AND id=?)
+                    OR EXISTS(SELECT 1 FROM tombstones WHERE collection=? AND id=?)
+                """, arguments: [collection.rawValue, id.uuidString, collection.rawValue, id.uuidString]) ?? false
+        }
+    }
+
     func readAll<T: Decodable & Sendable>(_ collection: Collection, as: T.Type) throws -> [T] {
         if let cached = cachedCollections[collection] as? [T] { return cached }
         let items = try queue.read { db in
