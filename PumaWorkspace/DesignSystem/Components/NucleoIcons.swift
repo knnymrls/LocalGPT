@@ -2,16 +2,9 @@ import SwiftUI
 
 // MARK: - The icon set, as vectors
 //
-// Ported from Slashy origin/main:mobile/ios-messages-extension/NucleoIcons.swift.
-// Every glyph is a Nucleo UI icon from Slashy's
-// `mobile/components/icons/nucleo/<Name>Icon.tsx` (18-unit viewBox). No SF
-// Symbols: Apple's glyphs read as a different product next to Nucleo's.
-//
-// The path data comes across verbatim. Rather than hand-translate curves into
-// `Path` calls — which is where transcription errors hide — the `d` strings
-// (and Line / Polyline / Rect / Circle attributes) are copied byte-for-byte
-// from the .tsx sources and parsed at draw time. Diffing against Slashy is a
-// string comparison.
+// Nucleo UI glyphs use an 18-unit viewBox. SVG path strings and primitive
+// attributes are preserved and parsed at draw time to avoid curve transcription
+// errors. Keep the original path data intact when editing this file.
 
 // MARK: - SVG path data → Path
 
@@ -455,7 +448,7 @@ struct VectorIconView: View {
 
 // MARK: - Public API
 
-/// The LocalGPT icon set. Each case names its Slashy source, `<Name>Icon.tsx`.
+/// The LocalGPT icon set. Each case identifies a Nucleo glyph.
 enum NucleoIcon: String, CaseIterable, Sendable {
     case menuLines, composePen, paperclip, add, microphone, microphoneSlash, keyboard
     case arrowUp, stop, waveform, xmark, done, chevronDown, chevronLeft, chevronRight
@@ -499,7 +492,7 @@ struct Icon: View {
 // MARK: - The set
 //
 // Path data below is VERBATIM from the .tsx sources named in each case.
-// Do not reformat it — a diff against Slashy should be a string comparison.
+// Preserve the original path strings when changing rendering code.
 // Outline elements are stroked at the .tsx default `strokeWidth = 1.5`.
 
 private enum NucleoGlyphs {

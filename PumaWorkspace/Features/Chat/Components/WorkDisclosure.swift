@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// What the assistant did before it answered, after Slashy's
-/// `ToolActivityGroup.tsx`. While it works, each step appears as it happens
+/// What the assistant did before it answered. While it works, each step
+/// appears as it happens
 /// and the current one shimmers. Once the answer starts, the steps fold into
 /// one quiet "Worked for 3s" row that expands on tap.
 struct WorkDisclosure: View {
@@ -82,7 +82,7 @@ struct WorkDisclosure: View {
 }
 
 /// One quiet highlight travelling across a line of text. Motion shows the
-/// work is live without dots. After Slashy's `ActivityShimmerText.tsx`.
+/// work is live without dots.
 struct ShimmerText: View {
     let text: String
     let base: Color

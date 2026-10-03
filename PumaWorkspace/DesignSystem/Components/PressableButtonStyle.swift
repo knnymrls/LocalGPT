@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Slashy's press response for icon buttons: scale 0.92 and opacity 0.9 while
+/// The shared press response for icon buttons: scale 0.92 and opacity 0.9 while
 /// held, settling back on a spring.
 struct PressableButtonStyle: ButtonStyle {
     var pressedScale: CGFloat = 0.92

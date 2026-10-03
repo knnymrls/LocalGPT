@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The canvas edge says who is speaking (Slashy `VoiceChatAura`).
+/// The canvas edge indicates who is speaking.
 ///
 /// USER: a water field rising from the bottom, a sum of four travelling sines
 /// whose height, crest depth, and wavelength follow voice energy.
@@ -9,8 +9,8 @@ import SwiftUI
 /// the height while the incoming one arrives as a brief accent flood that
 /// contracts to the rim.
 ///
-/// Slashy draws the water with a GPU shader. This build has no Metal toolchain
-/// requirement: the same per-column height function is drawn in a `Canvas` as
+/// This implementation has no Metal toolchain requirement: the per-column
+/// height function is drawn in a `Canvas` as
 /// thin vertical gradient strips, so alpha is still a continuous function of
 /// depth below the surface.
 struct VoiceAura: View {
@@ -109,8 +109,7 @@ struct VoiceAura: View {
 
 // MARK: - Spec
 
-/// Values from Slashy origin/main:mobile/components/agent-chat/VoiceChatAura.tsx
-/// and VoiceWaterField.tsx.
+/// Shared motion, energy, and geometry values for the voice aura.
 private enum AuraSpec {
     static let idle = 0.5
     static let opacityGamma = 0.7

@@ -1,8 +1,7 @@
 import SwiftUI
 
 /// A reply's Markdown, drawn as native text blocks: headings, paragraphs,
-/// bullet and numbered lists, quotes, code, and rules. Metrics follow
-/// Slashy's `MarkdownText.tsx`: 16pt body on a 21pt line, 8pt between blocks.
+/// bullet and numbered lists, quotes, code, and rules. Metrics use 16pt body on a 21pt line, 8pt between blocks.
 struct MarkdownText: View {
     let text: String
     /// Find in chat's query; every match is marked.

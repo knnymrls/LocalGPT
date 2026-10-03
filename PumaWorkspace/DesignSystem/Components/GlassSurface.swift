@@ -4,15 +4,15 @@ import SwiftUI
 //
 // Native iOS 26 Liquid Glass for the material and the press response. On a
 // flat white page the system's own edge all but vanishes, so `glassControl`
-// adds Slashy's directional rim. Every glass surface uses it. Slashy's tint ladder survives as
-// the one optional tint.
+// adds the shared directional rim. Every glass surface uses it, with an
+// optional control tint.
 
 enum GlassMaterial {
     /// Only the sheet background fades; foreground text and controls stay opaque.
     static let sheetOpacity = 0.55
     static let sheetCornerRadius: CGFloat = pt(40)
 
-    /// Slashy's control tint, for the rare surface that wants a wash.
+    /// The shared control tint, for the rare surface that wants a wash.
     static let controlTint = Color(uiColor: Tokens.Material.glassTint)
 
     /// Animate glass from this floor, never from 0: a glass view whose ancestors
@@ -40,8 +40,7 @@ private struct GlassFadeModifier: ViewModifier {
     func body(content: Content) -> some View { content.opacity(opacity) }
 }
 
-/// Slashy's native rim (`NATIVE_RIM_LIGHT` / `NATIVE_RIM_DARK` in
-/// navMaterial.ts): a conic gradient masked to a 0.75pt ring. Colours run from
+/// A directional rim: a conic gradient masked to a 0.75pt ring. Colours run from
 /// the top clockwise. The light comes from the top-left, so the two catches of
 /// light sit at the top-left (where it enters) and bottom-right (where it
 /// exits), and the two flanks at the top-right and bottom-left define the

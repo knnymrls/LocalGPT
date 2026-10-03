@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Slashy's ProgressiveBlur for a screen edge: a blur that is full strength at
+/// Progressive blur for a screen edge: a blur that is full strength at
 /// the edge and fades to nothing toward the content, with a wash of the page
 /// colour so text under the status bar or home indicator stays quiet.
 ///

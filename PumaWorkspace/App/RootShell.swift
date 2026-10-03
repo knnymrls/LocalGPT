@@ -67,7 +67,7 @@ struct RootShell: View {
     }
 }
 
-/// Slashy's MailSidebar push-reveal: the drawer is a still back layer and the
+/// The sidebar push-reveal: the drawer is a still back layer and the
 /// whole chat surface translates right to reveal it. `progress` (0...1) drives
 /// offset, corner radius, and shadow together, so open/close animate as one
 /// motion and a horizontal drag can scrub it interactively.
