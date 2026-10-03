@@ -9,16 +9,16 @@ enum ImageThumbnail {
         return encode(source)
     }
 
-    static func make(from url: URL) -> Data? {
+    static func make(from url: URL, maximumPixelSize: Int = 360) -> Data? {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-        return encode(source)
+        return encode(source, maximumPixelSize: maximumPixelSize)
     }
 
-    private static func encode(_ source: CGImageSource) -> Data? {
+    private static func encode(_ source: CGImageSource, maximumPixelSize: Int = 360) -> Data? {
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: 360
+            kCGImageSourceThumbnailMaxPixelSize: min(max(maximumPixelSize, 1), 1600)
         ]
         guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
         let data = NSMutableData()

@@ -2,6 +2,11 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Inline image replies
+
+- Image attachments now render directly in the conversation with their full aspect ratio and tap-to-open originals. Non-image files retain their document receipts.
+- Added bounded, cached image previews loaded away from the UI actor.
+
 ## 2026-10-03 — Output previews and composer inputs
 
 - Removed automatic output-file selection from preloaded chats and added a one-time repair for already installed chats, preserving user uploads, messages, titles, and drafts.

@@ -158,3 +158,7 @@ In the normal Audio QA Simulator app, the four conversations appeared alongside 
 All 31 deterministic tests passed. The new regression models an older seeded chart with a missing thumbnail and preselected output, then verifies that upgrade removes only the original output selection, preserves an imported selection/title/draft/messages, produces a decodable preview no larger than 360 pixels, retains the original file, and respects a later intentional reselection. New generated PNGs carry thumbnails immediately.
 
 The updated normal Audio QA Simulator build opens the budget conversation with an empty composer and its PNG still linked in the reply. The full chart opens through Quick Look. The blank composer tile in the earlier screenshot was caused by a missing thumbnail on a wrongly preselected output, not a missing PNG original.
+
+## Inline image replies — October 3, 2026
+
+The Simulator build succeeds with image-specific reply rendering. On the installed Audio QA build, the budget chart is visible directly beneath the assistant text at its full aspect ratio, without a filename capsule. Tapping it opens the original in Quick Look. The composer remains empty. Feed previews are bounded to 1200 pixels and cached; non-image receipts retain their existing behavior. The feed follows layout growth while already following the latest message. This UI pass does not imply new model capability.

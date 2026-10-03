@@ -97,6 +97,10 @@ struct ChatFeed: View {
                     follows = false
                 }
             }
+            .onScrollGeometryChange(for: CGFloat.self) { $0.contentSize.height } action: { _, _ in
+                // Image previews can finish layout after the message is inserted.
+                if follows && !userScrolling { position.scrollTo(edge: .bottom) }
+            }
             .onChange(of: tail) { old, new in
                 // Sending always returns to the latest message.
                 if new.count > old.count,
@@ -185,7 +189,13 @@ private struct AssistantRow: View {
             }
             if message.status != .streaming, !documents.isEmpty {
                 VStack(spacing: pt(8)) {
-                    ForEach(documents) { ReplyDocumentRow(document: $0) }
+                    ForEach(documents) { document in
+                        if document.kind == .image {
+                            ReplyImage(document: document)
+                        } else {
+                            ReplyDocumentRow(document: document)
+                        }
+                    }
                 }
             }
             if !message.savedMemoryIDs.isEmpty { SavedMemoryReceipt(ids:message.savedMemoryIDs) }
