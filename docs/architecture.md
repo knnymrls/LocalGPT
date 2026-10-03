@@ -40,6 +40,8 @@ flowchart TD
 
 `WorkspaceStartup` constructs live services and displays a recoverable error if storage cannot open. A Release build has the same live path as Debug. Mock services require an explicit `-preview` or `-uiState` launch argument in DEBUG.
 
+The container carries preview identity to the composer so fixtures cannot advertise real inference. Verify the installed binary on the exact Simulator being reviewed: other booted devices may still contain historical UI-only builds.
+
 `WorkspaceDatabase` is an actor owning one GRDB writer and versioned migrations. Records currently use Codable JSON payloads in typed collections. Conversation revisions reject stale snapshots; deletion tombstones prevent delayed tasks from resurrecting records. Draft saves are debounced; reply text is checkpointed while streaming. An interrupted streaming reply reopens as stopped. Decoded collection caches are invalidated on writes.
 
 All chat payloads currently load at startup; this is appropriate to the bounded take-home, not a claim of unlimited-history scalability. Before large-scale use, split message rows from conversation metadata and page the feed/history. No backend or sync layer is hidden behind these repositories.

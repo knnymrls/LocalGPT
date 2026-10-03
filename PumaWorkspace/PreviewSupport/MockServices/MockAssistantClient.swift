@@ -102,11 +102,7 @@ struct MockAssistantClient: AssistantClient {
         }
         return Script(
             text: """
-            I can help with that. Add the documents you want me to use with the **plus** button, then ask me to:
-
-            - Compare them
-            - Pull out specific details
-            - Point out what's missing
+            This is a UI preview with scripted sample replies. Relaunch without preview arguments to use the on-device assistant.
             """
         )
     }

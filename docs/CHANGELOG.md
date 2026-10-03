@@ -2,6 +2,12 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Distinguish previews from the live assistant
+
+- Traced repeated document-upload replies to an old UI-only build on the iPhone 17 Pro Max Simulator, then updated that exact Simulator to live services.
+- Explicit fixture launches now say "UI preview"; their generic reply explains that no inference is running instead of requesting documents.
+- Confirmed general questions run without attachments. A sunset follow-up repeated the earlier explanation incorrectly; model quality remains a separate limitation, recorded in verification.md.
+
 ## 2026-10-03 — Clearer, consistent glass
 
 - Switched shared un-tinted surfaces to clear native glass while retaining the directional rim.

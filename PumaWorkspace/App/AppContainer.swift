@@ -10,6 +10,7 @@ struct AppContainer: Sendable {
     var modelCatalog: any ModelCatalog
     var importer: (any DocumentImporter)? = nil
     var memoryCapture: MemoryService? = nil
+    var isPreview = false
 
     static func make(arguments: [String] = ProcessInfo.processInfo.arguments) throws -> AppContainer {
         #if DEBUG
@@ -42,7 +43,8 @@ struct AppContainer: Sendable {
             conversations: InMemoryConversationRepository(Fixtures.conversations()),
             attachments: InMemoryAttachmentRepository(Fixtures.attachments),
             memories: InMemoryMemoryRepository(Fixtures.savedMemories),
-            modelCatalog: FixtureModelCatalog()
+            modelCatalog: FixtureModelCatalog(),
+            isPreview: true
         )
     }
     #endif

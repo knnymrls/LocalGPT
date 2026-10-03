@@ -173,14 +173,14 @@ struct Composer: View {
     /// Where the answer comes from. A plain label: with one on-device model
     /// there is nothing to choose, so there is nothing to open.
     private var modelLabel: some View {
-        Text(chat.selectedModel?.shortName ?? "On-device")
+        Text(chat.isPreview ? "UI preview" : chat.selectedModel?.shortName ?? "On-device")
             .font(.title)
             // Quiet until the model can actually answer.
             .foregroundStyle(chat.selectedModel?.availability == .ready ? Tokens.foreground : Tokens.foregroundMuted)
             .lineLimit(1)
             .padding(.horizontal, pt(6))
             .frame(height: Self.buttonSize)
-            .accessibilityLabel(Text(chat.selectedModel?.availability.explanation ?? "Runs on this iPhone"))
+            .accessibilityLabel(Text(chat.isPreview ? "UI preview. Scripted sample replies, no AI inference." : chat.selectedModel?.availability.explanation ?? "Runs on this iPhone"))
             .onTapGesture { if let reason = chat.selectedModel?.availability.explanation { chat.operationError = reason } }
     }
 

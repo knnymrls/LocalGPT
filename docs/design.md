@@ -45,6 +45,8 @@ Two bars can appear directly under the top bar:
 
 One glass card. From top to bottom: the chat's sources as a row of square cards, the text field ("Ask anything…"), and a control row with the plus, an "On-device" label, the microphone, and one primary button.
 
+Explicit DEBUG fixture launches show "UI preview" in place of "On-device", with an accessibility explanation that replies are scripted. Unknown preview prompts explain how to return to live inference.
+
 - The primary button is voice when the field is empty, send when there is text, a filled stop square while a reply is running, and a tick while dictating.
 - The microphone dictates into the field until the user taps Finish; sentence boundaries and quiet windows do not stop it. Finish flushes remaining audio, and the waveform uses perceptual input levels in a fixed-height row. Voice mode is a continuous spoken conversation with a mute and an exit control and an aura behind the feed. Every completed spoken reply returns to listening. Silence and opening an output leave the call active. Leaving voice keeps the draft and never sends it.
 - Source cards scroll sideways. A file card shows its type glyph and name; a photo card shows the image. Each has an X, removing one slides the rest left, and tapping a card opens the file. Open and Remove are separate accessible buttons.

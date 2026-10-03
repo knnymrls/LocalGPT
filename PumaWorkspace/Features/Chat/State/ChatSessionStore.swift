@@ -87,6 +87,7 @@ final class ChatSessionStore {
     }
 
     var messages: [Message] { active.messages }
+    var isPreview: Bool { container.isPreview }
     var title: String? { active.title }
 
     var draft: String {

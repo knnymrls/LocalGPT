@@ -1,6 +1,12 @@
 # Verification — 2026-10-03
 
-## Current revision — consistent clear glass
+## Current revision — live installation and preview identity
+
+The iPhone 17 Pro Max Simulator was running an old UI-only binary, despite the dedicated Audio QA Simulator having live services. Its repeated upload-documents response matched the mock assistant exactly. Updated Pro Max in place to the current Debug build, without uninstalling. Voice preparation was visible afterward; microphone acceptance was not established.
+
+On Audio QA, an explicit `-preview` launch exposed the "UI preview" label and scripted-reply accessibility explanation. A normal launch restored live services. With no attachments, the real model answered why the sky is blue and the user's high-level cure-development question, without asking for documents. The sunset follow-up incorrectly repeated the earlier blue-sky explanation, and an old irrelevant saved memory leaked into acknowledgment wording. These are observed model/context quality limitations, not a passing broad knowledge or multi-turn benchmark. The Debug build passes.
+
+## Previous revision — consistent clear glass
 
 The updated Debug build passes. Light/dark screenshots show the left circle and right capsule sharing the same rim and fill. The right Menu opens and dismisses, and its independent Outputs target opens Outputs. Recorded dark menu transitions were inspected at the recording's 10fps around opening and closing; no solid black flash was observed. Light/dark sheet foreground remained legible with its background alone reduced to 55% opacity. This is visual Simulator review, not a complete accessibility/contrast certification. Appearance was restored to light after review.
 
