@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// "Memories": everything the assistant was asked to remember, opened from
-/// the drawer.
+/// Lasting context and explicit memories, opened from the drawer.
 struct MemoriesSheet: View {
     @Environment(ChatSessionStore.self) private var chat
 
@@ -11,7 +10,7 @@ struct MemoriesSheet: View {
                 SheetEmptyState(
                     icon: .brain,
                     title: "No memories yet",
-                    message: chat.memoryFailure ?? "Context you share is remembered automatically. Saved memories can be reviewed, edited, or forgotten here."
+                    message: chat.memoryFailure ?? "Lasting preferences and things you ask to remember appear here."
                 )
             } else {
                 if let failure = chat.memoryFailure {
@@ -23,14 +22,11 @@ struct MemoriesSheet: View {
     }
 }
 
-/// A card of remembered things, one plain line each. Press and hold a row to
-/// edit or forget it.
+/// One plain row per memory. Removal stays in the long-press menu.
 struct MemoryList: View {
     var items: [MemoryItem]? = nil
     @Environment(NavigationState.self) private var navigation
     @Environment(ChatSessionStore.self) private var chat
-    @State private var editing: MemoryItem?
-    @State private var editText = ""
 
     var body: some View {
         SheetCard {
@@ -47,28 +43,11 @@ struct MemoryList: View {
                     .accessibilityAddTraits(.isButton)
                     .contentShape(.contextMenuPreview, .rect(cornerRadius: SheetMetrics.cardRadius, style: .continuous))
                     .contextMenu {
-                        Button("Edit") {
-                            editText = memory.text
-                            editing = memory
-                        }
-                        Button("Forget", role: .destructive) {
+                        Button("Remove", role: .destructive) {
                             chat.forgetMemory(memory.id)
                         }
                     }
             }
         }
-        .alert("Edit memory", isPresented: isEditing, presenting: editing) { memory in
-            TextField("Memory", text: $editText, axis: .vertical)
-            Button("Cancel", role: .cancel) {}
-            Button("Save") {
-                let text = editText.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !text.isEmpty { chat.updateMemory(memory.id, text: text) }
-            }
-            .keyboardShortcut(.defaultAction)
-        }
-    }
-
-    private var isEditing: Binding<Bool> {
-        Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })
     }
 }

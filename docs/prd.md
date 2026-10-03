@@ -1,6 +1,6 @@
 # Puma Workspace PRD
 
-Puma Workspace is a native iPhone assistant for private conversations over personal documents. People can type or speak, inspect the evidence behind an answer, create useful files, and carry context into future chats through visible, editable memories.
+Puma Workspace is a native iPhone assistant for private conversations over personal documents. People can type or speak, inspect the evidence behind an answer, create useful files, and carry context into future chats through visible memories.
 
 ## Goal
 
@@ -12,7 +12,7 @@ The product should feel continuous across voice and text. Its saved state and ou
 
 The approved interface remains one chat feed and composer. The top-left control opens the chat drawer with history, search, pinned chats, and Memories. The right module contains New chat, Outputs, and the chat menu. The composer's plus adds files, photos, or camera images. Supporting content opens in sheets.
 
-Typing, dictation, and voice conversation share the active chat, draft, sources, and history. Dictation adds editable text without sending. Voice conversation sends a completed utterance and speaks the answer. Returning to the keyboard keeps partial text and an ongoing reply. Capture pauses during playback; full-duplex interruption is outside this release.
+Typing, dictation, and voice conversation share the active chat, draft, sources, and history. Dictation adds editable text without sending. Voice conversation is a continuous foreground session: it sends a completed utterance, speaks the answer, then listens again without another tap. Quiet pauses and inspecting outputs do not end the call. Leaving voice, switching chats, or backgrounding ends capture. Returning to the keyboard keeps partial text and an ongoing reply. Capture pauses during playback; full-duplex interruption is outside this release.
 
 ## Requirements
 
@@ -24,8 +24,8 @@ Typing, dictation, and voice conversation share the active chat, draft, sources,
 | Inputs | Read selected PDFs, text, Markdown, code, JSON, CSV, and image text. OCR scanned PDF pages and photos. Preserve original files. Unsupported formats give an actionable explanation. |
 | Evidence | Only selected, ready sources enter a request. Numbered references open the supporting excerpt and source. Missing facts stay unknown. |
 | Revisions | Follow the latest question and changed requirements while keeping conversation context. Comparisons use readable Markdown tables. |
-| Memory | Extract useful context explicitly supplied by the user automatically, without requiring “remember.” Save the supporting words and origin. Avoid questions, guesses, and facts from pasted documents. Deduplicate repeated context. |
-| Memory receipt | Show **Saved to memory** after commit. Tap to open that exact record, including the quote and date, with Edit and Forget. Saved memories also appear in Memories and the originating chat's Outputs. Failed writes never show a saved receipt. |
+| Memory | Save only stable preferences, enduring personal context, or explicit requests to remember. Most messages save nothing. Temporary task requirements, budgets, guest counts, and one-off plans stay in chat history. Retain supporting words and origin internally, reject questions/guesses/document facts, and deduplicate. |
+| Memory receipt | Show **Saved to memory** after commit. Tap to read that exact memory in a simple sheet. Keep removal in a long-press menu on the memory list; no edit/forget detail card. Saved memories also appear in Memories and the originating chat's Outputs. Failed writes never show a saved receipt. |
 | Outputs | Create actual PDF, CSV, JSON, Markdown, text, and R files, plus locally rendered chart/diagram PNGs. Preview and share files through system surfaces. No script execution. |
 | Voice | Visible preparation/transcript/microphone state; separate dictation and conversation modes; retain draft on handoff; reject callbacks from old sessions; recover from unavailable/interrupted audio. |
 | Performance | Cache extraction by content, keep speech assets/model warm, debounce draft writes, checkpoint replies, and avoid document work on the UI actor. |
@@ -45,7 +45,7 @@ Typing, dictation, and voice conversation share the active chat, draft, sources,
 
 - A normal launch uses real inference and storage; fixture mode is explicit and DEBUG-only.
 - Deletion and cancellation cannot be undone by a late callback or stale save.
-- A memory receipt is bound to a committed record and remains inspectable after relaunch; editing/forgetting changes future context.
+- A memory receipt is bound to a committed record and remains inspectable after relaunch; removing it changes future memory context.
 - A reviewer can complete the demonstration and see truthful loading/error/recovery states.
 - Required assets can be installed once, with subsequent operation verified offline.
 - Setup instructions, architecture, measured results, and remaining platform limits are documented separately from product requirements.

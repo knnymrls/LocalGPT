@@ -65,7 +65,7 @@ final class LiveModelTests: XCTestCase {
         let client = LocalAssistantClient(database: db, attachments: files, memories: service, writer: writer)
         let result = try await answer("What kind of venue do I prefer, and what is my event budget?", client: client)
         XCTAssertTrue(result.text.localizedCaseInsensitiveContains("quiet"))
-        XCTAssertTrue(result.text.contains("4,200") || result.text.contains("4200"))
+        XCTAssertFalse(saved.contains { $0.text.contains("4200") }, "The event budget belongs in chat history, not long-term memory")
         XCTAssertTrue(result.outputs.isEmpty)
     }
 
@@ -179,15 +179,25 @@ final class LiveModelTests: XCTestCase {
         XCTAssertTrue(result.outputs.isEmpty)
     }
 
-    func testMixedContextAndQuestionSavesOnlyTheContext() async throws {
+    func testTemporaryRequirementsAreNotMemories() async throws {
         let (_, _, _, memory, _) = try workspace()
         let service = MemoryService(repository: memory)
         let request = ReplyRequest(conversationID: UUID(), prompt: "Now we need seating for 140 guests. Which venue qualifies, and what accessibility information still needs checking?", history: [], modelID: SystemModelCatalog.modelID, selectedSourceIDs: [])
         try await service.capture(request, scope: RequestScope()) { _ in }
         let saved = try await memory.all()
-        XCTAssertFalse(saved.isEmpty)
-        XCTAssertTrue(saved.contains { $0.text.contains("140") })
-        XCTAssertFalse(saved.contains { $0.text.localizedCaseInsensitiveContains("which venue") || $0.text.contains("?") })
+        XCTAssertTrue(saved.isEmpty, "A changed guest count and a question must stay in the conversation")
+    }
+
+    func testExplicitRememberAndEnduringContextRemainEligible() async throws {
+        let (_, _, _, memory, _) = try workspace()
+        let service = MemoryService(repository: memory)
+        for prompt in ["I live in Portland and work as a mobile engineer.", "Please remember that my event budget is 4200 dollars."] {
+            let request = ReplyRequest(conversationID: UUID(), prompt: prompt, history: [], modelID: SystemModelCatalog.modelID, selectedSourceIDs: [])
+            try await service.capture(request, scope: RequestScope()) { _ in }
+        }
+        let saved = try await memory.all()
+        XCTAssertTrue(saved.contains { $0.text.contains("Portland") })
+        XCTAssertTrue(saved.contains { $0.text.contains("4200") })
     }
 
     func testCSVCalculationUsesLocalToolEvidence() async throws {
@@ -204,7 +214,7 @@ final class LiveModelTests: XCTestCase {
     }
 
     @MainActor
-    func testRecordedVoiceTurnCreatesReplyMemoryAndSpeechPlayback() async throws {
+    func testRecordedVoiceCallContinuesThroughTwoTurns() async throws {
         let (_, db, files, memory, writer) = try workspace()
         let service = MemoryService(repository: memory)
         let speech = RecordedSpeechInput(samples: try recordedSamples())
@@ -217,22 +227,61 @@ final class LiveModelTests: XCTestCase {
         let voice = VoiceSessionController(speech: speech, chat: chat)
         defer { voice.exit() }
         voice.start()
-        let deadline = Date().addingTimeInterval(40)
+        let deadline = Date().addingTimeInterval(65)
         while Date() < deadline {
-            if await speech.probe.finishedPlayback, !chat.memories.isEmpty { break }
+            if await speech.probe.playbackCount == 2, await speech.probe.inputCount >= 3, voice.state == .listening, !chat.memories.isEmpty { break }
+            if chat.messages.last?.status == .failed { break }
             try await Task.sleep(for: .milliseconds(100))
         }
+        XCTAssertEqual(voice.state, .listening, "After two spoken replies, the same call must still be listening")
+        let inputCount = await speech.probe.inputCount
+        XCTAssertGreaterThanOrEqual(inputCount, 3)
         voice.handoffToKeyboard()
         try await Task.sleep(for: .milliseconds(150)) // Drain canceled capture/playback callbacks before teardown.
-        XCTAssertEqual(chat.messages.filter { $0.role == .user }.count, 1)
+        XCTAssertEqual(chat.messages.filter { $0.role == .user }.count, 2)
         XCTAssertTrue(chat.messages.first?.text.localizedCaseInsensitiveContains("quiet gardens") == true)
         XCTAssertEqual(chat.messages.last?.status, .complete)
         XCTAssertFalse(chat.messages.last?.savedMemoryIDs.isEmpty ?? true)
-        let played = await speech.probe.finishedPlayback
+        let played = await speech.probe.playbackCount
         let spoke = await speech.probe.sawSpeechRange
-        XCTAssertTrue(played, "Real synthesis should finish before returning to listening")
+        XCTAssertEqual(played, 2, "Both real synthesis passes must finish before returning to listening")
         XCTAssertTrue(spoke, "A synthesis delegate callback must confirm speech started")
         XCTAssertEqual(voice.state, .idle)
+    }
+
+    /// Isolates audio continuity when the independent Foundation Models runtime is unavailable.
+    @MainActor
+    func testTwoRecordedSpeechTurnsWithScriptedReplies() async throws {
+        let speech = RecordedSpeechInput(samples: try recordedSamples())
+        let container = AppContainer(assistant: ScriptedVoiceReplies(), speech: speech,
+                                     conversations: InMemoryConversationRepository([]), attachments: InMemoryAttachmentRepository([]),
+                                     memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
+        let chat = ChatSessionStore(container: container)
+        await chat.load()
+        let voice = VoiceSessionController(speech: speech, chat: chat)
+        defer { voice.exit() }
+        voice.start()
+        let deadline = Date().addingTimeInterval(30)
+        while Date() < deadline {
+            if await speech.probe.playbackCount == 2, await speech.probe.inputCount >= 3, voice.state == .listening { break }
+            if case .unavailable = voice.state { break }
+            try await Task.sleep(for: .milliseconds(100))
+        }
+        let played = await speech.probe.playbackCount
+        XCTAssertEqual(played, 2)
+        XCTAssertEqual(voice.state, .listening)
+        XCTAssertEqual(chat.messages.filter { $0.role == .user }.count, 2)
+        XCTAssertTrue(chat.messages.filter { $0.role == .user }.allSatisfy { $0.text.localizedCaseInsensitiveContains("quiet gardens") })
+        XCTAssertEqual(AVAudioSession.sharedInstance().category, .playAndRecord, "The call must retain its duplex audio route between turns")
+        voice.handoffToKeyboard()
+        try await Task.sleep(for: .milliseconds(150))
+        XCTAssertEqual(voice.state, .idle)
+    }
+}
+
+private struct ScriptedVoiceReplies: AssistantClient {
+    func send(_ request: ReplyRequest) -> AsyncStream<ReplyEvent> {
+        AsyncStream { $0.yield(.text("Quiet gardens. Understood.")); $0.yield(.finished); $0.finish() }
     }
 }
 
@@ -240,10 +289,13 @@ final class LiveModelTests: XCTestCase {
 private struct RecordedSpeechInput: SpeechClient {
     let samples: [Float]
     let probe = RecordedSpeechProbe()
+    func beginConversation(id: UUID) async { await LocalSpeechClient().beginConversation(id: id) }
+    func endConversation(id: UUID) async { await LocalSpeechClient().endConversation(id: id) }
     func listen() -> AsyncStream<TranscriptEvent> {
         AsyncStream { continuation in
             let task = Task {
-                guard await probe.takeInput() else { continuation.finish(); return }
+                continuation.yield(.ready)
+                guard await probe.takeInput() else { return }
                 do {
                     let text = try await WhisperRuntime.shared.transcribe(samples)
                     try Task.checkCancellation()
@@ -273,14 +325,13 @@ private struct RecordedSpeechInput: SpeechClient {
 }
 
 private actor RecordedSpeechProbe {
-    private var inputUsed = false
-    private(set) var finishedPlayback = false
+    private(set) var inputCount = 0
+    private(set) var playbackCount = 0
     private(set) var sawSpeechRange = false
     func takeInput() -> Bool {
-        guard !inputUsed else { return false }
-        inputUsed = true
-        return true
+        inputCount += 1
+        return inputCount <= 2
     }
-    func played() { finishedPlayback = true }
+    func played() { playbackCount += 1 }
     func spoke() { sawSpeechRange = true }
 }

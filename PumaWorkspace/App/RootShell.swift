@@ -33,14 +33,15 @@ struct RootShell: View {
             .onChange(of: navigation.drawerOpen) { _, open in
                 guard open else { return }
                 navigation.addMenuOpen = false
-                voice.pause()
                 // The composer slides away with the surface; drop the keyboard.
                 UIApplication.shared.sendAction(
                     #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
                 )
             }
-            .onChange(of: navigation.activeSheet) { _, sheet in
-                if sheet != nil { voice.pause() }
+            .onChange(of: chat.activeID) { _, _ in
+                // Inspecting an output or opening the drawer does not hang up the call.
+                // Changing conversations does, so speech cannot land in another chat.
+                voice.pause()
             }
             .task {
                 await chat.load()

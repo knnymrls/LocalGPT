@@ -20,7 +20,15 @@ enum PlaybackEvent: Sendable {
 
 /// Capture and playback. Cancelling the consuming task stops capture/playback.
 protocol SpeechClient: Sendable {
+    /// Own the audio session across all turns, including time spent thinking or quietly listening.
+    func beginConversation(id: UUID) async
+    func endConversation(id: UUID) async
     func listen() -> AsyncStream<TranscriptEvent>
     /// Speaks text; distinguishes successful completion from interrupted or unavailable audio.
     func speak(_ text: String) -> AsyncStream<PlaybackEvent>
+}
+
+extension SpeechClient {
+    func beginConversation(id: UUID) async {}
+    func endConversation(id: UUID) async {}
 }

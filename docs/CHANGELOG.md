@@ -2,6 +2,13 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Selective memory and continuous voice
+
+- Limited memory to lasting preferences, enduring personal context, and explicit remember requests. Removed budgets and current task requirements from default eligibility, with a second policy check after model classification.
+- Simplified saved-memory sheets to the saved text only. Removed the edit form and Edit/Forget action row; Remove stays in the list’s long-press menu.
+- Kept one audio-session lease across voice turns and rearmed capture after replies and quiet windows. Fixed silent pre-roll filling Whisper’s utterance cap. Opening Outputs or the drawer no longer ends voice; changing chats still stops capture.
+- Added regression coverage for two-turn calls, silent capture rollover, long pre-speech silence, and conservative memory selection. Current validation and platform limitations are in verification.md.
+
 ## 2026-10-03 — Memory edit and recovery verification
 
 - Inspected memory editing and recall in a fresh live chat. The changed value survived relaunch while retaining its original supporting quote.

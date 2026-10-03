@@ -4,6 +4,9 @@ import Foundation
 
 /// Recognition explicitly requires the device recognizer; there is no server fallback.
 struct LocalSpeechClient: SpeechClient {
+    func beginConversation(id: UUID) async { await LocalAudioSession.shared.beginConversation(id: id) }
+    func endConversation(id: UUID) async { await LocalAudioSession.shared.endConversation(id: id) }
+
     func listen() -> AsyncStream<TranscriptEvent> {
         let id = UUID()
         return AsyncStream { stream in
@@ -47,6 +50,15 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
     private var playback: AsyncStream<PlaybackEvent>.Continuation?
     private var playbackTimeout: Task<Void, Never>?
     private var lastText = ""
+    private var conversationID: UUID?
+
+    func beginConversation(id: UUID) { conversationID = id }
+
+    func endConversation(id: UUID) {
+        guard conversationID == id else { return }
+        conversationID = nil
+        releaseAudioIfIdle()
+    }
 
     override init() {
         super.init()
@@ -118,8 +130,9 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
             timeout = Task { [weak self] in
                 do { try await Task.sleep(for: .seconds(50)) } catch { return }
                 guard let self, self.captureID == id else { return }
-                if self.lastText.isEmpty { self.fail("No speech detected. Tap voice to try again.", id: id) }
-                else { self.finish(id: id) }
+                // Quiet is normal during a call. Rotate this bounded recognizer without
+                // reporting an error or ending the enclosing conversation.
+                self.finish(id: id)
             }
         } catch { fail(error.localizedDescription, id: id) }
     }
@@ -199,7 +212,11 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
         guard !text.isEmpty else { stream.yield(.finished); stream.finish(); return }
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .spokenAudio)
+            if conversationID != nil {
+                try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetoothHFP])
+            } else {
+                try session.setCategory(.playback, mode: .spokenAudio)
+            }
             try session.setActive(true)
         } catch {
             stream.yield(.failed("Spoken playback is unavailable: \(error.localizedDescription)"))
@@ -240,7 +257,7 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
     func releaseAudioIfIdle() {
         Task { @MainActor in
             await Task.yield()
-            guard self.captureID == nil, self.playbackID == nil,
+            guard self.conversationID == nil, self.captureID == nil, self.playbackID == nil,
                   SpeechReader.shared.speakingID == nil else { return }
             try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         }

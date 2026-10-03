@@ -34,7 +34,7 @@ actor MemoryService {
             item.messageID = request.userMessageID
             item.sourceQuote = candidate.evidence
             item.fingerprint = key
-            guard MemoryExtractor.isGrounded(candidate, in: request.prompt) else { continue }
+            guard MemoryPolicy.shouldSave(candidate, in: request.prompt) else { continue }
             guard try await repository.insertIfNew(item) else { continue }
             existing.append(item)
             await onSaved(item)

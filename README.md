@@ -1,6 +1,6 @@
 # Puma Workspace
 
-A native iPhone assistant with local chat, selected-document evidence, automatic memory, and shared voice/text conversations. The approved SwiftUI interface connects to real services by default. No account or app backend is required.
+A native iPhone assistant with local chat, selected-document evidence, selective long-term memory, and shared voice/text conversations. The approved SwiftUI interface connects to real services by default. No account or app backend is required.
 
 ## Run
 
@@ -14,7 +14,7 @@ Private inputs are processed locally. Public speech-model assets are the only ap
 
 ## Try it
 
-- Say or type **“I prefer quiet venues and my budget is 4200 dollars.”** After the actual memory commit, **Saved to memory** appears below the reply. Tap it to inspect the original quote, edit the memory, or forget it. Start a new chat and ask about the preference.
+- Say or type **“I generally prefer quiet venues.”** After a lasting preference is committed, **Saved to memory** appears below the reply. Tap it to read the memory in a simple sheet. Temporary budgets and guest counts stay in chat history unless you explicitly ask to remember them. Start a new chat and ask about the preference. A long press in Memories provides Remove.
 - Add two venue proposals through Files. Compare capacity, cost, and accessibility; tap a numbered reference to inspect its passage. Then change the guest count and ask which venue fits.
 - Ask for a PDF checklist, CSV budget, R script, bar chart, or flow diagram. Open the resulting file from the reply or Outputs. R scripts are not executed.
 - Dictation fills the editable draft. Voice conversation sends completed utterances and reads replies. Keyboard handoff preserves the partial draft and any in-progress reply.

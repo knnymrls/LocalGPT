@@ -1,5 +1,14 @@
 # Verification — 2026-10-03
 
+## Current revision — selective memory and continuous voice
+
+Kenny’s latest feedback supersedes broad automatic memory and the detailed Edit/Forget sheet. Current memory selection is limited to lasting context or explicit requests; current sheets show only saved text. Voice owns an ongoing foreground audio session across turns and quiet windows.
+
+- **Deterministic checks:** 23 tests pass, including two voice turns, playback/capture ordering, quiet recognizer rollover, mute and keyboard handoff, long pre-speech silence, and rejection of temporary/task memory candidates.
+- **Audio integration:** two recorded speech turns pass with real Whisper recognition and Apple speech synthesis, using explicitly scripted assistant replies to isolate audio from model availability. After both replies the controller remains listening and the audio category remains play-and-record.
+- **Release:** the generic Simulator Release build passes.
+- **Current model-runtime blocker:** the expanded live suite fails because Apple’s runtime reports missing model-catalog assets (`com.apple.UnifiedAssetFramework`, code 5000) despite reporting the system model available. One restart of the dedicated Simulator did not recover it. New memory classification and two-turn real-model integration therefore remain unverified on this revision. Earlier successful inference runs below are historical evidence, not a pass for this changed policy.
+
 ## Environment
 
 - Xcode 26.6; iOS 26.5 Simulator on macOS 26.5.1.
@@ -7,7 +16,7 @@
 - The system language model was available and generated real responses. No fixture assistant was used in the opt-in live suite.
 - No physical-device performance claim. Current Xcode 27 requires a Mac OS update on this machine; direct image-model integration remains deferred.
 
-## Observed checks
+## Earlier integration baseline (before this feedback)
 
 | Check | Result |
 | --- | --- |
@@ -22,7 +31,7 @@
 | Simulator UI | Saved memory receipt opens the matching quote/date/edit/forget sheet; history and memory survive relaunch; a new chat recalls saved context. Files-picker imports, original-file preview after sandbox relocation, citation details, the verified 140-person revision, and its generated PDF were inspected in the live app. Forget removed the test record and reduced the Outputs count. Editing a synthetic requirement from 140 to 150 guests preserved its original quote; a fresh chat recalled 150. The edited memory and an unsent draft survived an intentional relaunch. Starting and finishing dictation preserved that draft without sending it. |
 | Release configuration | Generic Simulator Release build succeeded with live services. |
 
-All nine live checks passed together in the final suite; all 20 deterministic checks and the generic Simulator Release build also passed. These are a small repeatable evaluation set, not a general model-quality guarantee. Test responses are attached to Xcode's result bundle.
+Before the selective-memory/continuous-call revision, all nine live checks passed together; all 20 deterministic checks and the generic Simulator Release build also passed. These are a small repeatable evaluation set, not a general model-quality guarantee. Test responses are attached to Xcode's result bundle.
 
 ## Sample Simulator timings
 
@@ -40,7 +49,7 @@ Whisper model assets occupied approximately 149 MB after installation; tokenizer
 
 ## Remaining checks and limits
 
-- **Live microphone:** permissions, asset preparation, and recovery render, but the Simulator did not transcribe speech played through the Mac speakers. Recorded-audio inference passes. A real spoken microphone test remains pending; do not describe full voice conversation as verified end to end.
+- **Live microphone:** recorded audio does not prove microphone capture; permissions, asset preparation, and recovery render, but the Simulator did not transcribe speech played through the Mac speakers. Recorded-audio inference passes. A real spoken microphone test remains pending; do not describe full voice conversation as verified end to end.
 - **Offline:** the implementation has no remote inference/transcription path and caches required assets. A network-disconnected end-to-end run has not been observed. Do not confuse cached-model tests with verified offline operation.
 - **Physical hardware:** camera capture, Bluetooth routing, interruption/resumption, latency, memory pressure, and thermal behavior need an iPhone pass.
 - **Images:** Vision OCR reads image text. General scene reasoning and AI picture generation are not supported in this build.
@@ -57,7 +66,7 @@ Use the commands in [README](../README.md). The default scheme does not require 
 
 Run automated tests before manual Simulator inspection: Xcode intentionally relaunches the test host. For a manual pass, launch the app without `-preview`/`-uiState`, then follow the PRD demonstration. Turn off capture when finished.
 
-## Simulator memory receipt
+## Earlier Simulator memory receipt (superseded detail UI)
 
 Synthetic venue-preference test, normal live services, after retry and relaunch. The receipt opens the exact saved quote and its controls.
 
@@ -77,7 +86,7 @@ The generated PDF was opened from the final reply and visually inspected. It pre
 
 <img src="evidence/generated-report.png" width="280" alt="Generated PDF with verified qualification and original source details">
 
-## Memory edit and draft recovery
+## Historical memory edit and draft recovery (superseded UI)
 
 The synthetic seating requirement was edited through its saved-memory sheet from 140 to 150 guests. The record retained the original quote, and a new chat with no sources answered 150. After an intentional terminate/relaunch, Memories still displayed the edited value and the active composer retained its unsent draft. Entering and finishing dictation also retained that draft without adding a user message. This checks UI state transitions, not successful microphone transcription.
 

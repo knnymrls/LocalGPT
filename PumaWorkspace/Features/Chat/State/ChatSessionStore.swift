@@ -471,21 +471,6 @@ final class ChatSessionStore {
 
     func dismissMemory() { pendingMemory = nil }
 
-    func updateMemory(_ id: UUID, text: String) {
-        guard var item = memories.first(where: { $0.id == id }) else { return }
-        let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
-        item.text = text
-        item.updatedAt = .now
-        item.fingerprint = MemoryExtractor.fingerprint(text)
-        Task {
-            do {
-                try await container.memories.save(item)
-                if let i = memories.firstIndex(where: { $0.id == id }) { memories[i] = item }
-            } catch { operationError = error.localizedDescription }
-        }
-    }
-
     func forgetMemory(_ id: UUID) {
         cancelReply() // Revoke any in-flight prompt containing the forgotten fact.
         for entry in memoryTasks.values { entry.1.cancel() }; memoryTasks.removeAll()

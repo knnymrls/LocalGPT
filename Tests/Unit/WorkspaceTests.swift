@@ -63,7 +63,7 @@ final class WorkspaceTests: XCTestCase {
         let db = try WorkspaceDatabase(url: root().appendingPathComponent("workspace.sqlite"))
         let repo = LocalMemoryRepository(database: db)
         let service = MemoryService(repository: repo, extract: { _ in
-            [ExtractedMemory(text: "I prefer quiet venues.", evidence: "I prefer quiet venues.")]
+            [ExtractedMemory(text: "I prefer quiet venues.", evidence: "I prefer quiet venues.", kind: .lastingPreference)]
         })
         let receipts = ReceiptRecorder()
         let request = ReplyRequest(conversationID: UUID(), prompt: "I prefer quiet venues.", history: [], modelID: "test", selectedSourceIDs: [], userMessageID: UUID())
@@ -85,7 +85,7 @@ final class WorkspaceTests: XCTestCase {
 
     func testFailedMemoryWriteNeverEmitsReceipt() async throws {
         let service = MemoryService(repository: FailingMemoryRepository(), extract: { _ in
-            [ExtractedMemory(text: "I prefer quiet venues.", evidence: "I prefer quiet venues.")]
+            [ExtractedMemory(text: "I prefer quiet venues.", evidence: "I prefer quiet venues.", kind: .lastingPreference)]
         })
         let receipts = ReceiptRecorder()
         let request = ReplyRequest(conversationID: UUID(), prompt: "I prefer quiet venues.", history: [], modelID: "test", selectedSourceIDs: [])
@@ -100,6 +100,19 @@ final class WorkspaceTests: XCTestCase {
     func testMemoryRequiresVerbatimEvidence() {
         XCTAssertFalse(MemoryExtractor.isGrounded(.init(text: "Lives in Paris", evidence: "I live in Paris"), in: "Where is Paris?"))
         XCTAssertEqual(MemoryExtractor.fingerprint("Quiet  Venues"), MemoryExtractor.fingerprint("quiet venues"))
+    }
+
+    func testMemoryPolicyKeepsTaskContextOutUnlessExplicitlyRequested() {
+        for text in ["My event budget is 4200 dollars", "Now we need seating for 140 guests", "I prefer Riverside for this event", "I am visiting Boston tomorrow", "I just want to test this", "I just wanted to see if this works"] {
+            XCTAssertFalse(MemoryPolicy.shouldSave(.init(text: text, evidence: text, kind: .enduringPersonalContext), in: text))
+            XCTAssertFalse(MemoryPolicy.shouldSave(.init(text: text, evidence: text, kind: .explicitlyRequested), in: text))
+        }
+        let preference = "I prefer quiet venues"
+        XCTAssertTrue(MemoryPolicy.shouldSave(.init(text: preference, evidence: preference, kind: .lastingPreference), in: preference))
+        XCTAssertFalse(MemoryPolicy.shouldSave(.init(text: preference, evidence: preference, kind: .lastingPreference), in: preference + ". Do not remember this."))
+        XCTAssertFalse(MemoryPolicy.shouldSave(.init(text: preference, evidence: preference, kind: .notMemory), in: preference))
+        let budget = "my event budget is 4200 dollars"
+        XCTAssertTrue(MemoryPolicy.shouldSave(.init(text: budget, evidence: budget, kind: .explicitlyRequested), in: "Remember that " + budget))
     }
 
     func testMemoryRejectsQuestionsEvenWhenModelDropsPunctuation() {

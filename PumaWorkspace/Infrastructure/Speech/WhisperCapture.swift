@@ -33,7 +33,7 @@ final class WhisperCapture {
                     try await Task.sleep(for: .milliseconds(550))
                     guard let capture, !capture.ending else { return }
                     let snapshot = audio.snapshot()
-                    guard snapshot.heardSpeech, snapshot.samples.count > lastCount + 4000 else { continue }
+                    guard snapshot.heardSpeech, snapshot.ended || snapshot.samples.count > lastCount + 4000 else { continue }
                     lastCount = snapshot.samples.count
                     let text = try await WhisperRuntime.shared.transcribe(snapshot.samples)
                     try Task.checkCancellation()
@@ -59,7 +59,7 @@ final class WhisperCapture {
     func cancel() { ending = true; processing?.cancel(); processing = nil; audio.clear() }
 }
 
-private final class WhisperAudioBuffer: @unchecked Sendable {
+final class WhisperAudioBuffer: @unchecked Sendable {
     struct Snapshot: Sendable { var samples: [Float]; var heardSpeech: Bool; var ended: Bool }
     private let lock = NSLock()
     private var samples: [Float] = []
@@ -73,6 +73,14 @@ private final class WhisperAudioBuffer: @unchecked Sendable {
             guard samples.count < 28 * 16000 else { return }
             samples.append(contentsOf: chunk)
             if rms > 0.008 { voicedSamples += chunk.count; lastVoice = samples.count }
+            // Keep only a short pre-roll until speech starts. A long quiet pause must
+            // not fill the utterance cap and permanently discard the next words.
+            if voicedSamples <= 1600, samples.count > 16000 {
+                let discarded = samples.count - 16000
+                samples.removeFirst(discarded)
+                lastVoice = max(0, lastVoice - discarded)
+                if lastVoice == 0 { voicedSamples = 0 }
+            }
         }
     }
     func snapshot() -> Snapshot {

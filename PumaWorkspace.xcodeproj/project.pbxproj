@@ -54,6 +54,7 @@
 		841EE96876CC709C79B5B0D3 /* SourceAnswer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC867641EE4B133F3D6D8B3 /* SourceAnswer.swift */; };
 		84894EFEDB7E4DF27734E3C7 /* quiet-gardens.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 9B2898299F99A2B1AFA6ACA7 /* quiet-gardens.aiff */; };
 		8763F9877BA8A8ED0C57B890 /* OutputsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EDC02E90FC544380E967CA2 /* OutputsSheet.swift */; };
+		87CFA902579700F70ED3AB02 /* MemoryPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF0FEB797608FF9E526515B /* MemoryPolicy.swift */; };
 		897562C80DD13625FD68CF0B /* ImportStaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9541AC5596E3BBAEBB297 /* ImportStaging.swift */; };
 		8A329AFCF1D7A1843D48D100 /* FloatingTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B1C51478622EA0C9194F467 /* FloatingTranscript.swift */; };
 		8D7D3DCE4E46A3D672042B04 /* VoiceAura.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A994720C61CBA133126724 /* VoiceAura.swift */; };
@@ -211,6 +212,7 @@
 		A87CECD9897A7BB95ED36CC9 /* PumaWorkspaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PumaWorkspaceApp.swift; sourceTree = "<group>"; };
 		A988CA266F9D4875DCF773FC /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		AA0E4E7A04E27E5034BAC99F /* LocalDocumentImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDocumentImporter.swift; sourceTree = "<group>"; };
+		AAF0FEB797608FF9E526515B /* MemoryPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryPolicy.swift; sourceTree = "<group>"; };
 		AB0F00E58799ECB6ECE0E0F0 /* Composer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Composer.swift; sourceTree = "<group>"; };
 		AC7B7F93C7C9F2C5F270DA69 /* WorkspaceDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceDatabase.swift; sourceTree = "<group>"; };
 		ACC867641EE4B133F3D6D8B3 /* SourceAnswer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceAnswer.swift; sourceTree = "<group>"; };
@@ -241,6 +243,7 @@
 		E29DADC4551DE2F9E005E71D /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		E49676565F84B93E0B2EB094 /* WhisperCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperCapture.swift; sourceTree = "<group>"; };
 		E5797F2EA8CC0F3B31F4FF1A /* RootShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootShell.swift; sourceTree = "<group>"; };
+		E74BEAB45CFD6D2F515C6790 /* 0009-selective-memory-continuous-voice.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0009-selective-memory-continuous-voice.md"; sourceTree = "<group>"; };
 		E99D1C0F8A2EC659F2E65BCF /* SystemModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemModelCatalog.swift; sourceTree = "<group>"; };
 		EA15F45DFC48A2A2313A0D55 /* SpeechReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechReader.swift; sourceTree = "<group>"; };
 		ECD56D6640871B427D95F15D /* MockAssistantClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAssistantClient.swift; sourceTree = "<group>"; };
@@ -378,6 +381,7 @@
 				3D51A27A6B5BF475E52BC172 /* 0006-system-components.md */,
 				E0ABD4DBF142CEEC3C925E78 /* 0007-local-services-and-automatic-memory.md */,
 				817FEC99843B84F0D460A483 /* 0008-verified-document-answers.md */,
+				E74BEAB45CFD6D2F515C6790 /* 0009-selective-memory-continuous-voice.md */,
 			);
 			path = decisions;
 			sourceTree = "<group>";
@@ -493,6 +497,7 @@
 				FC9A8CAEED644F4493575806 /* .gitkeep */,
 				2F152032425394E327A16141 /* ContextBuilder.swift */,
 				EE59823779FFFED6A668F694 /* MemoryExtractor.swift */,
+				AAF0FEB797608FF9E526515B /* MemoryPolicy.swift */,
 				01C04F9C5EC7806CC946B91B /* MemoryService.swift */,
 				99CFA78497E34866B889F731 /* ReplyValidation.swift */,
 				ACC867641EE4B133F3D6D8B3 /* SourceAnswer.swift */,
@@ -1011,6 +1016,7 @@
 				66D06EE76E0FC745D5F11572 /* MemoryDetailSheet.swift in Sources */,
 				3FBA527772F9EED64E652E58 /* MemoryExtractor.swift in Sources */,
 				E1B7D94BECBC809D07F1508F /* MemoryItem.swift in Sources */,
+				87CFA902579700F70ED3AB02 /* MemoryPolicy.swift in Sources */,
 				5441D14E1A4067F88C118E20 /* MemoryProposalSheet.swift in Sources */,
 				2C103F538A01F2CE1BB86A98 /* MemoryService.swift in Sources */,
 				93FCCE8F20D745BB07776295 /* MockAssistantClient.swift in Sources */,

@@ -41,6 +41,8 @@ final class VoiceSessionController {
     @ObservationIgnored private var targetLevel: Double = 0
     @ObservationIgnored private var draftPrefix = ""
     @ObservationIgnored private var session = UUID()
+    @ObservationIgnored private var conversationID: UUID?
+    @ObservationIgnored private var conversationTask: Task<Void, Never>?
 
     init(speech: any SpeechClient, chat: ChatSessionStore) {
         self.speech = speech
@@ -55,12 +57,28 @@ final class VoiceSessionController {
         session = UUID()
         SpeechReader.shared.stop()
         startEnvelope()
-        if chat.isStreaming { awaitReply() } else { listen() }
+        let id = UUID()
+        conversationID = id
+        state = .listening
+        conversationTask = Task { [weak self, speech] in
+            await speech.beginConversation(id: id)
+            guard let self, self.conversationID == id, !Task.isCancelled else {
+                await speech.endConversation(id: id)
+                return
+            }
+            guard self.state == .listening else { return }
+            if self.chat.isStreaming { self.awaitReply() } else { self.listen() }
+        }
     }
 
     /// Leaves voice mode; transcript stays in the draft and is never sent.
     func exit() {
         isDictating = false
+        conversationTask?.cancel(); conversationTask = nil
+        if let id = conversationID {
+            conversationID = nil
+            Task { [speech] in await speech.endConversation(id: id) }
+        }
         session = UUID()
         captureTask?.cancel(); captureTask = nil
         playbackTask?.cancel(); playbackTask = nil
@@ -74,7 +92,7 @@ final class VoiceSessionController {
     /// Keyboard handoff: same as exit, the draft keeps the transcript for editing.
     func handoffToKeyboard() { exit() }
 
-    /// Navigation or a sheet pauses capture and retains the draft.
+    /// Leaving this conversation or backgrounding pauses capture and retains the draft.
     func pause() { if isActive || isDictating { exit() } }
 
     // MARK: Dictation
@@ -91,9 +109,11 @@ final class VoiceSessionController {
         let token = session
         captureTask = Task { [weak self] in
             for await event in stream {
-                guard let self, self.session == token else { return }
+                guard let self, self.session == token, !Task.isCancelled else { return }
                 self.handle(event)
             }
+            guard let self, self.session == token, self.isDictating, !Task.isCancelled else { return }
+            self.stopDictation()
         }
     }
 
@@ -131,9 +151,15 @@ final class VoiceSessionController {
         let token = session
         captureTask = Task { [weak self] in
             for await event in stream {
-                guard let self, self.session == token else { return }
+                guard let self, self.session == token, !Task.isCancelled else { return }
                 self.handle(event)
             }
+            // A recognizer is per utterance, while the call is ongoing. Empty completion
+            // (for example a quiet capture window) starts another window without sending.
+            guard let self, self.session == token, self.state == .listening, !Task.isCancelled else { return }
+            do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
+            guard self.session == token, self.state == .listening else { return }
+            self.listen()
         }
     }
 
@@ -160,6 +186,7 @@ final class VoiceSessionController {
             liveTranscript = text
             chat.draft = draftPrefix + text
         case .final(let text):
+            guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
             liveTranscript = text
             chat.draft = draftPrefix + text
             state = .finalizing
@@ -180,18 +207,20 @@ final class VoiceSessionController {
 
     private func awaitReply() {
         let token = session
-        state = .speaking
+        state = .finalizing
         liveTranscript = ""
         playbackTask = Task { [weak self] in
             // Wait for the reply to finish streaming.
             while let self, !Task.isCancelled, self.session == token, self.chat.isStreaming {
                 do { try await Task.sleep(for: .milliseconds(100)) } catch { return }
             }
-            guard let self, !Task.isCancelled, self.session == token, let reply = self.chat.messages.last, reply.role == .assistant else { return }
+            guard let self, !Task.isCancelled, self.session == token else { return }
+            guard let reply = self.chat.messages.last, reply.role == .assistant else { self.listen(); return }
             guard reply.status == .complete else { self.state = .unavailable(reply.errorDescription ?? "The reply did not finish. Continue in text mode or try again."); return }
+            self.state = .speaking
             var finished = false
             for await event in self.speech.speak(MarkdownText.plain(reply.text)) {
-                guard self.session == token else { return }
+                guard self.session == token, !Task.isCancelled else { return }
                 switch event {
                 case .level(let level): self.targetLevel = level
                 case .finished: finished = true
@@ -201,7 +230,7 @@ final class VoiceSessionController {
                     return
                 }
             }
-            guard self.session == token else { return }
+            guard self.session == token, !Task.isCancelled else { return }
             self.targetLevel = 0
             guard finished else {
                 self.state = .unavailable("Spoken playback did not finish. Your reply is still available in the chat.")
