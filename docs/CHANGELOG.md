@@ -1,6 +1,11 @@
-# Puma Workspace change log
+# LocalGPT change log
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
+
+## 2026-10-03 — LocalGPT name
+
+- Renamed the installed app display name, drawer heading, assistant identity, and current product documentation to LocalGPT.
+- Retained the existing bundle identifier and storage location so installed chats and memories survive the update.
 
 ## 2026-10-03 — Conversation roles and repeated-answer recovery
 

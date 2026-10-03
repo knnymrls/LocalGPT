@@ -1,4 +1,4 @@
-# Puma Workspace
+# LocalGPT
 
 A native iPhone assistant with local chat, selected-document evidence, selective long-term memory, and shared voice/text conversations. The approved SwiftUI interface connects to real services by default. No account or app backend is required.
 

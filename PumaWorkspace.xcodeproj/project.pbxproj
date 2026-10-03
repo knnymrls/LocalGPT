@@ -235,6 +235,7 @@
 		BCD91F4AB31FD53BCC79E813 /* architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = architecture.md; sourceTree = "<group>"; };
 		BF4B36780B885670392C935A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C4AB52AB28CB979DB67C1356 /* source-revision.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "source-revision.png"; sourceTree = "<group>"; };
+		C79B8233255ED8449AA55883 /* 0011-localgpt-name.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0011-localgpt-name.md"; sourceTree = "<group>"; };
 		C97EAE1502B9B39A90A7EE93 /* WhisperRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperRuntime.swift; sourceTree = "<group>"; };
 		CB314F2A4D9C9C8641BCFFD3 /* LocalSpeechVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalSpeechVoice.swift; sourceTree = "<group>"; };
 		CBEF13333E029C0141EFD385 /* WorkspaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTests.swift; sourceTree = "<group>"; };
@@ -394,6 +395,7 @@
 				817FEC99843B84F0D460A483 /* 0008-verified-document-answers.md */,
 				E74BEAB45CFD6D2F515C6790 /* 0009-selective-memory-continuous-voice.md */,
 				D26B060ABE596B050ABB1B74 /* 0010-consistent-clear-glass.md */,
+				C79B8233255ED8449AA55883 /* 0011-localgpt-name.md */,
 			);
 			path = decisions;
 			sourceTree = "<group>";
@@ -1215,7 +1217,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Puma Workspace";
+				INFOPLIST_KEY_CFBundleDisplayName = LocalGPT;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo to add it to your chat.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Transcribe your speech on this device for dictation and voice conversations.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Show your recent photos so you can add them to a chat.";
@@ -1242,7 +1244,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Puma Workspace";
+				INFOPLIST_KEY_CFBundleDisplayName = LocalGPT;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo to add it to your chat.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Transcribe your speech on this device for dictation and voice conversations.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Show your recent photos so you can add them to a chat.";

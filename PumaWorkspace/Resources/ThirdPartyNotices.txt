@@ -1,4 +1,4 @@
-Puma Workspace — Third-party notices
+LocalGPT — Third-party notices
 
 Dependency versions are pinned in Package.resolved. Public speech models download separately; no model weights are bundled.
 

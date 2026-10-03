@@ -455,7 +455,7 @@ struct VectorIconView: View {
 
 // MARK: - Public API
 
-/// The Puma icon set. Each case names its Slashy source, `<Name>Icon.tsx`.
+/// The LocalGPT icon set. Each case names its Slashy source, `<Name>Icon.tsx`.
 enum NucleoIcon: String, CaseIterable, Sendable {
     case menuLines, composePen, paperclip, add, microphone, microphoneSlash, keyboard
     case arrowUp, stop, waveform, xmark, done, chevronDown, chevronLeft, chevronRight

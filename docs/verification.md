@@ -1,6 +1,10 @@
 # Verification — 2026-10-03
 
-## Current revision — native conversation history and bounded repetition
+## Current branding — LocalGPT
+
+The generic Simulator Debug build passes with LocalGPT as its bundle display name. Updated the Pro Max Simulator in place and observed both the LocalGPT app label and drawer heading. The existing chat remained available after relaunch. This branding change does not establish any improvement in conversation quality.
+
+## Conversation behavior — native history and bounded repetition
 
 Ordinary conversation now restores native speaker roles, budgets whole completed turns, and has a single guided-generation recovery attempt for substantially repeated text. There are no scripted replacement replies. All 29 deterministic checks passed after the transcript and repetition logic changes. Four targeted live checks passed together on Pro Max after the final prompt/recovery changes: the reported three-turn exchange plus a subsequent invented-name recall, a seeded repetition case, memory extraction/recall, and a brief context acknowledgment. The live request helper now includes the current user entry and streaming placeholder, matching the UI. The recorded two-turn voice workflow passed before the final prompt/guided-recovery refinement.
 

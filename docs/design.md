@@ -1,4 +1,4 @@
-# Puma Workspace design
+# LocalGPT design
 
 The interface is one conversation with a composer, kept simple and clean. Controls are icons where an icon is clear. Supporting detail lives in sheets, not permanent panels. System components are used wherever one fits ([decision 0006](decisions/0006-system-components.md)).
 
@@ -7,7 +7,7 @@ This document describes the approved interface. Real services now drive normal l
 ## Visual system
 
 - **Color.** Neutral backgrounds (#FFFFFF light, #191919 dark) and a near-black or near-white foreground. The drawer sits a step behind the chat: #F8F8F8 light, #111111 dark. There is no accent color in the chat; selection, the text cursor, marks, and highlights use the foreground ink. File types carry the only color: red for PDFs, blue for documents, green for spreadsheets. The voice aura keeps its own color.
-- **Type.** The system sans-serif at four sizes: text 16, caption 13, micro 11, and the 24 heading used only for "Puma". Weights are regular for content, medium for titles and labels, semibold for "Puma" and the Chat pill.
+- **Type.** The system sans-serif at four sizes: text 16, caption 13, micro 11, and the 24 heading used only for "LocalGPT". Weights are regular for content, medium for titles and labels, semibold for "LocalGPT" and the Chat pill.
 - **Icons.** Nucleo outline glyphs at one stroke weight. A filled glyph means a state is on.
 - **Glass.** Clear iOS 26 Liquid Glass with a shared directional rim for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
 - **Scale.** Everything is designed at the iPhone 17 Pro's width and scales together, type, icons, controls, spacing, and corners, up to 15% on wider phones.
@@ -35,7 +35,7 @@ Two bars can appear directly under the top bar:
 
 ## Drawer
 
-- "Puma" and a search button share the top bar's row.
+- "LocalGPT" and a search button share the top bar's row.
 - Chats are plain rows in regular weight. Pinned chats get their own "Pinned" section with a medium-weight label; the rest are labelled "Chats" once something is pinned.
 - Pressing and holding a row shows a preview of the chat with Pin, Rename, and Delete.
 - The bottom row has the "Chat" pill for a new chat on the left and a Memories button on the right, in the same column as search.

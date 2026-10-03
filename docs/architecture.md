@@ -1,4 +1,4 @@
-# Puma Workspace architecture
+# LocalGPT architecture
 
 One native SwiftUI app runs the conversation model, speech recognition, document extraction, retrieval, and artifact rendering locally. There is no app server or account. The UI is the approved interface; concrete services replace its development fixtures through shared contracts.
 

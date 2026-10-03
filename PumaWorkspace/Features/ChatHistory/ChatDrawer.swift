@@ -66,10 +66,10 @@ struct ChatDrawer: View {
             .accessibilityAddTraits(.isHeader)
     }
 
-    /// "Puma" and the search button, which opens the search page.
+    /// "LocalGPT" and the search button, which opens the search page.
     private var header: some View {
         HStack(spacing: pt(10)) {
-            Text("Puma")
+            Text("LocalGPT")
                 .font(.heading)
                 .foregroundStyle(Tokens.foreground)
                 .accessibilityAddTraits(.isHeader)
@@ -79,7 +79,7 @@ struct ChatDrawer: View {
             }
         }
         // The same row as the chat surface's top bar: same top edge and
-        // height, so "Puma", search, and the menu button share one centre line.
+        // height, so "LocalGPT", search, and the menu button share one centre line.
         .frame(height: TopBar.barHeight)
         .padding(.leading, Self.textX)
         .padding(.trailing, pt(16))

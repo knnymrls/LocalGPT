@@ -703,7 +703,7 @@ enum Tokens {
 
 // MARK: - SwiftUI colors
 //
-// The palette the Puma UI reads. Each resolves light/dark from the trait
+// The palette the LocalGPT UI reads. Each resolves light/dark from the trait
 // collection through the dynamic UIColor it wraps.
 
 extension Tokens {

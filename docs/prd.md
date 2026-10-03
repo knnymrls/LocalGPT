@@ -1,6 +1,6 @@
-# Puma Workspace PRD
+# LocalGPT PRD
 
-Puma Workspace is a native iPhone assistant for private conversations over personal documents. People can type or speak, inspect the evidence behind an answer, create useful files, and carry context into future chats through visible memories.
+LocalGPT is a native iPhone assistant for private conversations over personal documents. People can type or speak, inspect the evidence behind an answer, create useful files, and carry context into future chats through visible memories.
 
 ## Goal
 
