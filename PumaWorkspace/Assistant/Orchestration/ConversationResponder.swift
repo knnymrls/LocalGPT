@@ -3,7 +3,7 @@ import FoundationModels
 
 @Generable
 private struct ConversationRepair {
-    @Guide(description: "A direct, natural reply to the user's latest message. Continue their conversation rather than repeating a greeting or offering generic assistance. Do not mention the retry.")
+    @Guide(description: "The assistant's direct answer to the latest user message. Speak to the user as you, not as if you are the user. For a question about personal details, use only facts supplied by the user; say you do not know only when that requested fact is absent. For greetings and casual remarks, respond naturally. Use Markdown when helpful.")
     var reply: String
 }
 
@@ -13,26 +13,26 @@ enum ConversationResponder {
                         scope: RequestScope, emit: (String) -> Void) async throws -> String {
         let previous = repetitionCandidates(for: request)
         var answer = ""
-        for try await snapshot in session.streamResponse(to: context.prompt, options: GenerationOptions(maximumResponseTokens: 1200)) {
+        for try await snapshot in session.streamResponse(to: context.prompt, options: GenerationOptions(sampling: .greedy, maximumResponseTokens: 1200)) {
             try scope.check()
             answer = snapshot.content
             // Check the opening before displaying another copy of a short prior answer.
             let candidate = normalized(answer)
-            if previous.isEmpty || (candidate.split(separator: " ").count > 30 && !previous.contains(where: { repeats(candidate, $0) })) { emit(answer) }
+            if candidate.split(separator: " ").count > 30 && !previous.contains(where: { repeats(candidate, $0) }) && !echoesUser(answer, request: request) { emit(answer) }
         }
-        guard previous.contains(where: { repeats(normalized(answer), $0) }) else { return answer }
+        guard echoesUser(answer, request: request) || previous.contains(where: { repeats(normalized(answer), $0) }) else { return answer }
 
         try scope.check()
         // Retain the user's context but remove the assistant prose that is causing the loop.
-        let instructions = ContextBuilder.conversationInstructions + "\nYour previous attempt repeated an earlier answer. Give a fresh, direct response to the latest message."
+        let instructions = ContextBuilder.conversationInstructions + "\nYour previous attempt copied a message instead of responding. Give your own fresh, direct answer to the latest user message."
         let recovery = LanguageModelSession(instructions: instructions)
         let prompt = try await recoveryPrompt(request, latest: context.prompt, instructions: instructions)
         let repaired = try await recovery.respond(to: prompt, generating: ConversationRepair.self,
-                                                   options: GenerationOptions(maximumResponseTokens: 1200))
+                                                   options: GenerationOptions(sampling: .greedy, maximumResponseTokens: 1200))
         try scope.check()
         answer = repaired.content.reply
-        guard !previous.contains(where: { repeats(normalized(answer), $0) }) else {
-            throw WorkspaceError.message("The local model got stuck repeating an earlier answer. Please retry or start a new chat.")
+        guard !echoesUser(answer, request: request), !previous.contains(where: { repeats(normalized(answer), $0) }) else {
+            throw WorkspaceError.message("The local model got stuck repeating text. Please retry or start a new chat.")
         }
         return answer
     }
@@ -52,6 +52,12 @@ enum ConversationResponder {
             while prompt().count > 6000, !earlier.isEmpty { earlier.removeFirst() }
         }
         return prompt()
+    }
+
+    static func echoesUser(_ answer: String, request: ReplyRequest) -> Bool {
+        guard request.prompt.split(separator: " ").count >= 6,
+              request.prompt.range(of: #"\b(repeat|verbatim|copy|quote)\b"#, options: [.regularExpression, .caseInsensitive]) == nil else { return false }
+        return normalized(answer) == normalized(request.prompt)
     }
 
     static func repeats(_ candidate: String, _ previous: String) -> Bool {

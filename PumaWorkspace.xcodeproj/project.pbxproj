@@ -136,6 +136,7 @@
 		08A6B6FF0970472C51457F59 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		0BE472884E9ED82907B8668B /* ConversationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationContext.swift; sourceTree = "<group>"; };
 		0C58D7FE7A0BE5DC58C8AA02 /* DebugLaunchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLaunchState.swift; sourceTree = "<group>"; };
+		0C72A056CEBB92D632F6782B /* video-walkthrough.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "video-walkthrough.md"; sourceTree = "<group>"; };
 		0C8ED281B24FD1DDDA9EACA8 /* ConversationResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationResponder.swift; sourceTree = "<group>"; };
 		109CB42AD39A254FE9FCCEC2 /* ChatPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPreview.swift; sourceTree = "<group>"; };
 		12F838CDE4CD7023706019E9 /* EvidenceSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceSheet.swift; sourceTree = "<group>"; };
@@ -221,6 +222,7 @@
 		9CCF04628CD4CE31A6847E2C /* LocalRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalRepositories.swift; sourceTree = "<group>"; };
 		9E31B11D162CF995813AA30B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		9EDC02E90FC544380E967CA2 /* OutputsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputsSheet.swift; sourceTree = "<group>"; };
+		9FBCFF3E263C5F66BE966EA6 /* 0016-core-conversation-acceptance.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0016-core-conversation-acceptance.md"; sourceTree = "<group>"; };
 		A0C06D37B4594D6575250A99 /* FlowCitations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowCitations.swift; sourceTree = "<group>"; };
 		A2D5753614D1CE8D9E702ADC /* imported-file-preview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "imported-file-preview.png"; sourceTree = "<group>"; };
 		A3A994720C61CBA133126724 /* VoiceAura.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceAura.swift; sourceTree = "<group>"; };
@@ -245,6 +247,7 @@
 		BB9DFFAF750A8AC751937083 /* PhotoOriginal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoOriginal.swift; sourceTree = "<group>"; };
 		BCD91F4AB31FD53BCC79E813 /* architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = architecture.md; sourceTree = "<group>"; };
 		BF4B36780B885670392C935A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C2378646D6466A9956612F4A /* reviewer-guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "reviewer-guide.md"; sourceTree = "<group>"; };
 		C4AB52AB28CB979DB67C1356 /* source-revision.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "source-revision.png"; sourceTree = "<group>"; };
 		C52AF89661BC178C512D3D7A /* ImagePreviewCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreviewCache.swift; sourceTree = "<group>"; };
 		C79B8233255ED8449AA55883 /* 0011-localgpt-name.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0011-localgpt-name.md"; sourceTree = "<group>"; };
@@ -413,6 +416,7 @@
 				CBFF4963C1F94A6E52696A67 /* 0013-preloaded-conversations.md */,
 				AC9F447AB182CF9289D52342 /* 0014-output-files-are-not-composer-inputs.md */,
 				98DF90D880BC5D201C0CB78F /* 0015-inline-image-replies.md */,
+				9FBCFF3E263C5F66BE966EA6 /* 0016-core-conversation-acceptance.md */,
 			);
 			path = decisions;
 			sourceTree = "<group>";
@@ -609,7 +613,9 @@
 				9106AE84B57C3167B4161260 /* design.md */,
 				50ACA87F80B00D840EA67497 /* prd.md */,
 				3C6560DC135959E2CF7DBE0C /* README.md */,
+				C2378646D6466A9956612F4A /* reviewer-guide.md */,
 				95CCE1639EECB1C19F6AFF24 /* verification.md */,
+				0C72A056CEBB92D632F6782B /* video-walkthrough.md */,
 				3B46C0DE15EB57FD38E10BE8 /* decisions */,
 				0658C81E2A8E8F560CA34D3C /* demo */,
 				8D4E52F5ED97250804C06C2E /* evidence */,

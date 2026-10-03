@@ -2,6 +2,8 @@
 
 A native iPhone assistant with local chat, selected-document evidence, selective long-term memory, and shared voice/text conversations. The approved SwiftUI interface connects to real services by default. No account or app backend is required.
 
+Start with the [reviewer guide](docs/reviewer-guide.md) for setup, a short architecture overview, and a fresh-chat demonstration. The [recording outline](docs/video-walkthrough.md) keeps the video focused on live behavior.
+
 ## Run
 
 1. Open `PumaWorkspace.xcodeproj` in Xcode 26.6 or newer and select the **PumaWorkspace** scheme.

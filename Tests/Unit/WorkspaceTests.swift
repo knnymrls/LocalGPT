@@ -5,6 +5,18 @@ import FoundationModels
 @testable import PumaWorkspace
 
 final class WorkspaceTests: XCTestCase {
+    func testConversationEchoDetectionAllowsRequestedCopiesAndGreetings() {
+        func request(_ text: String) -> ReplyRequest {
+            ReplyRequest(conversationID: UUID(), prompt: text, history: [], modelID: "test", selectedSourceIDs: [])
+        }
+        let remark = "I am just winding down after work."
+        XCTAssertTrue(ConversationResponder.echoesUser(remark, request: request(remark)))
+        XCTAssertFalse(ConversationResponder.echoesUser("Sounds like a long day. How was it?", request: request(remark)))
+        XCTAssertFalse(ConversationResponder.echoesUser("Hello", request: request("Hello")))
+        let explicit = "Repeat this sentence verbatim for me please."
+        XCTAssertFalse(ConversationResponder.echoesUser(explicit, request: request(explicit)))
+    }
+
     func testSeededConversationsPersistFilesAndRespectEditsAndDeletion() async throws {
         let directory = try root()
         let database = try WorkspaceDatabase(url: directory.appendingPathComponent("workspace.sqlite"))

@@ -1,5 +1,13 @@
 # LocalGPT change log
 
+## 2026-10-03 — Core conversation and reviewer handoff
+
+- Simplified ordinary-chat instructions and selected greedy sampling while preserving native speaker history, bounded context, and shared voice/text state.
+- Added bounded recovery for unrequested user-message copies; intentional quotations and greetings remain allowed.
+- Added fresh-chat checks for corrections, context isolation, topic follow-ups, and actual-model conversation reload with an unsent draft.
+- Added a concise reviewer guide and a live recording outline. Authored preloaded chats are distinguished from model evaluations; microphone and disconnected-network checks remain separate gates.
+
+
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
 ## 2026-10-03 — Inline image replies

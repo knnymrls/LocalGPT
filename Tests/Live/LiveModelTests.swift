@@ -25,6 +25,91 @@ final class LiveModelTests: XCTestCase {
         var complete = false
     }
 
+    func testFreshConversationMeaningCorrectionsAndIsolation() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        var history: [Message] = []
+        func turn(_ prompt: String) async throws -> String {
+            let result = try await answer(prompt, client: client, history: history)
+            print("CORE_ACCEPTANCE \(prompt) => \(result.text)")
+            history += [Message(role: .user, text: prompt), Message(role: .assistant, text: result.text)]
+            XCTAssertLessThan(result.text.count, 2500, "These short requests should not produce runaway formatting")
+            XCTAssertTrue(result.outputs.isEmpty)
+            return result.text
+        }
+        _ = try await turn("Turn these notes into two action items: Maya sends the agenda Tuesday. Omar books the room Wednesday.")
+        let changed = try await turn("Replace Omar's deadline with Friday. Give only the updated two-item list.")
+        for word in ["Maya", "Tuesday", "agenda", "Omar", "Friday", "room"] {
+            XCTAssertTrue(changed.localizedCaseInsensitiveContains(word), changed)
+        }
+        XCTAssertFalse(changed.localizedCaseInsensitiveContains("Wednesday"), changed)
+
+        history = []
+        _ = try await turn("For this chat only, my plant is named Miso and I water it on Sundays.")
+        let recall = try await turn("What is my plant called, and when do I water it?")
+        XCTAssertTrue(recall.localizedCaseInsensitiveContains("Miso"), recall)
+        XCTAssertTrue(recall.localizedCaseInsensitiveContains("Sunday"), recall)
+        history = []
+        let isolated = try await turn("What is my plant called?")
+        XCTAssertFalse(isolated.localizedCaseInsensitiveContains("Miso"), "A separate chat must not inherit an unsaved fact")
+        XCTAssertTrue(["don't know", "do not know", "haven't", "have not", "not told", "not mentioned", "not shared", "no information", "no details", "don't have enough information", "do not have enough information"].contains { isolated.localizedCaseInsensitiveContains($0) }, "Do not invent missing personal facts: \(isolated)")
+
+        history = []
+        let sky = try await turn("Why does the sky look blue during the day? Explain in two sentences.")
+        XCTAssertTrue(sky.localizedCaseInsensitiveContains("scatter"), sky)
+        let sunset = try await turn("Then why can it look red at sunset instead? Explain the difference in two sentences.")
+        XCTAssertTrue(sunset.localizedCaseInsensitiveContains("red") || sunset.localizedCaseInsensitiveContains("orange"), sunset)
+        XCTAssertTrue(["longer", "more atmosphere", "more of the atmosphere", "thicker", "greater", "farther", "further", "more air"].contains { sunset.localizedCaseInsensitiveContains($0) }, sunset)
+
+        history = []
+        _ = try await turn("I'm winding down after a long day. I just want to chat, no tasks.")
+        let fact = try await turn("Tell me a small interesting fact about octopuses.")
+        XCTAssertTrue(["heart", "arm", "brain", "camouflage", "blood", "color", "colour", "intelligen", "sucker"].contains { fact.localizedCaseInsensitiveContains($0) }, fact)
+        XCTAssertFalse(fact.localizedCaseInsensitiveContains("upload"), fact)
+    }
+
+    @MainActor
+    func testLiveConversationSurvivesReloadAndKeepsDraft() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let repository = LocalConversationRepository(database: db)
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        let container = AppContainer(assistant: client, speech: MockSpeechClient(), conversations: repository,
+                                     attachments: files, memories: memory, modelCatalog: SystemModelCatalog())
+        func finish(_ store: ChatSessionStore) async throws {
+            let deadline = Date.now.addingTimeInterval(80)
+            while store.isStreaming, Date.now < deadline { try await Task.sleep(for: .milliseconds(100)) }
+            XCTAssertEqual(store.messages.last?.status, .complete, store.messages.last?.errorDescription ?? "Reply did not complete")
+        }
+        let first = ChatSessionStore(container: container)
+        await first.load()
+        first.draft = "For this conversation, our project is called Cedar and its release day is Monday."
+        first.send()
+        try await finish(first)
+        first.draft = "Keep this unsent draft"
+        first.flush()
+        let deadline = Date.now.addingTimeInterval(5)
+        var stored: Conversation?
+        repeat {
+            stored = try await repository.all().first { $0.id == first.activeID }
+            if stored?.draft == first.draft && stored?.messages.last?.status == .complete { break }
+            try await Task.sleep(for: .milliseconds(50))
+        } while Date.now < deadline
+        XCTAssertEqual(stored?.draft, "Keep this unsent draft")
+        let reopened = ChatSessionStore(container: container)
+        await reopened.load()
+        XCTAssertEqual(reopened.activeID, first.activeID)
+        XCTAssertEqual(reopened.messages, first.messages)
+        XCTAssertEqual(reopened.draft, first.draft)
+        reopened.draft = "Change the release day to Thursday. What is the project called, and what is its release day now? Give only the current details."
+        reopened.send()
+        try await finish(reopened)
+        let text = try XCTUnwrap(reopened.messages.last?.text)
+        print("CORE_RELOAD \(text)")
+        XCTAssertTrue(text.localizedCaseInsensitiveContains("Cedar"), text)
+        XCTAssertTrue(text.localizedCaseInsensitiveContains("Thursday"), text)
+        XCTAssertFalse(text.localizedCaseInsensitiveContains("Monday"), text)
+    }
+
     func testCasualConversationDoesNotRepeatGreeting() async throws {
         let (_, db, files, memory, writer) = try workspace()
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
@@ -34,15 +119,18 @@ final class LiveModelTests: XCTestCase {
             let result = try await answer(prompt, client: client, history: history)
             print("CONVERSATION_CHECK \(prompt) => \(result.text)")
             let normalized = result.text.lowercased().split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+            XCTAssertNotEqual(normalized, prompt.lowercased(), "Must respond as assistant, not echo the user")
             XCTAssertNotEqual(normalized, previous, "The next turn must not repeat the previous greeting")
             history += [Message(role: .user, text: prompt), Message(role: .assistant, text: result.text)]
             previous = normalized
         }
         let fact = "For this chat, the imaginary spaceship is named Juniper."
         let acknowledgment = try await answer(fact, client: client, history: history)
+        print("CONVERSATION_FACT \(acknowledgment.text)")
         history += [Message(role: .user, text: fact), Message(role: .assistant, text: acknowledgment.text)]
         let recalled = try await answer("What did I name it?", client: client, history: history)
         print("CONVERSATION_RECALL \(recalled.text)")
+        XCTAssertFalse(recalled.text.localizedCaseInsensitiveContains("I named"), "The user, not the assistant, named the ship")
         XCTAssertTrue(recalled.text.localizedCaseInsensitiveContains("Juniper"), "Follow-ups must retain user context")
     }
 
