@@ -28,11 +28,6 @@ struct TopBar: View {
                     .transition(.scale(scale: 0.25, anchor: .trailing).combined(with: .opacity))
             } else {
                 GlassEffectContainer { bar }
-                    .overlay(alignment: .trailing) {
-                        menu
-                            .buttonStyle(.glass(.clear))
-                            .padding(.trailing, pt(4))
-                    }
                     .transition(.opacity)
             }
         }
@@ -75,24 +70,24 @@ struct TopBar: View {
 
     /// New chat, outputs, and the chat's menu, in one piece of glass.
     ///
-    /// The capsule is one glass shape holding New chat, Outputs, and an empty
-    /// slot. The menu is laid over that slot from outside the glass (see
-    /// `body`), as a button in Apple's clear glass style: invisible at rest,
-    /// it gives the system press response and the menu grows out of it.
-    /// With the menu inside the capsule's glass, the capsule flashed black as
-    /// the menu opened and closed.
+    /// The capsule is the menu's own button, in Apple's glass style, drawing
+    /// all three glyphs. That makes the whole capsule the thing the system
+    /// grows into the menu. New chat and Outputs are clear buttons laid over
+    /// their glyphs, so a tap there never reaches the menu. Apple's style is
+    /// used because a hand-applied `glassEffect` around a `Menu` flashes
+    /// black as the menu opens and closes.
     private var module: some View {
-        HStack(spacing: 0) {
-            moduleButton(.composePen, label: "New chat") { chat.newChat() }
-            // Filled once the chat has outputs, outlined until then.
-            moduleButton(.ballotCircle, label: "Outputs", filled: !chat.outputs.isEmpty) {
-                navigation.present(.outputs)
+        menu
+            .buttonStyle(.glass)
+            .overlay(alignment: .leading) {
+                HStack(spacing: 0) {
+                    moduleButton(label: "New chat") { chat.newChat() }
+                    moduleButton(label: "Outputs") { navigation.present(.outputs) }
+                        .accessibilityValue(
+                            chat.outputs.isEmpty ? Text("") : Text("\(chat.outputs.count) in this chat")
+                        )
+                }
             }
-            .accessibilityValue(chat.outputs.isEmpty ? Text("") : Text("\(chat.outputs.count) in this chat"))
-            Color.clear.frame(width: Self.barHeight, height: Self.barHeight)
-        }
-        .padding(.horizontal, pt(4))
-        .glassControl(in: Capsule())
     }
 
     /// The chat's menu: the system's, with its own glyphs.
@@ -114,34 +109,41 @@ struct TopBar: View {
             }
             .disabled(chat.isEmpty)
         } label: {
-            moduleGlyph(.more)
+            HStack(spacing: 0) {
+                moduleGlyph(.composePen)
+                // Filled once the chat has outputs, outlined until then.
+                moduleGlyph(.ballotCircle, filled: !chat.outputs.isEmpty)
+                moduleGlyph(.more)
+            }
+            // The system glass style adds its own padding around a label;
+            // take most of it back so the capsule stays bar height.
+            .padding(.horizontal, -pt(6))
+            .padding(.vertical, -pt(7))
         }
         .menuOrder(.fixed)
         .accessibilityLabel(Text("More"))
     }
 
-    private func moduleButton(
-        _ icon: NucleoIcon, label: String, filled: Bool = false, action: @escaping () -> Void
-    ) -> some View {
+    /// A clear tap target over one of the capsule's glyphs.
+    private func moduleButton(label: String, action: @escaping () -> Void) -> some View {
         Button {
             taps += 1
             action()
         } label: {
-            Icon(icon, size: 22, color: Tokens.foreground, filled: filled)
-                .frame(width: Self.barHeight, height: Self.barHeight)
+            Color.clear
+                .frame(width: Self.slot + pt(4), height: Self.barHeight)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.pressable)
+        .buttonStyle(.plain)
         .accessibilityLabel(Text(label))
     }
 
+    /// One glyph's slot in the capsule.
+    private static let slot: CGFloat = Tokens.scaled(44)
+
     private func moduleGlyph(_ icon: NucleoIcon, filled: Bool = false) -> some View {
         Icon(icon, size: 22, color: Tokens.foreground, filled: filled)
-            .frame(width: Self.barHeight, height: Self.barHeight)
-            // The system glass style adds its own padding around a label;
-            // take it back so each slot stays one bar-button wide.
-            .padding(.horizontal, -pt(10))
-            .padding(.vertical, -pt(7))
+            .frame(width: Self.slot, height: Self.barHeight)
     }
 }
 
