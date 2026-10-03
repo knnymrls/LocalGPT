@@ -19,7 +19,7 @@
 | Local recorded speech | Production audio conversion plus Whisper base transcribed “I prefer outdoor venues with quiet gardens.” correctly. |
 | Recorded voice workflow | Recorded audio passes through real recognition, the shared voice controller, local model, memory commit/receipt, and actual synthesis callbacks; keyboard handoff returns to idle. This replaces the microphone source only. |
 | Calculation and response shape | CSV arithmetic uses the calculation tool and returns its evidence. A simple preference receives a brief acknowledgment without a table or unsolicited file. |
-| Simulator UI | Saved memory receipt opens the matching quote/date/edit/forget sheet; history and memory survive relaunch; a new chat recalls saved context. Files-picker imports, original-file preview after sandbox relocation, citation details, the verified 140-person revision, and its generated PDF were inspected in the live app. Forget removed the test record and reduced the Outputs count. |
+| Simulator UI | Saved memory receipt opens the matching quote/date/edit/forget sheet; history and memory survive relaunch; a new chat recalls saved context. Files-picker imports, original-file preview after sandbox relocation, citation details, the verified 140-person revision, and its generated PDF were inspected in the live app. Forget removed the test record and reduced the Outputs count. Editing a synthetic requirement from 140 to 150 guests preserved its original quote; a fresh chat recalled 150. The edited memory and an unsent draft survived an intentional relaunch. Starting and finishing dictation preserved that draft without sending it. |
 | Release configuration | Generic Simulator Release build succeeded with live services. |
 
 All nine live checks passed together in the final suite; all 20 deterministic checks and the generic Simulator Release build also passed. These are a small repeatable evaluation set, not a general model-quality guarantee. Test responses are attached to Xcode's result bundle.
@@ -76,3 +76,9 @@ The repaired live app reopened the imported original after installation changed 
 The generated PDF was opened from the final reply and visually inspected. It preserves the 140-person requirement, Harbor’s 120-person capacity and $3200 price, Riverside’s 160-person capacity and $4100 price, and the unspecified accessibility information.
 
 <img src="evidence/generated-report.png" width="280" alt="Generated PDF with verified qualification and original source details">
+
+## Memory edit and draft recovery
+
+The synthetic seating requirement was edited through its saved-memory sheet from 140 to 150 guests. The record retained the original quote, and a new chat with no sources answered 150. After an intentional terminate/relaunch, Memories still displayed the edited value and the active composer retained its unsent draft. Entering and finishing dictation also retained that draft without adding a user message. This checks UI state transitions, not successful microphone transcription.
+
+<img src="evidence/memory-edit.png" width="280" alt="Edited memory with the original quote preserved"> <img src="evidence/memory-edited-recall.png" width="280" alt="New chat recalls the edited 150-person requirement">

@@ -2,6 +2,11 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Memory edit and recovery verification
+
+- Inspected memory editing and recall in a fresh live chat. The changed value survived relaunch while retaining its original supporting quote.
+- Verified an unsent draft survives relaunch and a dictation start/finish cycle without sending. Live microphone transcription and disconnected-network operation remain pending.
+
 ## 2026-10-03 — Acceptance workflow fixes
 
 - Typed speech playback completion/failure events keep a failed or interrupted spoken reply in the chat and prevent silently resuming capture. A stalled synthesis callback has a bounded timeout.
