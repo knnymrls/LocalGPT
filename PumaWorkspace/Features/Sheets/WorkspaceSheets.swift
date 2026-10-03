@@ -39,6 +39,7 @@ private struct WorkspaceSheetsModifier: ViewModifier {
         case .file(let id): FileSheet(id: id)
         case .evidence(let citation): EvidenceSheet(citation: citation)
         case .memoryProposal: MemoryProposalSheet()
+        case .savedMemory(let id): MemoryDetailSheet(memoryID:id)
         }
     }
 

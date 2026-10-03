@@ -3,9 +3,9 @@ import Foundation
 /// A model that runs on this device. The first one is Apple's system model
 /// (Foundation Models `SystemLanguageModel`); the type stays a list so an
 /// open-weight local model can join later without changing the UI.
-struct LocalModel: Identifiable, Hashable, Sendable {
+struct LocalModel: Identifiable, Hashable, Codable, Sendable {
     /// Mirrors `SystemLanguageModel.availability`.
-    enum Availability: Sendable {
+    enum Availability: Codable, Sendable {
         /// `.available`
         case ready
         /// `.unavailable(.modelNotReady)`: the system is still fetching assets.

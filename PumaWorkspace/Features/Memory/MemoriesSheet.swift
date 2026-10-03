@@ -11,9 +11,12 @@ struct MemoriesSheet: View {
                 SheetEmptyState(
                     icon: .brain,
                     title: "No memories yet",
-                    message: "Things you ask it to remember will appear here."
+                    message: chat.memoryFailure ?? "Context you share is remembered automatically. Saved memories can be reviewed, edited, or forgotten here."
                 )
             } else {
+                if let failure = chat.memoryFailure {
+                    Text(failure).font(.footnote).foregroundStyle(.secondary)
+                }
                 MemoryList()
             }
         }
@@ -23,13 +26,15 @@ struct MemoriesSheet: View {
 /// A card of remembered things, one plain line each. Press and hold a row to
 /// edit or forget it.
 struct MemoryList: View {
+    var items: [MemoryItem]? = nil
+    @Environment(NavigationState.self) private var navigation
     @Environment(ChatSessionStore.self) private var chat
     @State private var editing: MemoryItem?
     @State private var editText = ""
 
     var body: some View {
         SheetCard {
-            ForEach(chat.memories) { memory in
+            ForEach(items ?? chat.memories) { memory in
                 Text(memory.text)
                     .font(.text)
                     .foregroundStyle(Tokens.foreground)
@@ -37,6 +42,9 @@ struct MemoryList: View {
                     .padding(.horizontal, SheetMetrics.rowPadX)
                     .padding(.vertical, pt(14))
                     .frame(minHeight: SheetMetrics.rowHeight)
+                    .contentShape(Rectangle())
+                    .onTapGesture { navigation.present(.savedMemory(memory.id)) }
+                    .accessibilityAddTraits(.isButton)
                     .contentShape(.contextMenuPreview, .rect(cornerRadius: SheetMetrics.cardRadius, style: .continuous))
                     .contextMenu {
                         Button("Edit") {

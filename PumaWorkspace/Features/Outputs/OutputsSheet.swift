@@ -5,9 +5,11 @@ import SwiftUI
 struct OutputsSheet: View {
     @Environment(ChatSessionStore.self) private var chat
 
+    private var memories: [MemoryItem] { chat.memories.filter { $0.conversationID == chat.activeID } }
+
     var body: some View {
         SheetScaffold(title: "Outputs") {
-            if chat.outputs.isEmpty && chat.memories.isEmpty {
+            if chat.outputs.isEmpty && memories.isEmpty {
                 SheetEmptyState(
                     icon: .ballotCircle,
                     title: "No outputs yet",
@@ -18,10 +20,10 @@ struct OutputsSheet: View {
                     if !chat.outputs.isEmpty {
                         FileList(files: chat.outputs)
                     }
-                    if !chat.memories.isEmpty {
+                    if !memories.isEmpty {
                         VStack(spacing: 0) {
                             SheetSectionLabel(title: "Remembered")
-                            MemoryList()
+                            MemoryList(items: memories)
                         }
                     }
                 }

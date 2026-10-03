@@ -302,44 +302,54 @@ struct AddSurface: View {
     }
 
     private func addPicked() {
-        withAnimation(.smooth(duration: 0.3)) {
-            for item in picked {
-                _ = chat.addAttachment(
-                    name: "Photo.jpg", kind: .image, thumbnail: item.image.jpegData(compressionQuality: 0.8)
-                )
+        let origin = chat.activeID
+        for item in picked {
+            Task {
+                do {
+                    let data = try await PhotoOriginal.load(id: item.id)
+                    try await addPhoto(data, conversationID: origin)
+                } catch { chat.operationError = error.localizedDescription }
             }
         }
         onClose()
     }
 
     private func add(_ item: PhotosPickerItem) {
+        let origin = chat.activeID
         Task {
-            guard let data = try? await item.loadTransferable(type: Data.self),
-                  let thumbnail = await Thumbnail.make(from: data) else { return }
-            withAnimation(.smooth(duration: 0.3)) {
-                _ = chat.addAttachment(name: "Photo.jpg", kind: .image, thumbnail: thumbnail)
-            }
+            do {
+                guard let data = try await item.loadTransferable(type: Data.self) else {
+                    throw WorkspaceError.message("The photo could not be read.")
+                }
+                try await addPhoto(data, conversationID: origin)
+            } catch { chat.operationError = error.localizedDescription }
+        }
+    }
+
+    private func addPhoto(_ data: Data, conversationID: UUID) async throws {
+        let thumbnail = await Thumbnail.make(from: data)
+        let url = try await Task.detached { try ImportStaging.store(data, named: "Photo.jpg") }.value
+        withAnimation(.smooth(duration: 0.3)) {
+            _ = chat.addAttachment(name: "Photo.jpg", kind: .image, thumbnail: thumbnail, fileURL: url, conversationID: conversationID)
         }
     }
 
     private func capture() {
         guard camera.isAvailable else {
-            // The simulator has no camera; add a placeholder photo there so
-            // the flow can still be reviewed.
-            withAnimation(.smooth(duration: 0.3)) { _ = chat.addAttachment(name: "Photo.jpg", kind: .image) }
+            chat.operationError = "A camera is not available on this Simulator. Add an image from Files or Photos."
             onClose()
             return
         }
+        let origin = chat.activeID
         camera.capture { data in
             Task { @MainActor in
-                let thumbnail = await Thumbnail.make(from: data)
-                withAnimation(.smooth(duration: 0.3)) {
-                    _ = chat.addAttachment(name: "Photo.jpg", kind: .image, thumbnail: thumbnail)
-                }
+                do { try await addPhoto(data, conversationID: origin) }
+                catch { chat.operationError = error.localizedDescription }
                 onClose()
             }
         }
     }
+
 }
 
 // MARK: - Recent photos
@@ -406,7 +416,7 @@ private final class RecentPhotos {
     func loadThumbnail(for asset: PHAsset, then done: @escaping @MainActor (UIImage) -> Void) {
         let options = PHImageRequestOptions()
         options.deliveryMode = .opportunistic
-        options.isNetworkAccessAllowed = true
+        options.isNetworkAccessAllowed = false
         let key = asset.localIdentifier as NSString
         PHImageManager.default().requestImage(
             for: asset, targetSize: CGSize(width: 420, height: 420), contentMode: .aspectFill, options: options
@@ -489,42 +499,24 @@ extension View {
     func sourceFileImporter(isPresented: Binding<Bool>, chat: ChatSessionStore) -> some View {
         fileImporter(isPresented: isPresented, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
             guard case .success(let urls) = result else { return }
+            let origin = chat.activeID
             Task {
                 for url in urls {
-                    let kind = Attachment.Kind(fileExtension: url.pathExtension)
-                    // Keep the app's own copy, so the file can be opened later.
-                    let scoped = url.startAccessingSecurityScopedResource()
-                    let data = try? Data(contentsOf: url)
-                    if scoped { url.stopAccessingSecurityScopedResource() }
-                    var thumbnail: Data?
-                    var copy: URL?
-                    if let data {
-                        copy = Uploads.store(data, named: url.lastPathComponent)
-                        if kind == .image { thumbnail = await Thumbnail.make(from: data) }
-                    }
-                    withAnimation(.smooth(duration: 0.3)) {
-                        _ = chat.addAttachment(
-                            name: url.lastPathComponent, kind: kind, thumbnail: thumbnail, fileURL: copy
-                        )
-                    }
+                    do {
+                        let kind = Attachment.Kind(fileExtension: url.pathExtension)
+                        let copy = try await Task.detached { try ImportStaging.copy(url) }.value
+                        let thumbnail: Data?
+                        if kind == .image {
+                            let data = try await Task.detached { try Data(contentsOf: copy) }.value
+                            thumbnail = await Thumbnail.make(from: data)
+                        } else { thumbnail = nil }
+                        withAnimation(.smooth(duration: 0.3)) {
+                            _ = chat.addAttachment(name: url.lastPathComponent, kind: kind, thumbnail: thumbnail,
+                                                   fileURL: copy, conversationID: origin)
+                        }
+                    } catch { chat.operationError = error.localizedDescription }
                 }
             }
-        }
-    }
-}
-
-/// The app's copies of imported files.
-private enum Uploads {
-    nonisolated static func store(_ data: Data, named name: String) -> URL? {
-        let folder = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Uploads/\(UUID().uuidString)", isDirectory: true)
-        do {
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            let url = folder.appendingPathComponent(name)
-            try data.write(to: url)
-            return url
-        } catch {
-            return nil
         }
     }
 }

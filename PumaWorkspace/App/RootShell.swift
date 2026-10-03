@@ -4,9 +4,10 @@ import UIKit
 struct RootShell: View {
     @State private var chat: ChatSessionStore
     @State private var voice: VoiceSessionController
+    @Environment(\.scenePhase) private var scenePhase
     @State private var navigation = NavigationState()
 
-    init(container: AppContainer = .make()) {
+    init(container: AppContainer) {
         let chat = ChatSessionStore(container: container)
         _chat = State(initialValue: chat)
         _voice = State(initialValue: VoiceSessionController(speech: container.speech, chat: chat))
@@ -22,6 +23,13 @@ struct RootShell: View {
             }
             .animation(.easeInOut(duration: 0.2), value: navigation.searchOpen)
             .workspaceSheets()
+            .alert("Workspace", isPresented: Binding(get: { chat.operationError != nil }, set: { if !$0 { chat.operationError = nil } })) {
+                Button("OK") { chat.operationError = nil }
+            } message: { Text(chat.operationError ?? "") }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await chat.refreshAvailability() } }
+                else { chat.flush(); if phase == .background { voice.pause(); SpeechReader.shared.stop() } }
+            }
             .onChange(of: navigation.drawerOpen) { _, open in
                 guard open else { return }
                 navigation.addMenuOpen = false

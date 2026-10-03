@@ -1,103 +1,77 @@
 # Puma Workspace architecture
 
-The project is one native SwiftUI iPhone app. Its folders separate interface, shared contracts, assistant behavior, and concrete local services. The first implementation phase uses fixtures and mock services.
+One native SwiftUI app runs the conversation model, speech recognition, document extraction, retrieval, and artifact rendering locally. There is no app server or account. The UI is the approved interface; concrete services replace its development fixtures through shared contracts.
 
-## Folder ownership
+## Boundaries
 
 | Folder | Responsibility |
 | --- | --- |
-| App | Entry point, root shell, navigation, and dependency wiring |
-| DesignSystem | Visual tokens and reusable controls |
-| Features | Screens, components, and presentation state |
-| Domain | Shared data types, IDs, events, and service contracts |
-| PreviewSupport | Sample records, mock replies, simulated speech, and in-memory repositories |
-| Assistant | Future orchestration, context assembly, bounded tools, validation, and cancellation |
-| Infrastructure | Future model runtime, real speech, local persistence, extraction, and retrieval |
-| Resources | Assets, samples, and localization |
-
-These are logical boundaries inside one app target. A separate Swift package can follow if another target needs the core.
-
-## Current UI phase (implemented with mocks)
-
-`AppContainer` (App) holds the concrete dependencies behind Domain contracts. In DEBUG it wires `MockAssistantClient`, `MockSpeechClient`, in-memory actor repositories, and `FixtureModelCatalog` from PreviewSupport. Release has no real services yet and stops at launch.
-
-Domain types (all `Sendable` value types): `Conversation` (with a pinned flag), `Message` (status complete/streaming/stopped/failed, Markdown text, work steps and their duration, the IDs of the documents it worked from, and an optional `Comparison` artifact), `Attachment` (a kind inferred from the file extension, readiness ready/importing/failed/removed, an optional thumbnail, and the URL of the app's copy of the file), `LocalModel` (ready/preparing/needsSetup/unsupported), `Citation` (locator, excerpt, UTF-16 span), `Comparison` (criteria × options cells, unknowns, revised criterion), and `MemoryItem`. Contracts: `AssistantClient.send(_:) -> AsyncStream<ReplyEvent>`, `SpeechClient.listen()/speak(_:)`, `ConversationRepository`, `AttachmentRepository`, `MemoryRepository`, and `ModelCatalog`. `ReplyEvent` carries work steps, the documents used, text tokens, an artifact, a memory proposal, failure, and completion. Stopping is cancellation of the consuming task.
-
-UI state is three `@MainActor @Observable` owners injected through the SwiftUI environment:
-
-- `ChatSessionStore` (Features/Chat/State) owns conversations, the active chat's draft, messages, selected sources, model, and notes, plus attachments, models, memories, and the pending memory proposal. Each reply stream carries a token; switching chats, stopping, or starting a new reply replaces the token, so late events from an older stream are dropped and a streaming message is marked stopped.
-- `VoiceSessionController` (Features/Voice/State) owns idle/listening/muted/finalizing/speaking/unavailable, the live transcript, and a smoothed energy value for the aura. It writes the transcript into the shared draft; leaving voice keeps the draft and never sends. The end of a spoken utterance sends that turn and speaks the reply.
-- `NavigationState` (App) owns the drawer flag, the single active sheet, the add surface, search and find-in-chat state, the feed's scroll requests, and the short notice shown under the top bar. Opening the drawer or a sheet pauses voice.
-
-`RootShell` composes the drawer back layer, the push-revealed `ChatScreen`, and `.workspaceSheets()`. `DebugLaunchState` (DEBUG) applies a `-uiState <name>` launch argument after loading so each review state can be opened directly.
-
-```mermaid
-flowchart LR
-  UI[SwiftUI screens] --> S[Shared chat state]
-  VO[Simulated voice transcript] --> S
-  S --> A[AssistantClient]
-  A --> M[Mock assistant]
-  M --> S
-  S --> R[Repository contracts]
-  R --> F[In-memory sample records]
-```
-
-## Where the UI phase went past mocks
-
-Three things use real system services rather than mock ones, because they are interface behavior and need no model or database:
-
-- **Picking sources.** The add surface reads recent photos with PhotoKit, shows a live viewfinder with AVFoundation, and uses the system photo picker and file browser. Imported files are copied into the app's caches folder so they can be opened later. Nothing reads their contents; the import that follows is still simulated.
-- **Viewing files.** Files open in Quick Look. The sample attachments are real files written on first use (a PDF, text, PNG, CSV, and Markdown file) so they open the same way.
-- **Read aloud.** `SpeechReader` (Features/Chat) reads a reply with the system speech synthesizer. It is separate from `SpeechClient`, which remains the mock contract for voice conversation.
-
-These live in Features, not Infrastructure. When integration starts, the file copy and the speech path should move behind Domain contracts.
-
-## Presentation notes
-
-- Replies are rendered by `MarkdownText`, a small block parser (headings, paragraphs, lists, code, quotes, tables, rules) over `AttributedString` inline Markdown. Comparisons are Markdown tables. `ComparisonCard`, `CitationChip`, and `EvidenceSheet` remain in the tree but no reply shows them now; `Comparison` artifacts are still attached to messages by the mock.
-- The feed scrolls to a message through `ScrollViewReader`. Its `ScrollPosition` only ever targets the bottom edge: tracking message identity made the feed snap whenever a reply changed height.
-- Glass applied by the app does not draw inside a clipped view, and flashes black around a system `Menu`; see [decision 0006](decisions/0006-system-components.md).
-
-Define only interfaces needed by the UI. Views render presentation state; that state calls shared contracts. Mock behavior belongs to the UI development configuration. Database migrations, model setup, indexing, and real audio are later integration work.
-
-## Complete system later
-
-Assistant lives inside the app and owns a request's context, tools, output validation, and lifecycle. Infrastructure/LocalInference runs the selected model. Infrastructure/Persistence implements local repository contracts. AppContainer replaces mocks with these implementations.
+| App | Startup, dependency construction, shell, lifecycle, navigation |
+| DesignSystem | Existing tokens, icons, glass controls, typography |
+| Features | Screens and observable presentation state |
+| Domain | Codable/Sendable records, repository and service protocols, request/event types |
+| Assistant | Context budgeting, local model sessions, memory extraction, scoped tools, reference validation |
+| Infrastructure | GRDB, private files, Vision/PDFKit, renderers, Foundation Models availability, Apple/Whisper speech |
+| PreviewSupport | Explicit DEBUG fixtures; never the default runtime |
 
 ```mermaid
 flowchart TD
-  INPUT[Text or local transcription] --> S[Shared chat state]
-  S --> A[Assistant orchestration]
-  A <--> T[Scoped search and read]
-  T <--> R[Local retrieval and repositories]
-  R <--> DB[Local database and private files]
-  A <--> M[Local model runtime]
-  A --> V[Validated reply and artifact]
-  V --> S
-  V --> R
-  V --> SP[Optional spoken reply]
+  Keyboard[Typing or dictation] --> Chat[Shared chat state and draft]
+  Voice[Voice conversation] --> Chat
+  Chat --> Agent[Request scope and local model session]
+  Agent <--> Tools[Selected-source tools and output renderers]
+  Tools <--> Store[SQLite and private files]
+  Chat <--> Store
+  Chat --> Memory[Independent context extraction]
+  Memory --> Commit[Deduplicated durable memory insert]
+  Commit --> Receipt[Saved to memory record link]
+  Store --> Context[Recent history and relevant memories]
+  Context --> Agent
+  Agent --> Events[Text, evidence, outputs, completion]
+  Events --> Chat
+  Events --> Playback[Optional local speech playback]
 ```
 
-1. Send captures the draft, conversation revision, model, selected source versions, and approved memory references.
-2. The assistant prepares relevant history and evidence. Its search/read tools enforce the selected source scope and return bounded passages with original locators.
-3. The local model produces reply events. The assistant validates structured answers and references before accepting an artifact. Streaming text can remain provisional.
-4. Accepted events update the interface and local history. Optional speech uses the same accepted answer.
-5. Artifact and memory changes pass through app actions. The model proposes; the person and app control application.
+## Startup and storage
 
-Stopping work, changing chats, removing a source, or changing memory revokes affected callbacks before another scope becomes active. Old model or speech events cannot overwrite a newer draft or restart stopped work.
+`WorkspaceStartup` constructs live services and displays a recoverable error if storage cannot open. A Release build has the same live path as Debug. Mock services require an explicit `-preview` or `-uiState` launch argument in DEBUG.
 
-## Local data ownership
+`WorkspaceDatabase` is an actor owning one GRDB writer and versioned migrations. Records currently use Codable JSON payloads in typed collections. Conversation revisions reject stale snapshots; deletion tombstones prevent delayed tasks from resurrecting records. Draft saves are debounced; reply text is checkpointed while streaming. An interrupted streaming reply reopens as stopped. Decoded collection caches are invalidated on writes.
 
-The future database stores conversations, messages, source metadata/versions, selections, artifacts, approved memory, and bounded operational records. Original imported documents live in private local files. Derived text/OCR and search indexes retain locators to the originals.
+All chat payloads currently load at startup; this is appropriate to the bounded take-home, not a claim of unlimited-history scalability. Before large-scale use, split message rows from conversation metadata and page the feed/history. No backend or sync layer is hidden behind these repositories.
 
-Selected sources grant access to relevant excerpts; they are not inserted wholesale into every request. Source deletion revokes access before cleanup, and historical citation controls become unavailable. Model session caches are temporary computation. Durable history and explicit memory belong to repositories.
+Application Support contains `workspace.sqlite`, durable originals/generated files under `Files/<id>/`, temporary durable imports under `Incoming`, and downloaded speech assets under `SpeechAssets`. The workspace is excluded from backups. Files use iOS data protection; no separate database password or application-level encryption is claimed.
 
-## Device scale
+## Assistant requests
 
-The interface is designed at the iPhone 17 Pro's width (402pt). `Tokens.uiScale` is the screen width divided by 402, clamped to 1...1.15. Every length goes through it: `Font` styles in `Typography.swift`, `Icon` sizes (scaled inside `Icon`, so callers pass baseline points), and all padding, gaps, sizes, and corner radii through `pt()` or `Tokens.scaled()`. New layout code must not use a bare number for a length. System-presented UI (alerts, context menus, the sheet chrome) is not scaled.
+A send captures conversation ID, source IDs, recent history, model identity, notes, and originating user-message ID. `ContextBuilder` budgets the prompt using the runtime's token counter/context size when supported, reserving space for replies and tools. It drops older history before rejecting an oversized input. Memories are ranked against the current prompt with recent context as a fallback; memory editing/forgetting affects subsequent requests.
 
-## Build configuration
+For document-only answers, evidence gathering and final writing use separate sessions; the final writer receives retrieved passages and the latest question without callable tools. Short complete sources skip the redundant gathering pass. CSV calculations are registered as inspectable evidence. Each turn uses a fresh Foundation Models session, preventing source changes or forgotten memories from remaining in an opaque session cache. Streaming events carry cumulative text snapshots. A request scope revokes tool work on cancellation. A 75-second deadline reports a recoverable failure rather than leaving a permanent spinner.
 
-`project.yml` generates the committed Xcode project with XcodeGen. The initial UI scaffold uses Swift 6 and targets iOS 26, matching the available development toolchain. It has no external package dependencies. `project.yml` declares camera and photo-library usage descriptions for the add surface. The model is Apple's on-device system model through Foundation Models ([decision 0005](decisions/0005-on-device-system-model.md)). Image input needs the iOS 27 SDK, so integration requires Xcode 27 and a deployment target of iOS 27; the installed toolchain is Xcode 26.6 with the iOS 26.5 SDK.
+Tools are registered narrowly: selected-source search/read, CSV calculations, and explicitly requested file/chart/diagram creation. No shell, code execution, arbitrary network request, or external action exists. Tool calls are capped per turn. Source documents are untrusted data. Evidence IDs and numbers come from the retrieval layer; final references are checked against passages actually retrieved. Missing references get a repair pass, with an explicitly labeled “Sources read” fallback rather than an invented claim-to-source mapping.
 
-Keep generated personal Xcode state, build products, credentials, and model weights outside Git. Add meaningful tests as state transitions and service contracts are implemented.
+## Documents and outputs
+
+Imports copy originals before processing, hash content, and reuse versioned extraction results. PDFKit extracts PDF text; Vision OCR handles scanned pages and images. Passages retain page/chunk locators in an FTS5 index. Queries restrict retrieval to selected, ready sources. Removing a selected source revokes the active request. Deleting a source removes its index and disposable extraction cache; previous conversation text is separate history.
+
+Text, Markdown, code, JSON, and CSV import as text. Office spreadsheets should be exported as CSV; unsupported formats remain previewable with an explicit analysis error. Limits protect local memory: 30 MB import, 300 PDF pages, 2 MB CSV calculation. Originals open in Quick Look.
+
+Output tools create real PDF, CSV, Markdown, JSON, text, and R files, plus bar-chart and flow-diagram PNGs. PDF rendering paginates text. CSV structure and JSON syntax are validated before writing. Charts use numeric inputs and bounded dimensions. Output paths use sanitized names inside the app sandbox. Generated content is indexed so it can be selected as context in later turns. R files are not executed; picture generation is intentionally deferred.
+
+## Memory
+
+Memory extraction runs separately from reply generation, so it does not delay speaking an answer. It identifies explicit context in the user's message and requires a supporting source span. The persisted text is the user's original words, avoiding unsupported paraphrases. Questions and document content must not become personal facts.
+
+A memory carries the originating conversation/message IDs, exact quote, timestamps, state, and normalized fingerprint. Deduplication plus insertion is atomic. Receipt events happen after commit. If the app closes between memory and conversation saves, load reconstructs the receipt using provenance. A failed write emits no “Saved” receipt. Retry preserves the originating message's committed receipts. Existing memories can be reviewed, edited, or forgotten; forgetting also cancels in-flight requests that could still use the fact.
+
+These are safeguards around a probabilistic extractor, not a guarantee of flawless semantic classification. The live evaluation suite tests implicit context and recall in addition to deterministic persistence tests.
+
+## Voice and text
+
+`ChatSessionStore` owns one draft and conversation. `VoiceSessionController` owns capture/playback state and generation tokens, rejecting stale callbacks after mute, navigation, or keyboard handoff. Dictation never auto-sends. Voice mode submits an ended utterance and speaks the completed reply. Capture stops during playback. Switching to typing stops audio but preserves the draft and reply.
+
+`LocalAudioSession` owns AVAudioEngine and synthesis. `AnalyzerCapture` uses SpeechAnalyzer when available; `WhisperCapture` provides local transcription elsewhere. The speech runtime keeps a warm model and serializes inference. Permission callbacks and audio callbacks are explicitly nonisolated/Sendable and only update presentation state after hopping to the UI actor. Backgrounding stops audio; temporary system permission sheets do not discard the session.
+
+## Verification and remaining platform gates
+
+The deterministic test scheme covers persistence, stale writes, deletion, caching, memory receipts, CSV/PDF/files, and voice handoff. `PumaWorkspaceLiveChecks` invokes the real Foundation Models service and checks document comparison, memory extraction/recall, and output files. Run it separately because model availability and quality are runtime-dependent. See `docs/verification.md` for observed results and remaining gates; a successful compile alone does not validate inference, microphone audio, or device performance.

@@ -53,8 +53,9 @@ final class VoiceSessionController {
         guard !isActive else { return }
         stopDictation()
         session = UUID()
+        SpeechReader.shared.stop()
         startEnvelope()
-        listen()
+        if chat.isStreaming { awaitReply() } else { listen() }
     }
 
     /// Leaves voice mode; transcript stays in the draft and is never sent.
@@ -64,7 +65,6 @@ final class VoiceSessionController {
         captureTask?.cancel(); captureTask = nil
         playbackTask?.cancel(); playbackTask = nil
         envelopeTask?.cancel(); envelopeTask = nil
-        if state == .speaking { chat.stop() }
         state = .idle
         liveTranscript = ""
         targetLevel = 0
@@ -81,6 +81,7 @@ final class VoiceSessionController {
 
     func startDictation() {
         guard !isActive, !isDictating else { return }
+        SpeechReader.shared.stop()
         session = UUID()
         isDictating = true
         startEnvelope()
@@ -104,12 +105,14 @@ final class VoiceSessionController {
 
     func toggleMute() {
         switch state {
-        case .listening, .finalizing:
+        case .listening, .finalizing, .speaking:
+            session = UUID()
             captureTask?.cancel(); captureTask = nil
+            playbackTask?.cancel(); playbackTask = nil
             targetLevel = 0
             state = .muted
-        case .muted:
-            listen()
+        case .muted, .unavailable:
+            if chat.isStreaming { awaitReply() } else { listen() }
         default:
             break
         }
@@ -119,6 +122,7 @@ final class VoiceSessionController {
 
     private func listen() {
         captureTask?.cancel()
+        session = UUID()
         let current = chat.draft.trimmingCharacters(in: .whitespacesAndNewlines)
         draftPrefix = current.isEmpty ? "" : current + " "
         liveTranscript = ""
@@ -136,16 +140,20 @@ final class VoiceSessionController {
     private func handle(_ event: TranscriptEvent) {
         if isDictating {
             switch event {
+            case .preparing(let text): liveTranscript = text
+            case .ready: liveTranscript = ""
             case .level(let level): targetLevel = level
             case .partial(let text): chat.draft = draftPrefix + text
             case .final(let text):
                 chat.draft = draftPrefix + text
                 stopDictation()
-            case .unavailable: stopDictation()
+            case .unavailable(let reason): stopDictation(); chat.operationError = reason
             }
             return
         }
         switch event {
+        case .preparing(let text): liveTranscript = text
+        case .ready: liveTranscript = ""
         case .level(let level):
             targetLevel = level
         case .partial(let text):
@@ -165,17 +173,23 @@ final class VoiceSessionController {
 
     /// End of an utterance in voice mode sends the turn, then speaks the reply.
     private func submitUtterance() {
-        let token = session
+        captureTask?.cancel()
         chat.send()
+        awaitReply()
+    }
+
+    private func awaitReply() {
+        let token = session
         state = .speaking
         liveTranscript = ""
         playbackTask = Task { [weak self] in
             // Wait for the reply to finish streaming.
-            while let self, self.session == token, self.chat.isStreaming {
-                try? await Task.sleep(for: .milliseconds(100))
+            while let self, !Task.isCancelled, self.session == token, self.chat.isStreaming {
+                do { try await Task.sleep(for: .milliseconds(100)) } catch { return }
             }
-            guard let self, self.session == token, let reply = self.chat.messages.last, reply.role == .assistant else { return }
-            for await level in self.speech.speak(reply.text) {
+            guard let self, !Task.isCancelled, self.session == token, let reply = self.chat.messages.last, reply.role == .assistant else { return }
+            guard reply.status == .complete else { self.state = .unavailable(reply.errorDescription ?? "The reply did not finish. Continue in text mode or try again."); return }
+            for await level in self.speech.speak(MarkdownText.plain(reply.text)) {
                 guard self.session == token else { return }
                 self.targetLevel = level
             }

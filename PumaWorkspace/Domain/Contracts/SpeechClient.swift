@@ -1,6 +1,8 @@
 import Foundation
 
 enum TranscriptEvent: Sendable {
+    case preparing(String)
+    case ready
     /// Running transcript of the current utterance.
     case partial(String)
     /// Final transcript of the utterance; listening ends after this.

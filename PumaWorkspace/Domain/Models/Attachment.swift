@@ -1,7 +1,7 @@
 import Foundation
 
-struct Attachment: Identifiable, Hashable, Sendable {
-    enum Kind: String, Sendable {
+struct Attachment: Identifiable, Hashable, Codable, Sendable {
+    enum Kind: String, Codable, Sendable {
         case image, pdf, document, spreadsheet, markdown, text, code, presentation, archive, audio, video, other
 
         /// The kind a file name's extension implies; `other` when it is unknown.
@@ -13,7 +13,7 @@ struct Attachment: Identifiable, Hashable, Sendable {
             case "csv", "tsv", "xls", "xlsx", "ods", "numbers": self = .spreadsheet
             case "md", "mdx", "markdown": self = .markdown
             case "txt", "log": self = .text
-            case "json", "js", "ts", "jsx", "tsx", "html", "css", "xml", "py", "rb", "go", "rs", "java",
+            case "r", "json", "js", "ts", "jsx", "tsx", "html", "css", "xml", "py", "rb", "go", "rs", "java",
                  "c", "cpp", "h", "swift", "kt", "sh", "sql", "yaml", "yml", "toml":
                 self = .code
             case "ppt", "pptx", "odp", "key": self = .presentation
@@ -24,7 +24,7 @@ struct Attachment: Identifiable, Hashable, Sendable {
             }
         }
     }
-    enum Readiness: Sendable { case ready, importing, failed, removed }
+    enum Readiness: Codable, Sendable { case ready, importing, failed, removed }
 
     let id: UUID
     var name: String
@@ -36,6 +36,11 @@ struct Attachment: Identifiable, Hashable, Sendable {
     var thumbnail: Data?
     /// The app's own copy of an imported file, for viewing it.
     var fileURL: URL?
+    var conversationID: UUID?
+    var fingerprint: String?
+    var failureReason: String?
+    var isGenerated = false
+    var createdAt: Date = .now
 
     init(
         id: UUID = UUID(), name: String, kind: Kind, readiness: Readiness,

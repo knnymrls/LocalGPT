@@ -1,6 +1,6 @@
 import Foundation
 
-struct Conversation: Identifiable, Hashable, Sendable {
+struct Conversation: Identifiable, Hashable, Codable, Sendable {
     let id: UUID
     var title: String?
     var createdAt: Date
@@ -12,6 +12,7 @@ struct Conversation: Identifiable, Hashable, Sendable {
     var notes: String
     /// Pinned chats stay at the top of the drawer.
     var isPinned: Bool = false
+    var revision: Int = 0
 
     init(
         id: UUID = UUID(),
@@ -36,9 +37,9 @@ struct Conversation: Identifiable, Hashable, Sendable {
     }
 }
 
-struct Message: Identifiable, Hashable, Sendable {
-    enum Role: Sendable { case user, assistant }
-    enum Status: Sendable { case complete, streaming, stopped, failed }
+struct Message: Identifiable, Hashable, Codable, Sendable {
+    enum Role: Codable, Sendable { case user, assistant }
+    enum Status: Codable, Sendable { case complete, streaming, stopped, failed }
 
     let id: UUID
     var role: Role
@@ -52,6 +53,10 @@ struct Message: Identifiable, Hashable, Sendable {
     var workSeconds: Int?
     /// The sources the reply drew on, shown at its end.
     var documentIDs: [UUID]
+    var savedMemoryIDs: [UUID] = []
+    var citations: [Citation] = []
+    var errorDescription: String?
+    var createdAt: Date = .now
 
     init(
         id: UUID = UUID(),

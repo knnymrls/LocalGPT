@@ -5,7 +5,7 @@ import SwiftUI
 struct FloatingTranscript: View {
     @Environment(VoiceSessionController.self) private var voice
 
-    private var visible: Bool { voice.isActive && !voice.liveTranscript.isEmpty }
+    private var visible: Bool { (voice.isActive || voice.isDictating) && !voice.liveTranscript.isEmpty }
 
     var body: some View {
         ZStack {

@@ -1,0 +1,110 @@
+import XCTest
+@testable import PumaWorkspace
+
+@MainActor
+final class InteractionTests: XCTestCase {
+    func testDictationKeepsTypedPrefixAndKeyboardHandoffRejectsLateTranscript() async throws {
+        let speech = ControlledSpeech()
+        let chat = ChatSessionStore(container: makeContainer(speech: speech))
+        await chat.load()
+        let voice = VoiceSessionController(speech: speech, chat: chat)
+        chat.draft = "Already typed"
+        voice.startDictation()
+        await settle()
+        speech.capture.yield(.partial("and spoken"))
+        await settle()
+        XCTAssertEqual(chat.draft, "Already typed and spoken")
+        voice.handoffToKeyboard()
+        speech.capture.yield(.final("late words"))
+        await settle()
+        XCTAssertEqual(chat.draft, "Already typed and spoken")
+        XCTAssertTrue(chat.messages.isEmpty)
+    }
+
+    func testLeavingVoiceDoesNotCancelReplyAndMuteRejectsLateFinal() async throws {
+        let speech = ControlledSpeech()
+        let assistant = ControlledAssistant()
+        let chat = ChatSessionStore(container: makeContainer(speech: speech, assistant: assistant))
+        await chat.load()
+        let voice = VoiceSessionController(speech: speech, chat: chat)
+        chat.draft = "A typed question"
+        chat.send()
+        voice.start()
+        await settle()
+        voice.handoffToKeyboard()
+        assistant.events.yield(.text("The reply continues"))
+        assistant.events.yield(.finished)
+        await settle()
+        XCTAssertEqual(chat.messages.last?.text, "The reply continues")
+        XCTAssertEqual(chat.messages.last?.status, .complete)
+        voice.start()
+        await settle()
+        voice.toggleMute()
+        speech.capture.yield(.final("must not send"))
+        await settle()
+        XCTAssertEqual(chat.messages.filter { $0.role == .user }.count, 1)
+        XCTAssertEqual(voice.state, .muted)
+        voice.exit()
+    }
+
+    func testReceiptsAreLinkedToSpecificMemoryAndSurviveReload() async throws {
+        let repo = InMemoryConversationRepository([])
+        let memory = InMemoryMemoryRepository([])
+        let assistant = ControlledAssistant()
+        let container = AppContainer(assistant: assistant, speech: ControlledSpeech(), conversations: repo,
+                                     attachments: InMemoryAttachmentRepository([]), memories: memory, modelCatalog: FixtureModelCatalog())
+        let chat = ChatSessionStore(container: container)
+        await chat.load()
+        chat.draft = "I prefer quiet rooms."
+        chat.send()
+        var saved = MemoryItem(text: "I prefer quiet rooms.", origin: "From this chat", state: .saved)
+        saved.conversationID = chat.activeID
+        saved.messageID = chat.messages.first?.id
+        await memory.save(saved)
+        assistant.events.yield(.memorySaved(saved))
+        assistant.events.yield(.text("Hello"))
+        assistant.events.yield(.finished)
+        await settle()
+        XCTAssertEqual(chat.messages.last?.savedMemoryIDs, [saved.id])
+        let reopened = ChatSessionStore(container: container)
+        await reopened.load()
+        XCTAssertEqual(reopened.messages.last?.savedMemoryIDs, [saved.id])
+        reopened.regenerate(try XCTUnwrap(reopened.messages.last?.id))
+        XCTAssertEqual(reopened.messages.last?.savedMemoryIDs, [saved.id], "Retry retains the receipt for the originating user message")
+        reopened.forgetMemory(saved.id)
+        await settle()
+        XCTAssertTrue(reopened.memories.isEmpty)
+    }
+
+    func testMemoryRequestHasNoArtifactTools() {
+        let memory = ToolPolicy(prompt: "I prefer quiet venues. Please remember that and say hello.")
+        XCTAssertFalse(memory.files)
+        XCTAssertFalse(memory.charts)
+        XCTAssertFalse(memory.diagrams)
+        XCTAssertTrue(ToolPolicy(prompt: "Create a CSV file of these expenses").files)
+        XCTAssertTrue(ToolPolicy(prompt: "Make a bar chart of attendance").charts)
+        XCTAssertTrue(ToolPolicy(prompt: "Draw a flow diagram of our plan").diagrams)
+    }
+
+    private func makeContainer(speech: any SpeechClient, assistant: any AssistantClient = ControlledAssistant()) -> AppContainer {
+        AppContainer(assistant: assistant, speech: speech, conversations: InMemoryConversationRepository([]),
+                     attachments: InMemoryAttachmentRepository([]), memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
+    }
+
+    private func settle() async { try? await Task.sleep(for: .milliseconds(70)) }
+}
+
+private struct ControlledSpeech: SpeechClient {
+    let stream: AsyncStream<TranscriptEvent>
+    let capture: AsyncStream<TranscriptEvent>.Continuation
+    init() { (stream, capture) = AsyncStream.makeStream(of: TranscriptEvent.self) }
+    func listen() -> AsyncStream<TranscriptEvent> { stream }
+    func speak(_ text: String) -> AsyncStream<Double> { AsyncStream { $0.finish() } }
+}
+
+private struct ControlledAssistant: AssistantClient {
+    let stream: AsyncStream<ReplyEvent>
+    let events: AsyncStream<ReplyEvent>.Continuation
+    init() { (stream, events) = AsyncStream.makeStream(of: ReplyEvent.self) }
+    func send(_ request: ReplyRequest) -> AsyncStream<ReplyEvent> { stream }
+}

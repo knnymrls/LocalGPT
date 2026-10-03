@@ -1,54 +1,72 @@
 # Puma Workspace
 
-A native iPhone workspace for private conversations, selected documents, and interchangeable voice and text.
+A native iPhone assistant with local chat, selected-document evidence, automatic memory, and shared voice/text conversations. The approved SwiftUI interface connects to real services by default. No account or app backend is required.
 
-**Current stage:** project scaffold and product documentation. The app target builds to an empty root view. The approved conversation interface is the next implementation step; real local AI, audio, document retrieval, and persistence follow after UI review.
+## Run
 
-## Start here
+1. Open `PumaWorkspace.xcodeproj` in Xcode 26.6 or newer and select the **PumaWorkspace** scheme.
+2. Choose an Apple Intelligence-capable iPhone or compatible Simulator with Apple Intelligence enabled and its model downloaded. Device builds require your signing team. The app explains model unavailability in the composer.
+3. Build and run. Allow microphone access when trying voice. Speech assets may download on first use; subsequent recognition is local.
 
-- [PRD](docs/prd.md): product goal, flows, requirements, scope, and acceptance criteria.
-- [Design](docs/design.md): the approved layout and interaction states.
-- [Architecture](docs/architecture.md): folder ownership and how services connect.
-- [Change log](docs/CHANGELOG.md): completed work and observed implementation status.
-- [Decisions](docs/decisions/): the rationale behind major choices.
+The deployment target is iOS 26. The verified environment is Xcode 26.6 / iOS 26.5 Simulator. iOS 27 direct image understanding is not implemented in this build: images are read with OCR. This Mac's current OS cannot install the current Xcode 27 release without an OS upgrade.
 
-## Open the project
+Private inputs are processed locally. Public speech-model assets are the only application-initiated network download. There is no cloud inference fallback, analytics SDK, account, or sync. See [architecture](docs/architecture.md) for boundaries and [verification](docs/verification.md) for observed results and remaining checks.
 
-Open `PumaWorkspace.xcodeproj` in Xcode, select the `PumaWorkspace` scheme, and choose an iPhone simulator. Device builds require your own signing team.
+## Try it
 
-The initial scaffold targets iOS 26 and uses Swift 6, with no third-party dependencies. It was prepared with Xcode 26.6 and the iOS 26.5 SDK. Local inference and speech integration may introduce further device or toolchain requirements later.
+- Say or type **“I prefer quiet venues and my budget is 4200 dollars.”** After the actual memory commit, **Saved to memory** appears below the reply. Tap it to inspect the original quote, edit the memory, or forget it. Start a new chat and ask about the preference.
+- Add two venue proposals through Files. Compare capacity, cost, and accessibility; tap a numbered reference to inspect its passage. Then change the guest count and ask which venue fits.
+- Ask for a PDF checklist, CSV budget, R script, bar chart, or flow diagram. Open the resulting file from the reply or Outputs. R scripts are not executed.
+- Dictation fills the editable draft. Voice conversation sends completed utterances and reads replies. Keyboard handoff preserves the partial draft and any in-progress reply.
 
-The generated project is committed. To regenerate it after adding files or changing targets, use [XcodeGen](https://github.com/yonaskolb/XcodeGen):
+## Build and check
+
+```sh
+xcodebuild -project PumaWorkspace.xcodeproj \
+  -scheme PumaWorkspace -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
+
+# Substitute the identifier of your booted simulator.
+xcodebuild -project PumaWorkspace.xcodeproj \
+  -scheme PumaWorkspace -destination 'platform=iOS Simulator,id=<UDID>' \
+  -parallel-testing-enabled NO test
+
+# Opt-in checks using the real local model and speech assets.
+xcodebuild -project PumaWorkspace.xcodeproj \
+  -scheme PumaWorkspaceLiveChecks -destination 'platform=iOS Simulator,id=<UDID>' \
+  -parallel-testing-enabled NO test
+```
+
+The default scheme runs deterministic persistence, import, memory, and interaction tests. Live model checks require available system models; the recorded-audio check may download Whisper assets. Live tests attach responses to the test report and print observed timing. Simulator timing is not an iPhone benchmark.
+
+`project.yml` is the project source of truth; regenerate after adding files:
 
 ```sh
 xcodegen generate --spec project.yml
 ```
 
-To validate the scaffold without signing or booting a simulator:
-
-```sh
-xcodebuild -project PumaWorkspace.xcodeproj \
-  -scheme PumaWorkspace \
-  -destination 'generic/platform=iOS Simulator' \
-  -derivedDataPath .build/DerivedData \
-  CODE_SIGNING_ALLOWED=NO build
-```
+Swift Package Manager resolves GRDB and WhisperKit with committed pins. Model weights are downloaded outside the repository. DEBUG-only `-preview` / `-uiState` flags select fixtures; a normal Debug or Release launch uses real services.
 
 ## Structure
 
 ```text
 PumaWorkspace/
-├── App/                 App entry, root shell, dependency wiring
-├── DesignSystem/        Visual tokens and shared controls
-├── Features/            Chat, history, attachments, model picker, voice,
-│                        evidence, comparisons, and memory
-├── Domain/              Shared types and service contracts
-├── PreviewSupport/      Fixtures and mock services for the UI phase
-├── Assistant/           Future orchestration, context, tools, validation
-├── Infrastructure/      Future local model, speech, storage, documents, search
-└── Resources/           Assets, samples, localization
-Tests/                   Future meaningful behavior tests
-docs/                    PRD, design, architecture, change log, decisions
+├── App/                 Startup, dependency wiring, navigation, lifecycle
+├── DesignSystem/        Approved visual tokens and controls
+├── Features/            Screens and observable presentation state
+├── Domain/              Shared records, requests, events, contracts
+├── Assistant/           Context, memory extraction, orchestration, tools
+├── Infrastructure/      SQLite, files, OCR, renderers, model and speech adapters
+├── PreviewSupport/      Explicit DEBUG fixtures
+└── Resources/           App assets
+Tests/Unit/              Deterministic behavior and local document checks
+Tests/Live/              Opt-in real-model and recorded-speech checks
+docs/                    Product, design, architecture, decisions, verification
 ```
 
-The initial native UI work uses sample data and mock services. Reserved folders indicate ownership, not completed functionality. No database, model runtime, model assets, telemetry, account system, or cloud backend is configured.
+- [PRD](docs/prd.md)
+- [Design](docs/design.md)
+- [Architecture](docs/architecture.md)
+- [Verification and limits](docs/verification.md)
+- [Change log](docs/CHANGELOG.md)
+- [Third-party notices](THIRD_PARTY_NOTICES.md)

@@ -21,6 +21,9 @@ struct ChatFeed: View {
         var lastSteps: Int
         var lastHasArtifact: Bool
         var lastStatus: Message.Status?
+        var receipts: Int
+        var citations: Int
+        var files: Int
     }
 
     private var tail: Tail {
@@ -30,7 +33,10 @@ struct ChatFeed: View {
             lastLength: last?.text.count ?? 0,
             lastSteps: last?.steps.count ?? 0,
             lastHasArtifact: last?.artifact != nil,
-            lastStatus: last?.status
+            lastStatus: last?.status,
+            receipts: last?.savedMemoryIDs.count ?? 0,
+            citations: last?.citations.count ?? 0,
+            files: last?.documentIDs.count ?? 0
         )
     }
 
@@ -175,12 +181,16 @@ private struct AssistantRow: View {
         VStack(alignment: .leading, spacing: pt(12)) {
             WorkDisclosure(message: message)
             if !message.text.isEmpty {
-                MarkdownText(text: message.text, highlight: highlight)
+                MarkdownText(text: message.text, highlight: highlight, citations: message.citations)
             }
             if message.status != .streaming, !documents.isEmpty {
                 VStack(spacing: pt(8)) {
                     ForEach(documents) { ReplyDocumentRow(document: $0) }
                 }
+            }
+            if !message.savedMemoryIDs.isEmpty { SavedMemoryReceipt(ids:message.savedMemoryIDs) }
+            if !message.citations.isEmpty {
+                FlowCitations(citations:message.citations)
             }
             footer
         }
@@ -193,7 +203,7 @@ private struct AssistantRow: View {
         switch message.status {
         case .failed:
             HStack(spacing: pt(4)) {
-                Text("Reply interrupted.")
+                Text(message.errorDescription ?? "Reply interrupted.")
                     .font(.caption)
                     .foregroundStyle(Tokens.foregroundSecondary)
                 Button {

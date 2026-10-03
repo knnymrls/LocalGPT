@@ -7,6 +7,8 @@ struct MarkdownText: View {
     let text: String
     /// Find in chat's query; every match is marked.
     var highlight = ""
+    var citations: [Citation] = []
+    @Environment(NavigationState.self) private var navigation
 
     var body: some View {
         VStack(alignment: .leading, spacing: pt(8)) {
@@ -17,6 +19,12 @@ struct MarkdownText: View {
         }
         .foregroundStyle(Tokens.foreground)
         .textSelection(.enabled)
+        .environment(\.openURL, OpenURLAction { url in
+            guard url.scheme == "puma-evidence", let number = Int(url.host ?? ""),
+                  let citation = citations.first(where: { $0.number == number }) else { return .systemAction }
+            navigation.present(.evidence(citation))
+            return .handled
+        })
     }
 
     @ViewBuilder
@@ -81,22 +89,31 @@ struct MarkdownText: View {
 
     /// A plain grid: semibold header row, hairlines between rows, no fill.
     private func table(_ rows: [[String]]) -> some View {
-        Grid(alignment: .topLeading, horizontalSpacing: pt(16), verticalSpacing: 0) {
+        let widths = (0..<(rows.map(\.count).max() ?? 0)).map { column in
+            let natural = rows.enumerated().map { index, row -> CGFloat in
+                guard column < row.count else { return 0 }
+                let font = UIFont.systemFont(ofSize: 15 * Tokens.uiScale, weight: index == 0 ? .semibold : .regular)
+                return (String(Self.inline(row[column]).characters) as NSString).size(withAttributes: [.font: font]).width
+            }.max() ?? 0
+            return min(pt(220), max(pt(64), ceil(natural) + pt(2)))
+        }
+        return Grid(alignment: .topLeading, horizontalSpacing: pt(16), verticalSpacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, cells in
                 if index > 0 {
                     Rectangle()
                         .fill(Color(uiColor: Tokens.Palette.borderDivider))
                         .frame(height: 0.5)
+                        .gridCellUnsizedAxes(.horizontal)
                 }
                 GridRow {
-                    ForEach(Array(cells.enumerated()), id: \.offset) { _, cell in
+                    ForEach(Array(cells.enumerated()), id: \.offset) { column, cell in
                         Text(styled(cell))
                             .font(.system(size: 15 * Tokens.uiScale, weight: index == 0 ? .semibold : .regular))
                             .lineSpacing(2)
                             // One line up to a comfortable column width,
                             // wrapping only past it.
-                            .frame(maxWidth: pt(220), alignment: .leading)
-                            .fixedSize(horizontal: true, vertical: true)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(width: widths[column], alignment: .leading)
                             .padding(.vertical, pt(9))
                     }
                 }
@@ -113,7 +130,17 @@ struct MarkdownText: View {
     }
 
     private func styled(_ text: String) -> AttributedString {
-        FindHighlight.mark(Self.inline(text), query: highlight)
+        var attributed = Self.inline(text)
+        for citation in citations {
+            let marker = "[\(citation.number)]"
+            var search = attributed.startIndex..<attributed.endIndex
+            while let range = attributed[search].range(of: marker) {
+                attributed[range].link = URL(string: "puma-evidence://\(citation.number)")
+                attributed[range].foregroundColor = Tokens.foreground
+                search = range.upperBound..<attributed.endIndex
+            }
+        }
+        return FindHighlight.mark(attributed, query: highlight)
     }
 
     /// Bold, italic, inline code, and links inside one block.

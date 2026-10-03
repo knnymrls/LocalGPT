@@ -7,6 +7,8 @@ struct ReplyRequest: Sendable {
     var history: [Message]
     var modelID: String
     var selectedSourceIDs: Set<UUID>
+    var userMessageID: UUID? = nil
+    var notes: String = ""
 }
 
 enum ReplyEvent: Sendable {
@@ -15,6 +17,10 @@ enum ReplyEvent: Sendable {
     /// The sources the reply draws on.
     case documents([UUID])
     case token(String)
+    case text(String)
+    case memorySaved(MemoryItem)
+    case output(Attachment)
+    case citations([Citation])
     case artifact(Comparison)
     case memoryProposal(MemoryItem)
     case failed(String)

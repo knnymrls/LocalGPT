@@ -2,6 +2,16 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Local services integration
+
+- Connected the approved interface to Foundation Models, GRDB persistence, durable files, scoped retrieval, and real artifact rendering. Normal Debug and Release launches use live services.
+- Added automatic, quote-grounded user-context memory with atomic deduplication and post-commit Saved to memory receipts. Receipts open the exact record; editing and forgetting affect future memory context.
+- Added OCR for images/scanned PDFs, source references with passage sheets, CSV calculations, PDF/CSV/JSON/Markdown/text/R output, and chart/diagram PNGs. Generated content can be selected in later requests.
+- Added Apple SpeechAnalyzer and cached local Whisper fallback, plus shared draft/voice handoff and callback cancellation. Moved read-aloud service ownership out of the reply control view.
+- Added cache reuse, versioned saves, deletion tombstones, reply recovery/checkpoints, bounded context, and explicit errors. Retry preserves memory receipts. Long Markdown table cells now determine their row height.
+- Verified 16 deterministic checks and eight opt-in real-model/recorded-speech checks. Built Release for Simulator. Live microphone, disconnected-network, and physical-device passes remain pending; see verification.md.
+- Updated the PRD, design, architecture, setup, decision record 0007, and bundled third-party notices. The prior entries below are historical UI/scaffold state, not the current implementation.
+
 ## 2026-10-03
 
 - Rewrote the PRD around the product goal, user flows, functional requirements, phased scope, and acceptance criteria.

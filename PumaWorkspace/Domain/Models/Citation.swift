@@ -1,6 +1,6 @@
 import Foundation
 
-struct Citation: Identifiable, Hashable, Sendable {
+struct Citation: Identifiable, Hashable, Codable, Sendable {
     let id: UUID
     /// Display number used by citation chips.
     var number: Int

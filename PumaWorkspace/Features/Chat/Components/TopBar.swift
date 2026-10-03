@@ -84,7 +84,7 @@ struct TopBar: View {
                     moduleButton(label: "New chat") { chat.newChat() }
                     moduleButton(label: "Outputs") { navigation.present(.outputs) }
                         .accessibilityValue(
-                            chat.outputs.isEmpty ? Text("") : Text("\(chat.outputs.count) in this chat")
+                            chat.outputCount == 0 ? Text("") : Text("\(chat.outputCount) in this chat")
                         )
                 }
             }
@@ -112,7 +112,7 @@ struct TopBar: View {
             HStack(spacing: 0) {
                 moduleGlyph(.composePen)
                 // Filled once the chat has outputs, outlined until then.
-                moduleGlyph(.ballotCircle, filled: !chat.outputs.isEmpty)
+                moduleGlyph(.ballotCircle, filled: chat.outputCount > 0)
                 moduleGlyph(.more)
             }
             // The system glass style adds its own padding around a label;

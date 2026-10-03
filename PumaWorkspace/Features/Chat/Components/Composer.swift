@@ -180,7 +180,8 @@ struct Composer: View {
             .lineLimit(1)
             .padding(.horizontal, pt(6))
             .frame(height: Self.buttonSize)
-            .accessibilityLabel(Text("Runs on this iPhone"))
+            .accessibilityLabel(Text(chat.selectedModel?.availability.explanation ?? "Runs on this iPhone"))
+            .onTapGesture { if let reason = chat.selectedModel?.availability.explanation { chat.operationError = reason } }
     }
 
     private var micButton: some View {
@@ -252,7 +253,7 @@ struct Composer: View {
             .glassEffectID("mute", in: glass)
             .glassEffectTransition(.matchedGeometry)
             .animation(.easeInOut(duration: 0.2), value: voice.isMuted)
-            .accessibilityLabel(Text(voice.isMuted ? "Unmute microphone" : "Mute microphone"))
+            .accessibilityLabel(Text(voice.unavailableReason != nil ? "Retry voice" : voice.isMuted ? "Unmute microphone" : "Mute microphone"))
 
             Button {
                 lightTaps += 1

@@ -1,5 +1,7 @@
 # 0005 Apple's on-device system model
 
+Integration update: [decision 0007](0007-local-services-and-automatic-memory.md) permits the iOS 26 local-model baseline and defers direct image reasoning until an iOS 27 toolchain is available.
+
 Status: selected for integration. The interface is implemented against mock availability; no model code exists yet.
 Date: 2026-10-03.
 

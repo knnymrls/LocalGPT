@@ -1,6 +1,6 @@
 # Puma Workspace contributor guide
 
-Read `docs/prd.md`, `docs/design.md`, and `docs/architecture.md` before making changes. The current phase is the native UI with fixtures and mock services. Preserve the approved compact shell and shared voice/text conversation.
+Read `docs/prd.md`, `docs/design.md`, and `docs/architecture.md` before making changes. The current phase integrates real on-device services into the approved native UI. Preserve the approved compact shell and shared voice/text conversation.
 
 ## Ownership
 
@@ -9,12 +9,12 @@ Read `docs/prd.md`, `docs/design.md`, and `docs/architecture.md` before making c
 - `Features`: feature screens, components, and presentation state.
 - `Domain`: shared data and minimal service/repository contracts.
 - `PreviewSupport`: fixtures and explicit mock services.
-- `Assistant`: future context, orchestration, read-only tools, and validation.
-- `Infrastructure`: future concrete inference, speech, storage, extraction, and retrieval.
+- `Assistant`: context, memory extraction, orchestration, scoped tools, and validation.
+- `Infrastructure`: concrete inference, speech, storage, extraction, rendering, and retrieval.
 
 Use Mintlify's context tool when researching library, framework, SDK, API, or CLI usage. Prefer primary documentation and verify behavior against the installed toolchain.
 
-Keep UI code independent of concrete model and database packages. Use one shared chat state and draft across input modes. Add only contracts needed by the current flow. Database setup, model integration, downloads, indexing, and real audio are later work unless explicitly requested.
+Keep UI code independent of concrete model and database packages. Use one shared chat state and draft across input modes. Add only contracts needed by the current flow. Production services are the default. Keep mocks behind explicit DEBUG launch arguments. Private input must never enter a remote inference or transcription fallback.
 
 `project.yml` defines the Xcode project. Regenerate the committed project after adding source files. Keep personal Xcode state, build output, credentials, and model weights out of Git.
 

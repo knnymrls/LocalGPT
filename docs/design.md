@@ -2,7 +2,7 @@
 
 The interface is one conversation with a composer, kept simple and clean. Controls are icons where an icon is clear. Supporting detail lives in sheets, not permanent panels. System components are used wherever one fits ([decision 0006](decisions/0006-system-components.md)).
 
-Status words used here: *implemented* means built and build-verified with sample data; *checked* means looked at on the iPhone 17 Pro or Pro Max simulator. Nothing has been verified on a physical device.
+This document describes the approved interface. Real services now drive normal launches; explicit DEBUG fixtures remain for isolated UI states. See verification.md for observed checks. Nothing has been verified on a physical device.
 
 ## Visual system
 
@@ -79,20 +79,17 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 
 All sheets share one scaffold: a glass close button, a medium-weight title, and grouped cards of 54pt rows.
 
-- **Outputs:** the files this chat's replies worked from, then a "Remembered" section.
+- **Outputs:** source files used by replies, generated files, then memories saved from this chat.
 - **Uploaded files:** every file and photo added to the app.
-- **Memories:** everything remembered. Each memory is one plain line; press and hold to edit or forget.
-- **Remember this?:** the assistant's proposed memory, saved only when the person chooses.
+- **Memories:** everything remembered. Tap a row to inspect its record; press and hold to edit or forget.
+- **Saved memory:** opens from the Saved to memory receipt after a real commit. Shows the exact record, original quote, date, Edit, and Forget. Automatic extraction replaces the earlier approval-before-save flow.
 
 ## States
 
 Empty, streaming, stopped, and failed replies; importing, ready, and removed sources; microphone unavailable; and a muted "On-device" label when the model is preparing, needs setup, or is unsupported. Each can be opened directly with a `-uiState` or `-modelState` launch argument in debug builds.
 
-## Not built or not verified
+## Integration and remaining verification
 
-- Imports, replies, speech recognition, and memory are sample data. Nothing reads a file's contents.
-- Source references inside an answer, and the passage viewer they open, are not reachable from a reply now that comparisons are Markdown tables. The viewer still exists.
-- There is no explanation screen for a model that is not ready.
-- Alerts, context menus, and sheet chrome are drawn by iOS: they do not follow the app's device scale and use the system blue.
-- The live camera, the photo-access prompt, haptics, and read-aloud audio need a physical device.
-- Light mode has been looked at only in places.
+Normal launches use local inference, persistence, file extraction, speech adapters, and automatic memory. Inline numbered references and citation chips open the passage sheet. Model unavailability opens an explanation. Failed replies and imports carry specific reasons.
+
+The live camera, haptics, physical audio interruptions, large Dynamic Type, and a complete light/dark accessibility pass remain device/UI verification work. Simulator microphone routing is separate from recorded-audio speech checks. See [verification](verification.md).

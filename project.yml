@@ -16,6 +16,13 @@ settings:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
+packages:
+  GRDB:
+    url: https://github.com/groue/GRDB.swift.git
+    from: 7.0.0
+  WhisperKit:
+    url: https://github.com/argmaxinc/WhisperKit.git
+    exactVersion: 0.15.0
 targets:
   PumaWorkspace:
     type: application
@@ -25,6 +32,9 @@ targets:
         excludes:
           - "**/.gitkeep"
           - "**/*.md"
+    dependencies:
+      - package: GRDB
+      - package: WhisperKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.PumaWorkspace
@@ -36,10 +46,34 @@ targets:
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: Show your recent photos so you can add them to a chat.
         INFOPLIST_KEY_NSCameraUsageDescription: Take a photo to add it to your chat.
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: Transcribe your speech on this device for dictation and voice conversations.
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: Recognize speech on this device.
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
+  PumaWorkspaceTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/Unit
+    dependencies:
+      - target: PumaWorkspace
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.PumaWorkspaceTests
+        GENERATE_INFOPLIST_FILE: YES
+  PumaWorkspaceLiveTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/Live
+    dependencies:
+      - target: PumaWorkspace
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.PumaWorkspaceLiveTests
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   PumaWorkspace:
     build:
@@ -47,5 +81,15 @@ schemes:
         PumaWorkspace: all
     run:
       config: Debug
+    test:
+      targets:
+        - PumaWorkspaceTests
     archive:
       config: Release
+  PumaWorkspaceLiveChecks:
+    build:
+      targets:
+        PumaWorkspace: all
+    test:
+      targets:
+        - PumaWorkspaceLiveTests

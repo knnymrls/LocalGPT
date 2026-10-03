@@ -1,17 +1,17 @@
 import Foundation
 
-struct Comparison: Hashable, Sendable {
-    struct Criterion: Identifiable, Hashable, Sendable {
+struct Comparison: Hashable, Codable, Sendable {
+    struct Criterion: Identifiable, Hashable, Codable, Sendable {
         let id: String
         var label: String
     }
 
-    struct Option: Identifiable, Hashable, Sendable {
+    struct Option: Identifiable, Hashable, Codable, Sendable {
         let id: String
         var label: String
     }
 
-    struct Cell: Hashable, Sendable {
+    struct Cell: Hashable, Codable, Sendable {
         /// nil renders "Unknown".
         var value: String?
         var citations: [Citation]

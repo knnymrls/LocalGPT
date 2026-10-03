@@ -1,6 +1,6 @@
 import Foundation
 
-/// Concrete dependencies for the app. The UI phase wires mocks only.
+/// Live services by default; deterministic fixtures require an explicit debug launch flag.
 struct AppContainer: Sendable {
     var assistant: any AssistantClient
     var speech: any SpeechClient
@@ -8,14 +8,30 @@ struct AppContainer: Sendable {
     var attachments: any AttachmentRepository
     var memories: any MemoryRepository
     var modelCatalog: any ModelCatalog
+    var importer: (any DocumentImporter)? = nil
+    var memoryCapture: MemoryService? = nil
 
-    static func make(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppContainer {
+    static func make(arguments: [String] = ProcessInfo.processInfo.arguments) throws -> AppContainer {
         #if DEBUG
-        return .mock(micUnavailable: arguments.contains("-micUnavailable"))
-        #else
-        // Real inference, speech, and persistence are later integration work.
-        fatalError("Release services are not implemented in the UI phase.")
+        if arguments.contains("-preview") || arguments.contains("-uiState") {
+            return .mock(micUnavailable: arguments.contains("-micUnavailable"))
+        }
         #endif
+        let files = WorkspaceFiles(root: WorkspaceFiles.applicationRoot)
+        let database = try WorkspaceDatabase(url: files.root.appendingPathComponent("workspace.sqlite"))
+        let attachments = LocalAttachmentRepository(database: database)
+        let memories = LocalMemoryRepository(database: database)
+        let memoryCapture = MemoryService(repository: memories)
+        let writer = ArtifactWriter(files: files, repository: attachments, database: database)
+        return AppContainer(
+            assistant: LocalAssistantClient(database: database, attachments: attachments,
+                                            memories: memoryCapture, writer: writer),
+            speech: LocalSpeechClient(),
+            conversations: LocalConversationRepository(database: database),
+            attachments: attachments, memories: memories, modelCatalog: SystemModelCatalog(),
+            importer: LocalDocumentImporter(files: files, database: database, repository: attachments),
+            memoryCapture: memoryCapture
+        )
     }
 
     #if DEBUG

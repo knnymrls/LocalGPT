@@ -16,6 +16,7 @@ final class NavigationState {
         case evidence(Citation)
         /// The pending memory proposal ("Remember this?").
         case memoryProposal
+        case savedMemory(UUID)
 
         var id: String {
             switch self {
@@ -25,6 +26,7 @@ final class NavigationState {
             case .file(let id): "file-\(id)"
             case .evidence(let c): "evidence-\(c.id)"
             case .memoryProposal: "memoryProposal"
+            case .savedMemory(let id): "memory-\(id)"
             }
         }
     }
