@@ -29,12 +29,31 @@ struct ContextBuilder {
         If input exceeds your capabilities, explain specifically and suggest a smaller request.
         """
 
-    static func build(_ request:ReplyRequest,sources:[Attachment],memories:String,evidence:String = "",tools:[any Tool]) async throws -> String {
-        var history = request.history.filter { $0.id != request.userMessageID && $0.status != .streaming && !$0.text.isEmpty }.suffix(8).map {
+    static func sourceAnswerInstructions(for request: ReplyRequest) -> String {
+        """
+        Give a concise direct answer to the question below using the provided source passages.
+        Cite document facts with [1], [2]. Do not repeat the prompt or describe the user's context.
+        Tools have already finished. Use their supplied results; do not call or request more tools.
+        For changed requirements, use the latest value and state which options meet it and which do not.
+        Missing facts remain unknown. Do not copy an earlier answer or its format.
+        Use a table only when the question below asks for one. Otherwise use a short paragraph.
+
+        The current user question is:
+        \(request.prompt)
+        """
+    }
+
+    static func build(_ request:ReplyRequest,sources:[Attachment],memories:String,evidence:String = "",tools:[any Tool], sourceAnswer: Bool = false) async throws -> String {
+        // Source answers must be derived again from the documents and user requirements.
+        // Feeding the previous generated table back as evidence caused stale conclusions
+        // to override changed requirements in the small local model.
+        var history = request.history.filter {
+            $0.id != request.userMessageID && $0.status != .streaming && !$0.text.isEmpty && (!sourceAnswer || $0.role == .user)
+        }.suffix(8).map {
             "\($0.role == .user ? "User" : "Assistant"): \(String($0.text.prefix(1200)))"
         }
         let sourceList = sources.filter { request.selectedSourceIDs.contains($0.id) && $0.readiness == .ready }
-            .map { "\($0.id): \($0.name)" }.joined(separator:"\n")
+            .map { sourceAnswer ? $0.name : "\($0.id): \($0.name)" }.joined(separator:"\n")
         func assemble() -> String {
             if sourceList.isEmpty && evidence.isEmpty && tools.isEmpty {
                 return "Background context about the user (use only if relevant):\n\(String(memories.prefix(1600)))\n\(String(request.notes.prefix(1000)))\nEarlier conversation:\n\(history.joined(separator: "\n"))\nLatest user message:\n\(request.prompt)"
@@ -44,8 +63,13 @@ struct ContextBuilder {
         var prompt = assemble()
         if #available(iOS 26.4, *) {
             let model = SystemLanguageModel.default
-            let reserved = try await model.tokenCount(for:tools) + model.tokenCount(for:instructions)
-            let budget = model.contextSize - reserved - 1800
+            let activeInstructions = sourceAnswer ? sourceAnswerInstructions(for: request) : instructions
+            let reserved = try await model.tokenCount(for:tools) + model.tokenCount(for:activeInstructions)
+            var schemaTokens = sourceAnswer ? try await model.tokenCount(for: SourceAnswer.generationSchema) : 0
+            if sourceAnswer, request.prompt.contains(where: \.isNumber) {
+                schemaTokens = max(schemaTokens, try await model.tokenCount(for: SourceNumericPlan.generationSchema))
+            }
+            let budget = model.contextSize - reserved - schemaTokens - 1800
             guard budget >= 512 else { throw WorkspaceError.message("This request needs too many tools for the local model. Ask for one output at a time.") }
             while try await model.tokenCount(for:prompt) > budget, !history.isEmpty {
                 history.removeFirst();prompt = assemble()

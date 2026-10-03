@@ -45,7 +45,14 @@ struct MemoryExtractor: Sendable {
 
     static func isGrounded(_ item: ExtractedMemory, in text: String) -> Bool {
         let quote = item.evidence.trimmingCharacters(in:.whitespacesAndNewlines)
-        return quote.count >= 8 && text.contains(quote) && !item.text.isEmpty && item.text.count <= 600
+        guard quote.count >= 8, let range = text.range(of: quote), !item.text.isEmpty, item.text.count <= 600 else { return false }
+        // The model may return a question with its punctuation removed. Grounding alone
+        // proves provenance, not that the words express a fact about the user.
+        let firstWord = quote.lowercased().split { !$0.isLetter }.first.map(String.init) ?? ""
+        let questionStarts: Set<String> = ["what", "which", "who", "whose", "whom", "when", "where", "why", "how", "can", "could", "would", "should", "will", "do", "does", "did", "is", "are", "am", "have", "has"]
+        let requestStarts: Set<String> = ["create", "generate", "write", "draft", "compare", "summarize", "explain", "tell", "show", "find", "help", "please", "export", "calculate"]
+        let following = text[range.upperBound...].drop(while: { $0.isWhitespace }).first
+        return !quote.contains("?") && following != "?" && !questionStarts.contains(firstWord) && !requestStarts.contains(firstWord)
     }
 
     static func fingerprint(_ text: String) -> String {

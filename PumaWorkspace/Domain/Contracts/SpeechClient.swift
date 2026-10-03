@@ -12,9 +12,15 @@ enum TranscriptEvent: Sendable {
     case unavailable(String)
 }
 
+enum PlaybackEvent: Sendable {
+    case level(Double)
+    case finished
+    case failed(String)
+}
+
 /// Capture and playback. Cancelling the consuming task stops capture/playback.
 protocol SpeechClient: Sendable {
     func listen() -> AsyncStream<TranscriptEvent>
-    /// Speaks text; yields normalized output levels until playback ends.
-    func speak(_ text: String) -> AsyncStream<Double>
+    /// Speaks text; distinguishes successful completion from interrupted or unavailable audio.
+    func speak(_ text: String) -> AsyncStream<PlaybackEvent>
 }

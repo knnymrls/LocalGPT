@@ -29,21 +29,27 @@ struct SourceCards: View {
 
     private func card(_ source: Attachment) -> some View {
         let shape = RoundedRectangle(cornerRadius: Self.radius, style: .continuous)
-        return Group {
-            if source.kind == .image { photo(source) } else { file(source) }
+        return ZStack(alignment: .topTrailing) {
+            Button {
+                navigation.present(.file(source.id))
+            } label: {
+                Group {
+                    if source.kind == .image { photo(source) } else { file(source) }
+                }
+                .frame(width: Self.side, height: Self.side)
+                .background(Tokens.hover, in: shape)
+                .clipShape(shape)
+                .contentShape(shape)
+            }
+            .buttonStyle(.plain)
+            .disabled(source.readiness != .ready)
+            .accessibilityLabel(Text("Open \(source.name)"))
+
+            removeButton(source)
         }
         .frame(width: Self.side, height: Self.side)
-        .background(Tokens.hover, in: shape)
-        .clipShape(shape)
-        .contentShape(shape)
-        // A tap opens the file, as it does from a reply or a sheet.
-        .onTapGesture {
-            if source.readiness == .ready { navigation.present(.file(source.id)) }
-        }
-        .overlay(alignment: .topTrailing) { removeButton(source) }
         .opacity(source.readiness == .importing ? 0.5 : 1)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text(source.name))
     }
 
     /// A photo's square: its thumbnail, filling the card. Fixtures have no

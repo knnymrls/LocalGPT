@@ -189,12 +189,24 @@ final class VoiceSessionController {
             }
             guard let self, !Task.isCancelled, self.session == token, let reply = self.chat.messages.last, reply.role == .assistant else { return }
             guard reply.status == .complete else { self.state = .unavailable(reply.errorDescription ?? "The reply did not finish. Continue in text mode or try again."); return }
-            for await level in self.speech.speak(MarkdownText.plain(reply.text)) {
+            var finished = false
+            for await event in self.speech.speak(MarkdownText.plain(reply.text)) {
                 guard self.session == token else { return }
-                self.targetLevel = level
+                switch event {
+                case .level(let level): self.targetLevel = level
+                case .finished: finished = true
+                case .failed(let reason):
+                    self.targetLevel = 0
+                    self.state = .unavailable(reason)
+                    return
+                }
             }
             guard self.session == token else { return }
             self.targetLevel = 0
+            guard finished else {
+                self.state = .unavailable("Spoken playback did not finish. Your reply is still available in the chat.")
+                return
+            }
             self.listen()
         }
     }

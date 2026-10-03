@@ -13,7 +13,7 @@ final class LiveModelTests: XCTestCase {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         let db = try WorkspaceDatabase(url: root.appendingPathComponent("workspace.sqlite"))
-        let files = LocalAttachmentRepository(database: db)
+        let files = LocalAttachmentRepository(database: db, files: WorkspaceFiles(root: root))
         return (root, db, files, LocalMemoryRepository(database: db), ArtifactWriter(files: WorkspaceFiles(root: root), repository: files, database: db))
     }
 
@@ -84,17 +84,34 @@ final class LiveModelTests: XCTestCase {
             selected.insert(file.id)
         }
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
-        let question = "Read both selected venue proposals. Compare Harbor and Riverside in a table: seated capacity, price, and wheelchair access. Cite the source passages."
+        let question = "Compare Harbor and Riverside in a table: seated capacity, price, and wheelchair access. Cite the sources."
         let comparison = try await answer(question, client: client, sources: selected)
         XCTAssertTrue(comparison.text.contains("120"))
         XCTAssertTrue(comparison.text.contains("160"))
+        XCTAssertTrue(comparison.text.contains("|"), "The requested comparison table must render")
+        XCTAssertLessThan(comparison.text.count, 4000, "Reject malformed or runaway table formatting")
         XCTAssertEqual(Set(comparison.citations.map(\.sourceID)), selected)
         XCTAssertTrue(comparison.text.contains("[1]") || comparison.text.contains("[2]"))
-        let revision = try await answer("We now need 140 seated guests. Which venue meets capacity, and what accessibility information is still missing?", client: client, sources: selected,
+        let revision = try await answer("Now we need seating for 140 guests. Which venue qualifies, and what accessibility information still needs checking?", client: client, sources: selected,
                                         history: [Message(role: .user, text: question), Message(role: .assistant, text: comparison.text)])
         XCTAssertTrue(revision.text.localizedCaseInsensitiveContains("Riverside"))
         XCTAssertTrue(revision.text.localizedCaseInsensitiveContains("Harbor"))
         XCTAssertTrue(revision.text.localizedCaseInsensitiveContains("access"))
+        XCTAssertTrue(revision.text.contains("140"), "Must apply the latest requirement, not a source capacity: \(revision.text)")
+        let normalized = revision.text.lowercased()
+        XCTAssertFalse(normalized.contains("requirement of 120"), revision.text)
+        XCTAssertTrue(normalized.contains("does not") || normalized.contains("doesn't") || normalized.contains("cannot") || normalized.contains("can't") || normalized.contains("insufficient") || normalized.contains("falls short") || normalized.contains("too small"), "Must explicitly rule out the undersized venue: \(revision.text)")
+        XCTAssertNotNil(normalized.range(of: #"riverside[^.!?\n]{0,100}(qualifies|meets|accommodate|suitable|enough|can seat)"#, options: .regularExpression), "Must identify the venue that meets the revised capacity: \(revision.text)")
+        let report = try await answer("Create a PDF named Venue Decision with our 140-guests requirement, the qualifying venue, and the accessibility detail we still need to confirm.", client: client, sources: selected,
+                                      history: [Message(role: .user, text: question), Message(role: .assistant, text: comparison.text), Message(role: .assistant, text: revision.text)])
+        let pdf = try XCTUnwrap(report.outputs.first { $0.kind == .pdf })
+        let document = try XCTUnwrap(PDFDocument(url: XCTUnwrap(pdf.fileURL)))
+        let reportText = try XCTUnwrap(document.string).split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+        XCTAssertTrue(reportText.contains("Harbor does not meet"))
+        XCTAssertTrue(reportText.contains("120 guests"))
+        XCTAssertTrue(reportText.contains("Riverside meets"))
+        XCTAssertTrue(reportText.contains("not specified"))
+        XCTAssertFalse(report.text.contains("|"), "A file receipt must not invent a second table")
     }
 
     func testCreatesRealPDFCSVAndRFiles() async throws {
@@ -162,6 +179,17 @@ final class LiveModelTests: XCTestCase {
         XCTAssertTrue(result.outputs.isEmpty)
     }
 
+    func testMixedContextAndQuestionSavesOnlyTheContext() async throws {
+        let (_, _, _, memory, _) = try workspace()
+        let service = MemoryService(repository: memory)
+        let request = ReplyRequest(conversationID: UUID(), prompt: "Now we need seating for 140 guests. Which venue qualifies, and what accessibility information still needs checking?", history: [], modelID: SystemModelCatalog.modelID, selectedSourceIDs: [])
+        try await service.capture(request, scope: RequestScope()) { _ in }
+        let saved = try await memory.all()
+        XCTAssertFalse(saved.isEmpty)
+        XCTAssertTrue(saved.contains { $0.text.contains("140") })
+        XCTAssertFalse(saved.contains { $0.text.localizedCaseInsensitiveContains("which venue") || $0.text.contains("?") })
+    }
+
     func testCSVCalculationUsesLocalToolEvidence() async throws {
         let (root, db, files, memory, writer) = try workspace()
         let url = root.appendingPathComponent("expenses.csv")
@@ -172,6 +200,7 @@ final class LiveModelTests: XCTestCase {
         let result = try await answer("Use the calculation tool to sum the amount column in expenses.csv and report the total with its source.", client: client, sources: [source.id])
         XCTAssertTrue(result.text.contains("4,000") || result.text.contains("4000"))
         XCTAssertTrue(result.citations.contains { $0.locator.contains("Calculated:") })
+        XCTAssertLessThan(result.text.count, 1500, "A simple sum should not produce a verbose or malformed table")
     }
 
     @MainActor
@@ -225,14 +254,17 @@ private struct RecordedSpeechInput: SpeechClient {
             continuation.onTermination = { _ in task.cancel() }
         }
     }
-    func speak(_ text: String) -> AsyncStream<Double> {
+    func speak(_ text: String) -> AsyncStream<PlaybackEvent> {
         AsyncStream { continuation in
             let task = Task {
-                for await level in LocalSpeechClient().speak(text) {
-                    if level > 0 { await probe.spoke() }
-                    continuation.yield(level)
+                for await event in LocalSpeechClient().speak(text) {
+                    switch event {
+                    case .level(let level): if level > 0 { await probe.spoke() }
+                    case .finished: await probe.played()
+                    case .failed: break
+                    }
+                    continuation.yield(event)
                 }
-                if !Task.isCancelled { await probe.played() }
                 continuation.finish()
             }
             continuation.onTermination = { _ in task.cancel() }

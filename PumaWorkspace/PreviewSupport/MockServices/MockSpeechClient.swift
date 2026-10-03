@@ -48,16 +48,17 @@ struct MockSpeechClient: SpeechClient {
         }
     }
 
-    func speak(_ text: String) -> AsyncStream<Double> {
+    func speak(_ text: String) -> AsyncStream<PlaybackEvent> {
         let wordCount = max(1, text.split(separator: " ").count)
         return AsyncStream { continuation in
             let task = Task {
                 for index in 0..<(wordCount * 5) {
                     if Task.isCancelled { break }
                     let phase = Double(index % 5) / 5
-                    continuation.yield(0.3 + 0.6 * sin(phase * .pi) + 0.08 * sin(Double(index) * 0.7))
+                    continuation.yield(.level(0.3 + 0.6 * sin(phase * .pi) + 0.08 * sin(Double(index) * 0.7)))
                     try? await Task.sleep(for: .milliseconds(60))
                 }
+                if !Task.isCancelled { continuation.yield(.finished) }
                 continuation.finish()
             }
             continuation.onTermination = { _ in task.cancel() }

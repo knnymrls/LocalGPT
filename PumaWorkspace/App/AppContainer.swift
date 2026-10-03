@@ -19,7 +19,7 @@ struct AppContainer: Sendable {
         #endif
         let files = WorkspaceFiles(root: WorkspaceFiles.applicationRoot)
         let database = try WorkspaceDatabase(url: files.root.appendingPathComponent("workspace.sqlite"))
-        let attachments = LocalAttachmentRepository(database: database)
+        let attachments = LocalAttachmentRepository(database: database, files: files)
         let memories = LocalMemoryRepository(database: database)
         let memoryCapture = MemoryService(repository: memories)
         let writer = ArtifactWriter(files: files, repository: attachments, database: database)

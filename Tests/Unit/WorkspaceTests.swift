@@ -102,6 +102,59 @@ final class WorkspaceTests: XCTestCase {
         XCTAssertEqual(MemoryExtractor.fingerprint("Quiet  Venues"), MemoryExtractor.fingerprint("quiet venues"))
     }
 
+    func testMemoryRejectsQuestionsEvenWhenModelDropsPunctuation() {
+        let message = "Now we need seating for 140 guests. Which venue qualifies, and what accessibility information still needs checking?"
+        let fact = "Now we need seating for 140 guests"
+        let question = "Which venue qualifies, and what accessibility information still needs checking"
+        XCTAssertTrue(MemoryExtractor.isGrounded(.init(text: fact, evidence: fact), in: message))
+        XCTAssertFalse(MemoryExtractor.isGrounded(.init(text: question, evidence: question), in: message))
+        XCTAssertFalse(MemoryExtractor.isGrounded(.init(text: "We need seating", evidence: "We need seating"), in: "We need seating?"))
+        let command = "Create a PDF named Venue Decision with our 140-guests requirement"
+        XCTAssertFalse(MemoryExtractor.isGrounded(.init(text: command, evidence: command), in: command))
+    }
+
+    func testNumericComparisonComputesQualificationAndRejectsUngroundedValues() throws {
+        let first = Citation(number: 1, sourceID: UUID(), locator: "Text", excerpt: "Harbor has seating for 120 guests.", range: 0..<33)
+        let second = Citation(number: 2, sourceID: UUID(), locator: "Text", excerpt: "Riverside has seating for 160 guests.", range: 0..<36)
+        let question = "We need seating for 140 guests. Which venue qualifies?"
+        let valid = SourceNumericComparison(
+            requirementQuote: "We need seating for 140 guests", threshold: 140, unit: "guests", relation: .atLeast,
+            options: [
+                .init(name: "Harbor", value: 120, citation: 1, quote: first.excerpt),
+                .init(name: "Riverside", value: 160, citation: 2, quote: second.excerpt)
+            ])
+        var plan = try SourceNumericComparison.PartiallyGenerated(valid.generatedContent)
+        let evidence = [first, second]
+        let answer = SourceComparison.render(plan, question: question, evidence: evidence)
+        XCTAssertTrue(answer?.contains("Harbor does not meet") == true)
+        XCTAssertTrue(answer?.contains("Riverside meets") == true)
+        plan.threshold = 120
+        XCTAssertNil(SourceComparison.render(plan, question: question, evidence: evidence))
+        plan.threshold = 140
+        plan.options?[0].value = 180
+        XCTAssertNil(SourceComparison.render(plan, question: question, evidence: evidence))
+        var pricedSource = first
+        pricedSource.excerpt = "Harbor has seating for 120 guests and costs $3200."
+        plan.options?[0].value = 3200
+        plan.options?[0].quote = pricedSource.excerpt
+        XCTAssertNil(SourceComparison.render(plan, question: question, evidence: [pricedSource, second]), "A price must not be used as guest capacity")
+
+        var invented = valid
+        invented.requirementQuote = "atMost 140 guests"
+        invented.relation = .atMost
+        let candidates = SourceNumericPlan(comparisons: [valid, invented, valid])
+        XCTAssertEqual(try SourceComparison.verifiedAnswers(candidates, question: question, evidence: evidence).count, 1)
+
+        let names = [first.sourceID: "Harbor", second.sourceID: "Riverside"]
+        let direct = try XCTUnwrap(SourceComparison.directRequirement(question: question, evidence: evidence, names: names))
+        XCTAssertEqual(direct.threshold, 140)
+        XCTAssertEqual(direct.options.map(\.value), [120, 160])
+        XCTAssertEqual(SourceComparison.directRequirement(question: "Create a PDF with our 140-guests requirement.", evidence: evidence, names: names)?.threshold, 140)
+        XCTAssertNil(SourceComparison.directRequirement(question: "We do not need 140 guests.", evidence: evidence, names: names))
+        XCTAssertNil(SourceComparison.directRequirement(question: "We need a budget of 140 dollars.", evidence: evidence, names: names))
+        XCTAssertNil(SourceComparison.directRequirement(question: question, evidence: [first, Citation(number: 2, sourceID: second.sourceID, locator: "Text", excerpt: "Riverside has 160 guests indoors and 200 guests outdoors.", range: 0..<54)], names: names))
+    }
+
     func testDeletedConversationRejectsLateMemoryInsert() async throws {
         let db = try WorkspaceDatabase(url: root().appendingPathComponent("db.sqlite"))
         let chatID = UUID()
@@ -118,7 +171,7 @@ final class WorkspaceTests: XCTestCase {
     func testRenderedDiagramCanBeReadWithOCRAndGeneratedTextIsSearchable() async throws {
         let root = try root()
         let db = try WorkspaceDatabase(url: root.appendingPathComponent("db.sqlite"))
-        let repo = LocalAttachmentRepository(database: db)
+        let repo = LocalAttachmentRepository(database: db, files: WorkspaceFiles(root: root))
         let files = WorkspaceFiles(root: root)
         let writer = ArtifactWriter(files: files, repository: repo, database: db)
         let diagram = try await writer.diagram(name: "Venue planning", steps: ["Inspect accessible entrances", "Confirm guest capacity"], conversationID: UUID(), scope: RequestScope())
@@ -150,7 +203,7 @@ final class WorkspaceTests: XCTestCase {
     func testGeneratedFilesStayInsideWorkspaceAndCancelPreventsWrite() async throws {
         let root = try root()
         let db = try WorkspaceDatabase(url: root.appendingPathComponent("db.sqlite"))
-        let repo = LocalAttachmentRepository(database: db)
+        let repo = LocalAttachmentRepository(database: db, files: WorkspaceFiles(root: root))
         let writer = ArtifactWriter(files: WorkspaceFiles(root: root), repository: repo, database: db)
         let file = try await writer.document(name: "../../example", format: "r", content: "print(1 + 1)", conversationID: UUID(), scope: RequestScope())
         let url = try XCTUnwrap(file.fileURL)
@@ -169,7 +222,7 @@ final class WorkspaceTests: XCTestCase {
     func testImportCopiesOriginalAndReusesContentCacheWithNewSourceID() async throws {
         let root = try root()
         let db = try WorkspaceDatabase(url: root.appendingPathComponent("db.sqlite"))
-        let repo = LocalAttachmentRepository(database: db)
+        let repo = LocalAttachmentRepository(database: db, files: WorkspaceFiles(root: root))
         let importer = LocalDocumentImporter(files: WorkspaceFiles(root: root), database: db, repository: repo)
         let source = root.appendingPathComponent("original.txt")
         try "The venue holds forty guests.".write(to: source, atomically: true, encoding: .utf8)
@@ -181,6 +234,30 @@ final class WorkspaceTests: XCTestCase {
         let matches = try await db.search("guests", sourceIDs: [second.id])
         XCTAssertEqual(matches.first?.sourceID, second.id)
         XCTAssertEqual(matches.first?.locator, "Text · passage 1")
+    }
+
+    func testStoredFilesResolveAfterSandboxRelocationIncludingLegacyRecords() async throws {
+        let root = try root()
+        let db = try WorkspaceDatabase(url: root.appendingPathComponent("db.sqlite"))
+        let oldFiles = WorkspaceFiles(root: root.appendingPathComponent("old-container"))
+        let newFiles = WorkspaceFiles(root: root.appendingPathComponent("new-container"))
+        let id = UUID()
+        let content = Data("A durable original.".utf8)
+        let oldURL = try oldFiles.write(content, id: id, name: "proposal.txt")
+        let newURL = try newFiles.write(content, id: id, name: "proposal.txt")
+        let item = Attachment(id: id, name: "proposal.txt", kind: .text, readiness: .ready, fileURL: oldURL)
+        try await LocalAttachmentRepository(database: db, files: oldFiles).save(item)
+        let stored = try await db.readAll(.attachments, as: Attachment.self)
+        XCTAssertNil(stored.first?.fileURL, "Do not persist a sandbox's absolute URL")
+        let relocated = LocalAttachmentRepository(database: db, files: newFiles)
+        var reopened = try await relocated.all()
+        XCTAssertEqual(reopened.first?.fileURL, newURL)
+        XCTAssertEqual(try Data(contentsOf: XCTUnwrap(reopened.first?.fileURL)), content)
+
+        // Older installs used an absolute URL; loading upgrades it to the new root too.
+        try await db.save(item, id: id, in: .attachments)
+        reopened = try await relocated.all()
+        XCTAssertEqual(reopened.first?.fileURL, newURL)
     }
 }
 

@@ -9,6 +9,7 @@ actor WorkspaceToolService {
     let emit: @Sendable (ReplyEvent) -> Void
     private var evidence: [Citation] = []
     private var operations = 0
+    private var outputs: [Attachment] = []
 
     init(request:ReplyRequest,scope:RequestScope,database:WorkspaceDatabase,attachments:any AttachmentRepository,
          writer:ArtifactWriter,emit:@escaping @Sendable (ReplyEvent)->Void) {
@@ -32,6 +33,7 @@ actor WorkspaceToolService {
     }
 
     func collectedEvidence() -> [Citation] { evidence }
+    func generatedOutputs() -> [Attachment] { outputs }
 
     private func begin(_ step:String) throws {
         try scope.check()
@@ -81,7 +83,14 @@ actor WorkspaceToolService {
 
     func createFile(name:String,format:String,content:String) async throws -> String {
         try begin("Creating \(format.uppercased()) file")
-        let item = try await writer.document(name:name,format:format,content:content,conversationID:request.conversationID,scope:scope)
+        var body = content
+        if ["pdf", "txt", "md", "text", "markdown"].contains(format.lowercased()),
+           !request.selectedSourceIDs.isEmpty, request.prompt.contains(where: \.isNumber),
+           let report = try await SourceComparison.answer(question: request.prompt, evidence: evidence, sources: readableSources()) {
+            body = format.lowercased() == "pdf" ? report.replacingOccurrences(of: "\n\n> ", with: "\n\n") : report
+        }
+        let item = try await writer.document(name:name,format:format,content:body,conversationID:request.conversationID,scope:scope)
+        outputs.append(item)
         emit(.output(item))
         return "Created \(item.name). Output ID: \(item.id). It is available in Outputs."
     }
@@ -89,12 +98,14 @@ actor WorkspaceToolService {
     func createChart(name:String,labels:[String],values:[Double]) async throws -> String {
         try begin("Rendering a chart")
         let item = try await writer.chart(name:name,labels:labels,values:values,conversationID:request.conversationID,scope:scope)
+        outputs.append(item)
         emit(.output(item));return "Created \(item.name) in Outputs."
     }
 
     func createDiagram(name:String,steps:[String]) async throws -> String {
         try begin("Rendering a diagram")
         let item = try await writer.diagram(name:name,steps:steps,conversationID:request.conversationID,scope:scope)
+        outputs.append(item)
         emit(.output(item));return "Created \(item.name) in Outputs."
     }
 

@@ -15,7 +15,7 @@ struct LocalSpeechClient: SpeechClient {
         }
     }
 
-    func speak(_ text: String) -> AsyncStream<Double> {
+    func speak(_ text: String) -> AsyncStream<PlaybackEvent> {
         let id = UUID()
         return AsyncStream { stream in
             let task = Task { @MainActor in LocalAudioSession.shared.speak(id: id, text: text, stream: stream) }
@@ -44,7 +44,8 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
     private let synthesizer = AVSpeechSynthesizer()
     private var utterance: AVSpeechUtterance?
     private var playbackID: UUID?
-    private var playback: AsyncStream<Double>.Continuation?
+    private var playback: AsyncStream<PlaybackEvent>.Continuation?
+    private var playbackTimeout: Task<Void, Never>?
     private var lastText = ""
 
     override init() {
@@ -57,6 +58,7 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
                 self.interrupted = began
                 if began {
                     if let id = self.captureID { self.fail("Audio was interrupted. Tap voice when you are ready to continue.", id: id) }
+                    self.playback?.yield(.failed("Audio was interrupted. Your reply is still available in the chat."))
                     self.stopPlayback()
                 }
             }
@@ -190,30 +192,48 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
         releaseAudioIfIdle()
     }
 
-    func speak(id: UUID, text: String, stream: AsyncStream<Double>.Continuation) {
+    func speak(id: UUID, text: String, stream: AsyncStream<PlaybackEvent>.Continuation) {
         stopCapture()
         stopPlayback()
-        guard !Task.isCancelled, !text.isEmpty else { stream.finish(); return }
+        guard !Task.isCancelled else { stream.finish(); return }
+        guard !text.isEmpty else { stream.yield(.finished); stream.finish(); return }
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .spokenAudio)
             try session.setActive(true)
-        } catch { stream.finish(); return }
+        } catch {
+            stream.yield(.failed("Spoken playback is unavailable: \(error.localizedDescription)"))
+            stream.finish()
+            return
+        }
         playbackID = id
         playback = stream
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.identifier)
         self.utterance = utterance
         synthesizer.speak(utterance)
+        armPlaybackTimeout(id: id)
     }
 
     func stopPlayback(id: UUID? = nil) {
         if let id, playbackID != id { return }
         playbackID = nil
+        playbackTimeout?.cancel(); playbackTimeout = nil
         utterance = nil
         synthesizer.stopSpeaking(at: .immediate)
         playback?.finish(); playback = nil
         releaseAudioIfIdle()
+    }
+
+    /// A stalled voice engine must not leave the app permanently in its speaking state.
+    private func armPlaybackTimeout(id: UUID) {
+        playbackTimeout?.cancel()
+        playbackTimeout = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(20)) } catch { return }
+            guard let self, self.playbackID == id else { return }
+            self.playback?.yield(.failed("Spoken playback stopped responding. Continue in text mode or tap the microphone to retry."))
+            self.stopPlayback(id: id)
+        }
     }
 
     /// Wait until any immediate capture/playback handoff has claimed the session.
@@ -230,7 +250,7 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
         let identity = ObjectIdentifier(utterance)
         Task { @MainActor in
             guard let current = self.utterance, ObjectIdentifier(current) == identity else { return }
-            self.playback?.yield(0)
+            self.playback?.yield(.finished)
             self.stopPlayback()
         }
     }
@@ -239,7 +259,17 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
         let identity = ObjectIdentifier(utterance)
         Task { @MainActor in
             guard let current = self.utterance, ObjectIdentifier(current) == identity else { return }
-            self.playback?.yield(0.45)
+            self.playback?.yield(.level(0.45))
+            if let id = self.playbackID { self.armPlaybackTimeout(id: id) }
+        }
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let identity = ObjectIdentifier(utterance)
+        Task { @MainActor in
+            guard let current = self.utterance, ObjectIdentifier(current) == identity else { return }
+            self.playback?.yield(.failed("Spoken playback was canceled. Your reply is still available in the chat."))
+            self.stopPlayback()
         }
     }
 }

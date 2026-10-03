@@ -19,9 +19,32 @@ struct LocalConversationRepository: ConversationRepository {
 
 struct LocalAttachmentRepository: AttachmentRepository {
     let database: WorkspaceDatabase
-    func all() async throws -> [Attachment] { try await database.readAll(.attachments, as: Attachment.self) }
+    let files: WorkspaceFiles
+
+    func all() async throws -> [Attachment] {
+        try await database.readAll(.attachments, as: Attachment.self).map { record in
+            var item = record
+            // Upgrade older absolute URLs lazily, without retaining an obsolete sandbox ID.
+            let legacyName = item.fileURL.flatMap { url in
+                url.deletingLastPathComponent().lastPathComponent == item.id.uuidString &&
+                url.deletingLastPathComponent().deletingLastPathComponent().lastPathComponent == "Files"
+                    ? url.lastPathComponent : nil
+            }
+            if let name = item.storedFileName ?? legacyName {
+                item.storedFileName = WorkspaceFiles.safeName(name)
+                item.fileURL = files.fileURL(id: item.id, name: name)
+            }
+            return item
+        }
+    }
     func save(_ attachment: Attachment) async throws {
-        let committed = try await database.save(attachment, id: attachment.id, in: .attachments)
+        var record = attachment
+        if let url = record.fileURL,
+           url.standardizedFileURL == files.fileURL(id: record.id, name: url.lastPathComponent).standardizedFileURL {
+            record.storedFileName = url.lastPathComponent
+            record.fileURL = nil
+        }
+        let committed = try await database.save(record, id: record.id, in: .attachments)
         guard committed else { throw CancellationError() }
     }
     func delete(id: UUID) async throws { try await database.delete(id, from: .attachments) }

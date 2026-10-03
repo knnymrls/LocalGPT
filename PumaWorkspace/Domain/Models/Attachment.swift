@@ -36,6 +36,8 @@ struct Attachment: Identifiable, Hashable, Codable, Sendable {
     var thumbnail: Data?
     /// The app's own copy of an imported file, for viewing it.
     var fileURL: URL?
+    /// Durable file identity; resolved against the current sandbox by the repository.
+    var storedFileName: String?
     var conversationID: UUID?
     var fingerprint: String?
     var failureReason: String?

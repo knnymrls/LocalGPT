@@ -86,6 +86,26 @@ final class InteractionTests: XCTestCase {
         XCTAssertTrue(ToolPolicy(prompt: "Draw a flow diagram of our plan").diagrams)
     }
 
+    func testPlaybackFailureKeepsReplyAndDoesNotResumeListening() async throws {
+        let speech = ControlledSpeech(playbackFailure: "Audio interrupted")
+        let assistant = ControlledAssistant()
+        let chat = ChatSessionStore(container: makeContainer(speech: speech, assistant: assistant))
+        await chat.load()
+        let voice = VoiceSessionController(speech: speech, chat: chat)
+        defer { voice.exit() }
+        chat.draft = "A question"
+        chat.send()
+        voice.start()
+        assistant.events.yield(.text("The answer remains readable"))
+        assistant.events.yield(.finished)
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(voice.state, .unavailable("Audio interrupted"))
+        XCTAssertEqual(chat.messages.last?.status, .complete)
+        XCTAssertEqual(chat.messages.last?.text, "The answer remains readable")
+        voice.handoffToKeyboard()
+        XCTAssertEqual(voice.state, .idle)
+    }
+
     private func makeContainer(speech: any SpeechClient, assistant: any AssistantClient = ControlledAssistant()) -> AppContainer {
         AppContainer(assistant: assistant, speech: speech, conversations: InMemoryConversationRepository([]),
                      attachments: InMemoryAttachmentRepository([]), memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
@@ -97,9 +117,19 @@ final class InteractionTests: XCTestCase {
 private struct ControlledSpeech: SpeechClient {
     let stream: AsyncStream<TranscriptEvent>
     let capture: AsyncStream<TranscriptEvent>.Continuation
-    init() { (stream, capture) = AsyncStream.makeStream(of: TranscriptEvent.self) }
+    let playbackFailure: String?
+    init(playbackFailure: String? = nil) {
+        self.playbackFailure = playbackFailure
+        (stream, capture) = AsyncStream.makeStream(of: TranscriptEvent.self)
+    }
     func listen() -> AsyncStream<TranscriptEvent> { stream }
-    func speak(_ text: String) -> AsyncStream<Double> { AsyncStream { $0.finish() } }
+    func speak(_ text: String) -> AsyncStream<PlaybackEvent> {
+        AsyncStream {
+            if let playbackFailure { $0.yield(.failed(playbackFailure)) }
+            else { $0.yield(.finished) }
+            $0.finish()
+        }
+    }
 }
 
 private struct ControlledAssistant: AssistantClient {

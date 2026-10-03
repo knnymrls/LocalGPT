@@ -19,12 +19,16 @@ struct WorkspaceFiles: Sendable {
     }
 
     func write(_ data: Data, id: UUID, name: String) throws -> URL {
-        let name = Self.safeName(name)
-        let folder = root.appendingPathComponent("Files/\(id.uuidString)", isDirectory: true)
+        let url = fileURL(id: id, name: name)
+        let folder = url.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let url = folder.appendingPathComponent(name)
         try data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         return url
+    }
+
+    func fileURL(id: UUID, name: String) -> URL {
+        root.appendingPathComponent("Files/\(id.uuidString)", isDirectory: true)
+            .appendingPathComponent(Self.safeName(name))
     }
 
     func remove(id: UUID) throws {

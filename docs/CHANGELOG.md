@@ -2,6 +2,16 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Acceptance workflow fixes
+
+- Typed speech playback completion/failure events keep a failed or interrupted spoken reply in the chat and prevent silently resuming capture. A stalled synthesis callback has a bounded timeout.
+- Rejected question-shaped memory candidates even when extraction strips their punctuation. The actual user requirement remains eligible for saving.
+- Replaced free-form document table generation with guided fields and native Markdown rendering. Recomputed numeric qualification in Swift from quote-validated requirements and source values after live follow-up checks exposed stale model conclusions.
+- Persisted attachment identity relative to the current workspace and rebased legacy URLs, repairing previews after iOS changed the sandbox path during installation. Source cards expose separate Open and Remove accessibility buttons.
+- Numeric PDF/text/Markdown source reports now reuse the verified comparison. File receipts are based on successful writes and retain files if the model fails afterward; imperative commands are excluded from memory.
+- Passed 20 deterministic tests, all nine live checks together, and a Simulator Release build. Inspected the corrected generated PDF in the live app.
+- Added fictional review inputs and observed source citation, original-file, revised-answer, and generated-report screenshots. Verification records include the failures that motivated the fixes and the remaining microphone/offline/device gates.
+
 ## 2026-10-03 — Local services integration
 
 - Connected the approved interface to Foundation Models, GRDB persistence, durable files, scoped retrieval, and real artifact rendering. Normal Debug and Release launches use live services.
