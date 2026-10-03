@@ -116,7 +116,7 @@ final class SpeechReader: NSObject, AVSpeechSynthesizerDelegate {
             return false
         }
         let utterance = AVSpeechUtterance(string: (text as NSString).substring(from: start))
-        utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.identifier)
+        utterance.voice = LocalSpeechVoice.preferred()
         // The system's scale runs 0...1 with 0.5 as normal speech.
         utterance.rate = Float(min(0.5 + (speed - 1) * 0.12, 0.65))
         self.utterance = utterance

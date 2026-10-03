@@ -80,7 +80,7 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 All sheets share one scaffold: a glass close button, a medium-weight title, and grouped cards of 54pt rows.
 
 - **Outputs:** source files used by replies, generated files, then memories saved from this chat.
-- **Uploaded files:** every file and photo added to the app.
+- **Uploaded files:** every file and photo added to the app. When empty, center the icon and text in the space below the header at either sheet height; populated lists remain top-aligned.
 - **Memories:** everything remembered. Tap a row to read it; press and hold for Remove.
 - **Saved memory:** opens from the Saved to memory receipt after a real commit. Shows only the saved text in one plain card. No duplicate quote, date, or Edit/Forget button row. Selective long-term extraction saves enduring context or explicit remember requests.
 

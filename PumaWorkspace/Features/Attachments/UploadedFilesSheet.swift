@@ -9,7 +9,7 @@ struct UploadedFilesSheet: View {
     private var files: [Attachment] { chat.attachments.filter { $0.readiness != .removed } }
 
     var body: some View {
-        SheetScaffold(title: "Uploaded files") {
+        SheetScaffold(title: "Uploaded files", contentAlignment: files.isEmpty ? .center : .top) {
             if files.isEmpty {
                 SheetEmptyState(
                     icon: .folder,

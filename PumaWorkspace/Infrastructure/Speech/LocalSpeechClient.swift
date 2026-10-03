@@ -233,7 +233,7 @@ final class LocalAudioSession: NSObject, AVSpeechSynthesizerDelegate {
         playbackID = id
         playback = stream
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.identifier)
+        utterance.voice = LocalSpeechVoice.preferred()
         self.utterance = utterance
         synthesizer.speak(utterance)
         armPlaybackTimeout(id: id)

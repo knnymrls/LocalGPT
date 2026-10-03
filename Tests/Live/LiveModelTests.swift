@@ -283,6 +283,20 @@ final class LiveModelTests: XCTestCase {
         XCTAssertEqual(voice.state, .idle)
     }
 
+    func testInstalledSpeechVoiceSelection() throws {
+        let language = AVSpeechSynthesisVoice.currentLanguageCode()
+        let selected = try XCTUnwrap(LocalSpeechVoice.preferred(language: language))
+        let voices = AVSpeechSynthesisVoice.speechVoices().filter {
+            $0.language == language && !$0.voiceTraits.contains(.isNoveltyVoice) && !$0.voiceTraits.contains(.isPersonalVoice)
+        }
+        print("LOCAL_VOICE selected=\(selected.name) language=\(selected.language) quality=\(selected.quality.rawValue)")
+        for voice in voices { print("LOCAL_VOICE available=\(voice.name) quality=\(voice.quality.rawValue)") }
+        XCTAssertFalse(selected.voiceTraits.contains(.isNoveltyVoice))
+        XCTAssertFalse(selected.voiceTraits.contains(.isPersonalVoice))
+        XCTAssertEqual(selected.language, language)
+        XCTAssertEqual(selected.quality.rawValue, voices.map { $0.quality.rawValue }.max())
+    }
+
     @MainActor
     func testReadAloudPlaysTwoRepliesInSequence() async throws {
         let reader = SpeechReader()

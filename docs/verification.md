@@ -1,6 +1,12 @@
 # Verification — 2026-10-03
 
-## Current revision — Apple model assets restored
+## Current revision — centered file sheet and voice selection
+
+- The Uploaded files empty state was visually inspected at medium and large detents; its icon/text group is centered in the body below the header. Nonempty content retains top alignment and scrolling.
+- The local voice inventory/selection check and both actual synthesis checks pass (consecutive Read Aloud replies and two recorded voice turns with scripted assistant replies). The Debug app build passes after the final comparator adjustment.
+- This iOS 26.5 Simulator exposes only default-quality en-US voices (Samantha, Fred, Junior, Kathy, Ralph); the shared selector picks Samantha. No Enhanced or Premium voice asset is installed here. The new policy prefers a higher installed quality in the same language/dialect but does not itself download assets or prove an audible improvement on this Simulator.
+
+## Previous revision — Apple model assets restored
 
 After Apple Intelligence was enabled on the host Mac and its assets became usable, a real Simulator reply succeeded. The missing-model-catalog failure is no longer reproduced.
 

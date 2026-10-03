@@ -2,6 +2,12 @@
 
 Record completed work and confirmed decisions. Distinguish a scaffold, implemented interface, mock behavior, real services, and device verification.
 
+## 2026-10-03 — Centered file empty state and local voice quality
+
+- Centered the Uploaded files empty state within the sheet body, keeping populated lists top-aligned and oversized content scrollable.
+- Shared voice selection between voice conversation and Read Aloud. Prefer installed Premium/Enhanced quality within the system speech language and dialect, with a system-voice fallback; do not automatically choose novelty or personal voices.
+- The QA Simulator currently exposes only default-quality US English voices and selects Samantha. Higher-quality selection support does not mean an improved voice asset has been installed.
+
 ## 2026-10-03 — Apple model recovery and grounded memory selection
 
 - Confirmed real model inference after host Apple Intelligence setup completed.

@@ -19,21 +19,24 @@ enum SheetMetrics {
 struct SheetScaffold<Content: View>: View {
     let title: String
     var detents: Set<PresentationDetent>
+    var contentAlignment: Alignment
     @ViewBuilder var content: Content
 
     init(
         title: String,
         detents: Set<PresentationDetent> = [.medium, .large],
+        contentAlignment: Alignment = .top,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.detents = detents
+        self.contentAlignment = contentAlignment
         self.content = content()
     }
 
     var body: some View {
         NavigationStack {
-            SheetPage(title: title, isRoot: true) { content }
+            SheetPage(title: title, isRoot: true, contentAlignment: contentAlignment) { content }
         }
         .presentationDetents(detents)
         .presentationDragIndicator(.visible)
@@ -47,26 +50,31 @@ struct SheetScaffold<Content: View>: View {
 struct SheetPage<Content: View>: View {
     let title: String
     var isRoot = false
+    var contentAlignment: Alignment
     @ViewBuilder var content: Content
 
     @Environment(\.dismiss) private var dismiss
 
-    init(title: String, isRoot: Bool = false, @ViewBuilder content: () -> Content) {
+    init(title: String, isRoot: Bool = false, contentAlignment: Alignment = .top, @ViewBuilder content: () -> Content) {
         self.title = title
         self.isRoot = isRoot
+        self.contentAlignment = contentAlignment
         self.content = content()
     }
 
     var body: some View {
         VStack(spacing: 0) {
             header
-            ScrollView {
-                content
-                    .padding(.horizontal, SheetMetrics.padX)
-                    .padding(.bottom, pt(24))
+            GeometryReader { viewport in
+                ScrollView {
+                    content
+                        .padding(.horizontal, SheetMetrics.padX)
+                        .padding(.bottom, contentAlignment == .center ? 0 : pt(24))
+                        .frame(maxWidth: .infinity, minHeight: viewport.size.height, alignment: contentAlignment)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollDismissesKeyboard(.interactively)
             }
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollDismissesKeyboard(.interactively)
         }
         .toolbar(.hidden, for: .navigationBar)
     }
