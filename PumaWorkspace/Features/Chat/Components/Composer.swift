@@ -20,7 +20,6 @@ struct Composer: View {
     private static let voiceGlyph: CGFloat = 24
     private static let voiceButtonSize: CGFloat = Tokens.scaled(48)
     private static let cardRadius: CGFloat = pt(24)
-    private static let exitTint = Color(red: 18 / 255, green: 18 / 255, blue: 22 / 255, opacity: 0.78)
     private static let modeAnimation: Animation = .smooth(duration: 0.38)
 
     private enum PrimaryAction: CaseIterable { case send, stop, voice, confirm }
@@ -241,13 +240,13 @@ struct Composer: View {
                 Icon(
                     voice.isMuted ? .microphoneSlash : .microphone,
                     size: Self.voiceGlyph,
-                    color: voice.isMuted ? .white : Tokens.foreground
+                    color: voice.isMuted ? Tokens.recording : Tokens.foreground
                 )
                 .frame(width: Self.voiceButtonSize, height: Self.voiceButtonSize)
                 .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .glassControl(in: Circle(), glass: muteGlass)
+            .glassControl(in: Circle(), interactive: true)
             .glassEffectID("mute", in: glass)
             .glassEffectTransition(.matchedGeometry)
             .animation(.easeInOut(duration: 0.2), value: voice.isMuted)
@@ -257,20 +256,16 @@ struct Composer: View {
                 lightTaps += 1
                 voice.exit()
             } label: {
-                Icon(.xmark, size: Self.voiceGlyph, color: .white)
+                Icon(.xmark, size: Self.voiceGlyph)
                     .frame(width: Self.voiceButtonSize, height: Self.voiceButtonSize)
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .glassControl(in: Circle(), glass: .regular.tint(Self.exitTint).interactive())
+            .glassControl(in: Circle(), interactive: true)
             .glassEffectID("exit", in: glass)
             .glassEffectTransition(.matchedGeometry)
             .accessibilityLabel(Text("Exit voice conversation"))
         }
-    }
-
-    private var muteGlass: Glass {
-        voice.isMuted ? .regular.tint(Tokens.recording).interactive() : .regular.interactive()
     }
 
     private func statusHint(_ reason: String) -> some View {

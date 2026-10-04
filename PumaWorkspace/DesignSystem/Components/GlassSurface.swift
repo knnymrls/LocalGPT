@@ -2,16 +2,10 @@ import SwiftUI
 
 // MARK: - Glass
 //
-// Native iOS 26 Liquid Glass for the material and the press response. On a
-// flat white page the system's own edge all but vanishes, so `glassControl`
-// adds the shared directional rim. Every glass surface uses it, with an
-// optional control tint.
+// Native system glass owns the material, edge, tint, and accessibility adaptation.
 
 enum GlassMaterial {
     static let sheetCornerRadius: CGFloat = pt(40)
-
-    /// The shared control tint, for the rare surface that wants a wash.
-    static let controlTint = Color(uiColor: Tokens.Material.glassTint)
 
     /// Animate glass from this floor, never from 0: a glass view whose ancestors
     /// are at a true zero when it attaches never configures its backdrop.
@@ -38,66 +32,16 @@ private struct GlassFadeModifier: ViewModifier {
     func body(content: Content) -> some View { content.opacity(opacity) }
 }
 
-/// A directional rim: a conic gradient masked to a 0.75pt ring. Colours run from
-/// the top clockwise. The light comes from the top-left, so the two catches of
-/// light sit at the top-left (where it enters) and bottom-right (where it
-/// exits), and the two flanks at the top-right and bottom-left define the
-/// shape. Light mode is a restrained graphite contour; dark mode is a quiet
-/// white highlight with the same geometry. The centre stays fully transparent.
-private struct GlassRim<S: InsettableShape>: ViewModifier {
-    let shape: S
-
-    @Environment(\.colorScheme) private var colorScheme
-
-    private var stops: [Gradient.Stop] {
-        let turn: [CGFloat] = [0, 0.125, 0.375, 0.625, 0.875, 1]
-        let graphite = Color(red: 44 / 255, green: 44 / 255, blue: 43 / 255)
-        let alphas: [Double] = colorScheme == .dark
-            ? [0.04, 0.015, 0.085, 0.015, 0.10, 0.04]
-            : [0.10, 0.20, 0.05, 0.20, 0.04, 0.10]
-        let ink: Color = colorScheme == .dark ? .white : graphite
-        return zip(turn, alphas).map { Gradient.Stop(color: ink.opacity($1), location: $0) }
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .overlay {
-                shape
-                    .strokeBorder(
-                        // 0 is straight up; SwiftUI's angular gradient starts at
-                        // three o'clock, so turn it back a quarter.
-                        AngularGradient(
-                            stops: stops,
-                            center: .center,
-                            startAngle: .degrees(-90),
-                            endAngle: .degrees(270)
-                        ),
-                        lineWidth: 0.75
-                    )
-                    .allowsHitTesting(false)
-            }
-    }
-}
-
-/// Shared chrome recipe: system-adaptive native glass, no drawn shadow, and the
-/// directional rim. Every glass surface in the app goes through this, so they
-/// cannot drift apart.
-private struct GlassControl<S: InsettableShape>: ViewModifier {
-    let shape: S
-    let glass: Glass
-
-    func body(content: Content) -> some View {
-        content
-            .modifier(GlassRim(shape: shape))
-            .glassEffect(glass, in: shape)
-    }
-}
-
 extension View {
-    /// Rim, native glass, and lift, in `shape`. Use this for every glass
-    /// surface; do not call `glassEffect` directly.
-    func glassControl<S: InsettableShape>(in shape: S, glass: Glass = .regular) -> some View {
-        modifier(GlassControl(shape: shape, glass: glass))
+    /// Keep the base system material. Only interaction behavior is customized;
+    /// appearance stays under the user's system Liquid Glass preference.
+    @ViewBuilder
+    func glassControl<S: Shape>(in shape: S, interactive: Bool = false) -> some View {
+        if interactive {
+            glassEffect(.regular.interactive(), in: shape)
+        } else {
+            glassEffect(in: shape)
+        }
     }
 }
 
@@ -153,7 +97,7 @@ struct GlassCircleButton: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .glassControl(in: Circle(), glass: .regular.interactive())
+        .glassControl(in: Circle(), interactive: true)
         .sensoryFeedback(.impact(weight: .light), trigger: tapCount)
         .accessibilityLabel(Text(accessibilityLabel ?? icon.rawValue))
     }

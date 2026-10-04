@@ -1,5 +1,11 @@
 # Verification — 2026-10-03
 
+## Base glass correction — 2026-10-03
+
+The user clarified that glass appearance must come entirely from the system preference. The follow-up removes the custom rim, the menu's 85% backing, and control material tints. Existing screenshots below document the preceding revision and no longer represent final glass styling. Simulator and signed device builds pass. The base-glass build is installed and launched on the connected iPhone. Simulator review confirms the menu remains readable with its native material. The iOS 27 preference range still requires on-device visual acceptance.
+
+<img src="evidence/base-system-glass.png" width="260" alt="Native system glass without custom rim, material tint, or menu backing">
+
 ## Physical-device attachment and output fixes — 2026-10-03
 
 On Kenny's connected **iPhone 17 Pro Max running iOS 27 beta (24A5430a)**, the six focused live file checks pass together with **zero failures or skips**. They cover fresh PDF/TXT/Markdown/JSON/CSV/R outputs, decoded chart/diagram PNGs, a chart value revision, source-backed comparison/revision with PDF, and the recording's conversational PDF → “Txt I meant” → “can u give it to me in a file” flow. Checks open the persisted bytes, parse PDF/CSV/JSON/PNG, and assert supplied content and numeric values. R is saved as source, not executed.

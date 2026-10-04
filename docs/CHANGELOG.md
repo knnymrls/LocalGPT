@@ -238,3 +238,8 @@ The scaffold has no database, model integration, actual audio, document extracti
 - Kept one live voice transcript above the composer, with a keyboard handoff button in the composer. Dictation remains in its text field.
 - Sent photos use 120-point square crops with tap-to-open originals. Output images and composer thumbnails retain their existing layout.
 - Fixed the DEBUG voice snapshot fixture so asynchronous capture cannot clear its representative transcript.
+
+## 2026-10-03 — Base system glass only
+
+- Removed the custom directional rim, attachment menu backing fill, and glass tints. All chrome now delegates its material appearance to the system; touch interaction and semantic icon colors remain.
+- This supersedes the extra menu opacity introduced in the prior device fix. The user controls Liquid Glass appearance through iOS Settings.

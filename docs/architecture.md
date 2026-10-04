@@ -40,7 +40,7 @@ flowchart TD
 
 ## Shared glass rendering
 
-`glassControl` draws system-adaptive regular native glass plus the shared directional rim. The top-right system Menu is plain; its label owns this same surface, avoiding an extra native button fill. The three slots remain separate 48pt hit regions. Sheet backgrounds use the native presentation material without a custom opacity override. System appearance and accessibility preferences remain owned by SwiftUI. This supersedes the opacity choice in decision 0010.
+`glassControl` delegates to the base native glass effect without custom rim, fill, tint, or opacity. Interactive controls opt into touch behavior only. The top-right system Menu is plain; its label owns this native surface, avoiding an extra native button fill. The three slots remain separate 48pt hit regions. Sheet backgrounds use the native presentation material without a custom opacity override. System appearance and accessibility preferences remain owned by SwiftUI. This supersedes the opacity choice in decision 0010.
 
 ## Startup and storage
 

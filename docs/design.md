@@ -9,7 +9,7 @@ This document describes the approved interface. Real services now drive normal l
 - **Color.** Neutral backgrounds (#FFFFFF light, #191919 dark) and a near-black or near-white foreground. The drawer sits a step behind the chat: #F8F8F8 light, #111111 dark. There is no accent color in the chat; selection, the text cursor, marks, and highlights use the foreground ink. File types carry the only color: red for PDFs, blue for documents, green for spreadsheets. The voice aura keeps its own color.
 - **Type.** The system sans-serif at four sizes: text 16, caption 13, micro 11, and the 24 heading used only for "LocalGPT". Weights are regular for content, medium for titles and labels, semibold for "LocalGPT" and the Chat pill.
 - **Icons.** Nucleo outline glyphs at one stroke weight. A filled glyph means a state is on.
-- **Glass.** System-adaptive regular Liquid Glass with a shared directional rim for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
+- **Glass.** Unmodified native Liquid Glass for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
 - **Scale.** Everything is designed at the iPhone 17 Pro's width and scales together, type, icons, controls, spacing, and corners, up to 15% on wider phones.
 
 Values live in `DesignSystem/Tokens`. See [decision 0004](decisions/0004-visual-system.md).
@@ -23,7 +23,7 @@ Opening the drawer pushes the whole chat surface to the right with rounded corne
 ## Top bar
 
 - **Left:** the chats button, then the chat's title in medium weight.
-- **Right:** one glass capsule using the same adaptive material and rim as the left circle, with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
+- **Right:** one glass capsule using the same native material as the left circle, with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
 - **Menu** (system): Pin or Unpin, Uploaded files, Find in chat, Delete. Each has an icon. Delete asks for confirmation.
 
 Two bars can appear directly under the top bar:
@@ -57,11 +57,11 @@ Explicit DEBUG fixture launches show "UI preview" in place of "On-device", with 
 
 ## Add surface
 
-The plus opens an app-drawn glass menu: Camera, Photos, Files. This menu and its expanded panels use regular glass over an 85% semantic background fill, keeping labels legible over the chat.
+The plus opens an app-drawn glass menu: Camera, Photos, Files. This menu and its expanded panels use the base system glass without an app-defined background fill or tint. The user controls glass appearance in iOS Settings.
 
 - It scales up out of the plus and sits over it. Dragging moves the whole menu loosely and it springs back; a swipe down, or a tap outside, closes it into the plus.
 - Photos and Camera stretch that same glass shape from its bottom-left corner into a panel over the composer.
-- **Photos:** a three-column grid of recent photos. Ticking photos adds nothing by itself. The pill reads "All Photos" (which opens the system picker) until something is ticked, then becomes a solid "Add 3 photos"; tapping it adds them.
+- **Photos:** a three-column grid of recent photos. Ticking photos adds nothing by itself. The pill reads "All Photos" (which opens the system picker) until something is ticked, then reads "Add 3 photos"; tapping it adds them.
 - **Camera:** a live viewfinder with a white shutter inside a glass ring.
 - **Files:** the system file browser.
 - A back button returns from the panel to the menu.
@@ -83,7 +83,7 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files. This menu and its
 
 ## Sheets
 
-Sheets use the system presentation background with a 40pt corner radius. Native materials own appearance and accessibility adaptation; there is no fixed opacity overlay. Floating controls use regular glass rather than forcing the clear variant.
+Sheets use the system presentation background with a 40pt corner radius. Native materials own appearance and accessibility adaptation; there is no fixed opacity overlay. Floating controls use the base glass effect (the native default is regular) without a custom rim, tint, or opacity. Mute state is indicated by its glyph and glyph color, not by changing the glass material.
 
 All sheets share one scaffold: a glass close button, a medium-weight title, and grouped cards of 54pt rows.
 
