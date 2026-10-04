@@ -12,23 +12,21 @@ struct ChatScreen: View {
     @Environment(NavigationState.self) private var navigation
 
     var body: some View {
+        GeometryReader { geometry in
+            content(auraHeight: geometry.size.height)
+        }
+    }
+
+    private func content(auraHeight: CGFloat) -> some View {
         ZStack {
             Tokens.background.ignoresSafeArea()
-
-            if voice.isActive, voice.unavailableReason == nil {
-                VoiceAura()
-                    .transition(.asymmetric(
-                        insertion: .opacity.animation(.easeOut(duration: 0.42)),
-                        removal: .opacity.animation(.easeIn(duration: 0.3))
-                    ))
-            }
 
             ChatFeed()
                 .safeAreaInset(edge: .top, spacing: 0) {
                     // Top bar row (40 + 8) below the safe top; the bar itself overlays.
                     Color.clear.frame(height: TopBar.barHeight + TopBar.bottomPadding)
                 }
-                .safeAreaInset(edge: .bottom, spacing: pt(12)) { bottomBar }
+                .safeAreaInset(edge: .bottom, spacing: pt(12)) { bottomBar(auraHeight: auraHeight) }
         }
         .overlay(alignment: .top) {
             VStack(spacing: 0) {
@@ -85,17 +83,18 @@ struct ChatScreen: View {
         }
     }
 
-    private var bottomBar: some View {
+    private func bottomBar(auraHeight: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Composer()
                 .padding(.horizontal, pt(16))
                 .overlay(alignment: .top) {
-                    // Transcript bottom sits 96pt above the composer's top edge.
+                    // Keep live speech close to the composer, above its controls.
                     FloatingTranscript()
-                        .alignmentGuide(.top) { $0[.bottom] + 96 }
+                        .alignmentGuide(.top) { $0[.bottom] + pt(64) }
                 }
         }
-        .padding(.top, pt(8))
+        // Reserve the transcript area so the latest chat reply clears the fade.
+        .padding(.top, pt(voice.isActive ? 120 : 8))
         .padding(.bottom, pt(8))
         // Jump to the latest message: a small glass chevron just above the
         // composer, shown whenever the feed is scrolled away from the end.
@@ -112,12 +111,20 @@ struct ChatScreen: View {
         }
         .animation(.easeOut(duration: 0.2), value: navigation.feedAtLatest)
         .background(alignment: .bottom) {
-            // In voice mode the aura owns the bottom edge; the blur's page
-            // wash would paint over it, so it steps aside.
-            ProgressiveBlur(edge: .bottom)
+            if voice.isActive, voice.unavailableReason == nil {
+                VoiceAura()
+                    .frame(height: auraHeight)
+                    .transition(.asymmetric(
+                        insertion: .opacity.animation(.easeOut(duration: 0.42)),
+                        removal: .opacity.animation(.easeIn(duration: 0.3))
+                    ))
+            }
+        }
+        .background(alignment: .bottom) {
+            // The fade sits behind the aura, transcript, and composer.
+            ProgressiveBlur(edge: .bottom, washOpacity: voice.isActive ? 0.55 : 0.82)
                 .padding(.top, -pt(28))
                 .ignoresSafeArea(edges: .bottom)
-                .opacity(voice.isActive ? 0 : 1)
                 .animation(.easeInOut(duration: 0.3), value: voice.isActive)
         }
     }

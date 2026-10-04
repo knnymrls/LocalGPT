@@ -109,6 +109,65 @@ final class CoordinationTests: XCTestCase {
         XCTAssertFalse(ToolPolicy(prompt: "Do not revise that PDF").files)
     }
 
+    func testConversationalFileRequestsAndFormatCorrections() {
+        let previous = Message(role: .user, text: "Can you make a PDF about checks and balances?")
+        func policy(_ text: String) -> ToolPolicy {
+            let current = Message(role: .user, text: text)
+            return ToolPolicy(request: ReplyRequest(conversationID: UUID(), prompt: text,
+                history: [previous, current], modelID: "test", selectedSourceIDs: [], userMessageID: current.id))
+        }
+        XCTAssertEqual(policy("Txt I meant").fileFormat, "txt")
+        XCTAssertEqual(policy("Well can u give it to me in a file?").fileFormat, "txt")
+        XCTAssertEqual(policy("Can you put this in a PDF?").fileFormat, "pdf")
+        XCTAssertEqual(policy("Export this as Markdown").fileFormat, "md")
+        XCTAssertFalse(policy("What is a PDF?").files)
+        XCTAssertFalse(policy("Thanks!").files)
+        XCTAssertFalse(policy("Don’t create a PDF").files)
+        XCTAssertFalse(policy("Don't send it as a file").files)
+        XCTAssertFalse(ToolPolicy(prompt: "Txt I meant").files, "A correction needs a preceding file request")
+    }
+
+    func testExportPreservesAnswerInsteadOfSavingCapabilityRefusal() {
+        let answer = Message(role: .assistant, text: "Each transaction records matching debits and credits.")
+        let refusal = Message(role: .assistant, text: "I cannot create a PDF for you.")
+        let request = ReplyRequest(conversationID: UUID(), prompt: "Txt I meant", history: [answer, refusal],
+                                   modelID: "test", selectedSourceIDs: [])
+        XCTAssertEqual(DocumentResponder.exportContent(for: request), answer.text)
+        var revision = request
+        revision.prompt = "Put that in a PDF and add a second example"
+        XCTAssertNil(DocumentResponder.exportContent(for: revision))
+    }
+
+    func testExplicitTablePresentationRespectsNegation() {
+        XCTAssertTrue(SourceAnswer.requestsTable("Compare these in a table"))
+        XCTAssertTrue(SourceAnswer.requestsTable("Use a tabular comparison"))
+        XCTAssertFalse(SourceAnswer.requestsTable("Is this stable?"))
+        XCTAssertFalse(SourceAnswer.requestsTable("Compare these without a table"))
+        XCTAssertFalse(SourceAnswer.requestsTable("Don't use a table"))
+    }
+
+    func testImageInputRejectsMissingAndExcessImages() async throws {
+        guard #available(iOS 27.0, *) else { return }
+        let missing = Attachment(name: "missing.jpg", kind: .image, readiness: .ready)
+        for images in [[missing], Array(repeating: missing, count: 5)] {
+            do {
+                _ = try await ImageInputSupport.prompt(text: "Describe", images: images, model: .default, tools: [])
+                XCTFail("Missing and excessive image input must fail explicitly")
+            } catch {
+                XCTAssertTrue(error.localizedDescription.contains(images.count > 4 ? "four images" : "could not be opened"))
+            }
+        }
+    }
+
+    func testImageCapabilityNoticeDoesNotInterceptTextOrGeneralQuestions() {
+        XCTAssertTrue(ImageInputSupport.needsVisualUnderstanding("What's this?"))
+        XCTAssertTrue(ImageInputSupport.needsVisualUnderstanding("What is in this attachment?"))
+        XCTAssertTrue(ImageInputSupport.needsVisualUnderstanding("Describe the photo"))
+        XCTAssertFalse(ImageInputSupport.needsVisualUnderstanding("Read the text in this image"))
+        XCTAssertFalse(ImageInputSupport.needsVisualUnderstanding("What is a PDF?"))
+        XCTAssertFalse(ImageInputSupport.needsVisualUnderstanding("What is your name?"))
+    }
+
     func testConversationStorePreservesActiveRecordAndDraftAcrossSelection() async throws {
         let repository = InMemoryConversationRepository([])
         let store = ConversationStore(repository: repository, defaultModelID: "injected.model")

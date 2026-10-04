@@ -50,6 +50,25 @@ enum SourceResponder {
                 return (comparison, true)
             }
         }
+        if SourceAnswer.requestsTable(request.prompt) {
+            // The request fixes the presentation shape; the model supplies cells.
+            // Do not let an optional table field turn an explicit table into prose.
+            for try await snapshot in writer.streamResponse(
+                to: answerPrompt
+                    + "\nReturn the requested comparison as named column headers and rows with one cell per header. Include all requested fields and cite source facts.",
+                generating: SourceAnswerTable.self,
+                options: GenerationOptions(sampling: .greedy, maximumResponseTokens: 1200))
+            {
+                try scope.check()
+                answer = SourceAnswer.tableMarkdown(snapshot.content)
+                if !answer.isEmpty { emit(.text(answer)) }
+            }
+            guard !answer.isEmpty else {
+                throw WorkspaceError.message(
+                    "The local model could not fill the requested table. Please retry with fewer columns.")
+            }
+            return (answer, false)
+        }
         for try await snapshot in writer.streamResponse(
             to: answerPrompt, generating: SourceAnswer.self, options: GenerationOptions(maximumResponseTokens: 1200))
         {

@@ -71,7 +71,9 @@ final class ConversationStore {
 
     func select(_ id: UUID) {
         guard id != activeID, items.contains(where: { $0.id == id }) else { return }
-        if active.messages.isEmpty, active.draft.isEmpty, active.notes.isEmpty {
+        if active.messages.isEmpty, active.draft.isEmpty, active.notes.isEmpty,
+            active.selectedSourceIDs.isEmpty, active.draftSourceIDs?.isEmpty != false
+        {
             items.removeAll { $0.id == activeID }
         }
         activeID = id
@@ -116,8 +118,12 @@ final class ConversationStore {
     }
 
     func removeSource(_ id: UUID) {
-        for conversation in items where conversation.selectedSourceIDs.contains(id) {
-            mutate(conversation.id) { $0.selectedSourceIDs.remove(id) }
+        for conversation in items
+        where conversation.selectedSourceIDs.contains(id) || conversation.draftSourceIDs?.contains(id) == true {
+            mutate(conversation.id) {
+                $0.selectedSourceIDs.remove(id)
+                $0.draftSourceIDs?.remove(id)
+            }
             persist(conversation.id)
         }
     }

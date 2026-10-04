@@ -20,7 +20,6 @@ struct Composer: View {
     private static let voiceGlyph: CGFloat = 24
     private static let voiceButtonSize: CGFloat = Tokens.scaled(48)
     private static let cardRadius: CGFloat = pt(24)
-    private static let exitTint = Color(red: 18 / 255, green: 18 / 255, blue: 22 / 255, opacity: 0.78)
     private static let modeAnimation: Animation = .smooth(duration: 0.38)
 
     private enum PrimaryAction: CaseIterable { case send, stop, voice, confirm }
@@ -28,7 +27,7 @@ struct Composer: View {
     private var primaryAction: PrimaryAction {
         if voice.isDictating { return .confirm }
         if chat.isStreaming { return .stop }
-        return chat.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .voice : .send
+        return chat.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && chat.chatSources.isEmpty ? .voice : .send
     }
 
     var body: some View {
@@ -109,7 +108,7 @@ struct Composer: View {
 
             Group {
                 if voice.isActive {
-                    voiceTranscript
+                    keyboardHandoff
                 } else if voice.isDictating {
                     DictationBars()
                         .padding(.horizontal, pt(4))
@@ -134,24 +133,21 @@ struct Composer: View {
         .frame(height: Self.buttonSize)
     }
 
-    /// Voice mode: the live transcript (the shared draft) and the keyboard
-    /// handoff. Tapping either returns to typing without sending.
-    private var voiceTranscript: some View {
-        Text(chat.draft.isEmpty ? " " : chat.draft)
-            .font(.text)
-            .foregroundStyle(Tokens.foreground)
-            .lineLimit(1)
-            .truncationMode(.head)
-            .padding(.trailing, pt(10))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                lightTaps += 1
-                handoffToKeyboard()
-            }
-            .accessibilityLabel(Text(chat.draft.isEmpty ? "Use keyboard" : chat.draft))
-            .accessibilityHint(Text("Switches to the keyboard"))
-            .accessibilityAddTraits(.isButton)
+    /// The transcript appears once above the composer. This retains an explicit
+    /// way to switch to typing without sending or discarding the partial draft.
+    private var keyboardHandoff: some View {
+        Button {
+            lightTaps += 1
+            handoffToKeyboard()
+        } label: {
+            Text("Ask me anything")
+                .font(.text)
+                .foregroundStyle(Tokens.foregroundSecondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.pressable)
+        .accessibilityHint("Switches to typing and keeps the unfinished transcript as a draft")
     }
 
     // MARK: Controls
@@ -244,13 +240,13 @@ struct Composer: View {
                 Icon(
                     voice.isMuted ? .microphoneSlash : .microphone,
                     size: Self.voiceGlyph,
-                    color: voice.isMuted ? .white : Tokens.foreground
+                    color: voice.isMuted ? Tokens.recording : Tokens.foreground
                 )
                 .frame(width: Self.voiceButtonSize, height: Self.voiceButtonSize)
                 .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .glassControl(in: Circle(), glass: muteGlass)
+            .glassControl(in: Circle(), interactive: true)
             .glassEffectID("mute", in: glass)
             .glassEffectTransition(.matchedGeometry)
             .animation(.easeInOut(duration: 0.2), value: voice.isMuted)
@@ -260,20 +256,16 @@ struct Composer: View {
                 lightTaps += 1
                 voice.exit()
             } label: {
-                Icon(.xmark, size: Self.voiceGlyph, color: .white)
+                Icon(.xmark, size: Self.voiceGlyph)
                     .frame(width: Self.voiceButtonSize, height: Self.voiceButtonSize)
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .glassControl(in: Circle(), glass: .regular.tint(Self.exitTint).interactive())
+            .glassControl(in: Circle(), interactive: true)
             .glassEffectID("exit", in: glass)
             .glassEffectTransition(.matchedGeometry)
             .accessibilityLabel(Text("Exit voice conversation"))
         }
-    }
-
-    private var muteGlass: Glass {
-        voice.isMuted ? .regular.tint(Tokens.recording).interactive() : .clear.interactive()
     }
 
     private func statusHint(_ reason: String) -> some View {

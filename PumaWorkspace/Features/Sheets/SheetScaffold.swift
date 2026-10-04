@@ -1,7 +1,7 @@
 import SwiftUI
 
-// Native sheet presentation and detents, with a shared translucent glass
-// background and app header. Foreground content stays fully opaque.
+// Native sheets own their material so system glass and accessibility
+// preferences apply without an app-defined opacity override.
 
 enum SheetMetrics {
     static let rowHeight: CGFloat = Tokens.scaled(54)
@@ -20,8 +20,6 @@ struct SheetScaffold<Content: View>: View {
     var contentAlignment: Alignment
     @ViewBuilder var content: Content
 
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-
     init(
         title: String,
         detents: Set<PresentationDetent> = [.medium, .large],
@@ -38,15 +36,6 @@ struct SheetScaffold<Content: View>: View {
         NavigationStack {
             SheetPage(title: title, isRoot: true, contentAlignment: contentAlignment) { content }
                 .containerBackground(.clear, for: .navigation)
-        }
-        .presentationBackground {
-            if reduceTransparency {
-                Color(uiColor: .systemBackground)
-            } else {
-                Color.clear
-                    .glassControl(in: RoundedRectangle(cornerRadius: GlassMaterial.sheetCornerRadius, style: .continuous))
-                    .opacity(GlassMaterial.sheetOpacity)
-            }
         }
         .presentationCornerRadius(GlassMaterial.sheetCornerRadius)
         .presentationDetents(detents)

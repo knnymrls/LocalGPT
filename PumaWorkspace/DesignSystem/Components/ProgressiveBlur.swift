@@ -10,13 +10,14 @@ struct ProgressiveBlur: View {
     enum Edge { case top, bottom }
 
     let edge: Edge
+    var washOpacity: Double = 0.82
 
     var body: some View {
         ZStack {
             Rectangle().fill(.ultraThinMaterial)
             // Strong page-colour wash: the material alone reads as a gray band
             // on an empty page.
-            Tokens.background.opacity(0.82)
+            Tokens.background.opacity(washOpacity)
         }
         .mask {
             LinearGradient(

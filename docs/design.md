@@ -2,14 +2,14 @@
 
 The interface is one conversation with a composer, kept simple and clean. Controls are icons where an icon is clear. Supporting detail lives in sheets, not permanent panels. System components are used wherever one fits ([decision 0006](decisions/0006-system-components.md)).
 
-This document describes the approved interface. Real services now drive normal launches; explicit DEBUG fixtures remain for isolated UI states. See verification.md for observed checks. Nothing has been verified on a physical device.
+This document describes the approved interface. Real services now drive normal launches; explicit DEBUG fixtures remain for isolated UI states. See verification.md for observed checks. Device file-generation checks are recorded in verification.md; microphone and offline acceptance remain separate.
 
 ## Visual system
 
 - **Color.** Neutral backgrounds (#FFFFFF light, #191919 dark) and a near-black or near-white foreground. The drawer sits a step behind the chat: #F8F8F8 light, #111111 dark. There is no accent color in the chat; selection, the text cursor, marks, and highlights use the foreground ink. File types carry the only color: red for PDFs, blue for documents, green for spreadsheets. The voice aura keeps its own color.
 - **Type.** The system sans-serif at four sizes: text 16, caption 13, micro 11, and the 24 heading used only for "LocalGPT". Weights are regular for content, medium for titles and labels, semibold for "LocalGPT" and the Chat pill.
 - **Icons.** Nucleo outline glyphs at one stroke weight. A filled glyph means a state is on.
-- **Glass.** Clear iOS 26 Liquid Glass with a shared directional rim for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
+- **Glass.** Unmodified native Liquid Glass for every floating control: top bar buttons, the composer, the add surface, sheets' buttons, and the bars under the top bar.
 - **Scale.** Everything is designed at the iPhone 17 Pro's width and scales together, type, icons, controls, spacing, and corners, up to 15% on wider phones.
 
 Values live in `DesignSystem/Tokens`. See [decision 0004](decisions/0004-visual-system.md).
@@ -22,8 +22,8 @@ Opening the drawer pushes the whole chat surface to the right with rounded corne
 
 ## Top bar
 
-- **Left:** the chats button, then the chat's title in medium weight.
-- **Right:** one glass capsule using the same clear material and rim as the left circle, with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
+- **Left:** the chats button. The header has no chat title.
+- **Right:** one glass capsule using the same native material as the left circle, with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
 - **Menu** (system): Pin or Unpin, Uploaded files, Find in chat, Delete. Each has an icon. Delete asks for confirmation.
 
 Two bars can appear directly under the top bar:
@@ -43,23 +43,25 @@ Two bars can appear directly under the top bar:
 
 ## Composer
 
-One glass card. From top to bottom: the chat's sources as a row of square cards, the text field ("Ask anything…"), and a control row with the plus, an "On-device" label, the microphone, and one primary button.
+One glass card. From top to bottom: the unsent attachments as a row of square cards, the text field ("Ask anything…"), and a control row with the plus, an "On-device" label, the microphone, and one primary button.
 
 Explicit DEBUG fixture launches show "UI preview" in place of "On-device", with an accessibility explanation that replies are scripted. Unknown preview prompts explain how to return to live inference.
 
 - The primary button is voice when the field is empty, send when there is text, a filled stop square while a reply is running, and a tick while dictating.
 - The microphone dictates into the field until the user taps Finish; sentence boundaries and quiet windows do not stop it. Finish flushes remaining audio, and the waveform uses perceptual input levels in a fixed-height row. Voice mode is a continuous spoken conversation with a mute and an exit control and an aura behind the feed. Every completed spoken reply returns to listening. Silence and opening an output leave the call active. Leaving voice keeps the draft and never sends it.
+- Voice shows its live transcript once, 64 scaled points above the composer, with reserved feed space and a progressive blur behind it. The blue/gray voice aura draws above that blur and below the transcript and controls. A left-aligned “Ask me anything” prompt beside the plus preserves the partial draft when switching to text. Dictation stays in the text field without a second floating transcript.
+- Sending attaches the pending inputs to the user message and clears their composer cards. Sent sources remain available for follow-up questions. A preparing or failed import blocks sending with a specific explanation. A photo can be sent without typing a caption.
 - Source cards scroll sideways. A file card shows its type glyph and name; a photo card shows the image. Each has an X, removing one slides the rest left, and tapping a card opens the file. Open and Remove are separate accessible buttons.
 - Four preloaded conversations live in the ordinary sidebar history, with natural titles and no special labels or section. Each contains two exchanges; the CSV, PDF, and chart chats include openable files. The empty composer has no starter-prompt list. Opening a chat or an output does not add generated files to the composer; its cards represent selected input files.
 - A small glass chevron sits just above the composer whenever the feed is scrolled away from the latest message, and returns to it.
 
 ## Add surface
 
-The plus opens an app-drawn glass menu: Camera, Photos, Files.
+The plus opens an app-drawn glass menu: Camera, Photos, Files. This menu and its expanded panels use the base system glass without an app-defined background fill or tint. The user controls glass appearance in iOS Settings.
 
 - It scales up out of the plus and sits over it. Dragging moves the whole menu loosely and it springs back; a swipe down, or a tap outside, closes it into the plus.
 - Photos and Camera stretch that same glass shape from its bottom-left corner into a panel over the composer.
-- **Photos:** a three-column grid of recent photos. Ticking photos adds nothing by itself. The pill reads "All Photos" (which opens the system picker) until something is ticked, then becomes a solid "Add 3 photos"; tapping it adds them.
+- **Photos:** a three-column grid of recent photos. Ticking photos adds nothing by itself. The pill reads "All Photos" (which opens the system picker) until something is ticked, then reads "Add 3 photos"; tapping it adds them.
 - **Camera:** a live viewfinder with a white shutter inside a glass ring.
 - **Files:** the system file browser.
 - A back button returns from the panel to the menu.
@@ -70,7 +72,7 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 - **Answer.** Markdown drawn as native text: headings, lists, bold and italic, code, quotes, rules, and tables. Text is 16pt on a 21pt line with 8pt between blocks. A table keeps its columns' natural width and scrolls sideways when it is wider than the screen.
 - **Conversation recovery.** Ordinary chat can hold its opening while checking for a repeated prior answer. One local regeneration attempts recovery; persistent repetition becomes a retryable error. There is no canned replacement reply.
 - **No generated UI.** A comparison is a Markdown table in the answer, not a card.
-- **Images.** Image outputs render directly below the reply at their original aspect ratio, without a filename capsule or file glyph. Tap an image to open the full-resolution original.
+- **Images.** On supported iOS 27 devices the model can inspect the actual pixels and answer visual follow-ups. Older systems explain the OCR-only limit. Sent photos appear with the user message in 120 × 120 scaled-point square previews. Source photos are never repeated as assistant outputs. Generated images render inline at their original aspect ratio, capped at 360 scaled points high. Tap either to open the full-resolution original.
 - **Documents.** PDFs and other non-image files are listed at the end as capsule rows: type glyph, name, arrow. A row opens the file.
 - **Actions.** Every finished reply ends with exactly three: Copy, Retry, Read aloud. Retry replaces the newest reply; on an older reply it asks the same question again at the end of the chat. A failed reply shows "Reply interrupted." and a retry.
 
@@ -81,7 +83,7 @@ The plus opens an app-drawn glass menu: Camera, Photos, Files.
 
 ## Sheets
 
-Sheets use a clear navigation-container background and a shared glass background at 55% opacity, with a matching 40pt corner radius. Foreground text remains opaque; Reduce Transparency uses a solid system background.
+Sheets use the system presentation background with a 40pt corner radius. Native materials own appearance and accessibility adaptation; there is no fixed opacity overlay. Floating controls use the base glass effect (the native default is regular) without a custom rim, tint, or opacity. Mute state is indicated by its glyph and glyph color, not by changing the glass material.
 
 All sheets share one scaffold: a glass close button, a medium-weight title, and grouped cards of 54pt rows.
 

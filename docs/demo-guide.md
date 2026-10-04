@@ -17,7 +17,7 @@ Suggested follow-ups are ideas, not verified guarantees. Chats can be renamed, p
 | --- | --- | --- |
 | Meeting follow-through | Paste notes, get action items, export a handoff PDF. | Organizing supplied information and producing a useful file. |
 | Venue or vendor selection | Attach two proposals, compare details, inspect supporting excerpts. | Selected-document scope, citations, and explicit unknowns. |
-| Receipt or screenshot reading | Attach an image with clear text, ask for the visible amounts or tasks. | Local OCR. Current image handling does not understand arbitrary scenes. |
+| Receipt or screenshot reading | Attach an image with clear text, ask for the visible amounts or tasks. | Local OCR, supplemented by direct image input on supported iOS 27 devices. |
 | Expense analysis | Attach a CSV, request totals by column, then generate a chart. | Deterministic CSV calculations and visual output. |
 | Personal preferences | Explicitly remember a lasting preference; inspect its receipt and ask in a new chat. | Visible, durable memory. Sample starters never add fictional preferences. |
 | Voice continuation | Begin a task by typing, then continue the same conversation in voice. | Shared context and draft. Live microphone acceptance remains separate from recorded-audio checks. |
@@ -27,6 +27,6 @@ Lead with the PDF and chart: they give a reviewer something concrete to open. Us
 
 ## Images and iOS 27
 
-Apple's iOS 27 system model adds on-device image understanding; a third-party model is not required for that capability. LocalGPT's current iOS 26 build uses text extraction from images instead. Vision prompting remains an integration task for the newer SDK/runtime. [Apple Foundation Models update](https://developer.apple.com/videos/play/wwdc2026/241/)
+Apple's iOS 27 system model adds on-device image understanding; a third-party model is not required for that capability. LocalGPT now passes image pixels on supported iOS 27 devices, including follow-up questions and file generation from images. Older systems retain OCR. [Apple Foundation Models update](https://developer.apple.com/videos/play/wwdc2026/241/)
 
 Picture generation is separate. The new Image Playground model runs on Private Cloud Compute, and Apple has discontinued the programmatic on-device `ImageCreator` API in iOS 27. LocalGPT's strict on-device policy therefore continues to defer AI-generated pictures. Locally rendered charts and diagrams already work without a picture-generation model. [Image Playground](https://developer.apple.com/videos/play/wwdc2026/375/) · [ImageCreator discontinuation](https://developer.apple.com/news/?id=dz9wvq0r)

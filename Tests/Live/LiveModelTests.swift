@@ -20,9 +20,55 @@ final class LiveModelTests: XCTestCase {
     private struct Answer {
         var text = ""
         var citations: [Citation] = []
-        var outputs: [Attachment] = []
+        var outputs: [PumaWorkspace.Attachment] = []
         var steps: [String] = []
         var complete = false
+    }
+
+    func testNativeImagePrompt() async throws {
+        guard #available(iOS 27.0, *) else { throw XCTSkip("Requires iOS 27") }
+        let model = SystemLanguageModel.default
+        print("VISION_MODEL \(model.variant.displayName) context=\(model.contextSize)")
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "photo", withExtension: "jpg"))
+        let prompt = Prompt {
+            "What animal is this?"
+            FoundationModels.Attachment(imageURL: url)
+        }
+        let response = try await LanguageModelSession(model: model).respond(to: prompt)
+        print("VISION_DIRECT \(response.content)")
+        XCTAssertTrue(response.content.localizedCaseInsensitiveContains("cat"), response.content)
+    }
+
+    func testPhotoUnderstandingFollowupAndPDFOnDevice() async throws {
+        guard #available(iOS 27.0, *) else { throw XCTSkip("Pixel input requires iOS 27") }
+        let (root, db, files, memory, writer) = try workspace()
+        let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "photo", withExtension: "jpg"))
+        let importer = LocalDocumentImporter(files: WorkspaceFiles(root: root), database: db, repository: files)
+        let source = try await importer.prepare(PumaWorkspace.Attachment(name: "photo.jpg", kind: .image, readiness: .importing, fileURL: fixture))
+        XCTAssertFalse(source.previewText.localizedCaseInsensitiveContains("cat"), "OCR must not supply the expected visual answer")
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        let first = try await answer("What animal is in this photo?", client: client, sources: [source.id])
+        XCTAssertTrue(first.text.localizedCaseInsensitiveContains("cat"), first.text)
+        XCTAssertTrue(first.outputs.isEmpty, "The source photo must not be echoed as a generated output")
+        XCTAssertTrue(first.steps.contains("Reading images"))
+
+        // Reopen both saved conversation and attachment paths before a follow-up.
+        let repository = LocalConversationRepository(database: db)
+        let conversation = Conversation(messages: [
+            Message(role: .user, text: "What animal is in this photo?", documentIDs: [source.id]),
+            Message(role: .assistant, text: first.text)
+        ], selectedSourceIDs: [source.id], modelID: SystemModelCatalog.modelID)
+        try await repository.save(conversation)
+        let saved = try await repository.all()
+        let restored = try XCTUnwrap(saved.first { $0.id == conversation.id })
+        let reopenedFiles = LocalAttachmentRepository(database: db, files: WorkspaceFiles(root: root))
+        let reopenedClient = LocalAssistantClient(database: db, attachments: reopenedFiles, memories: MemoryService(repository: memory), writer: writer)
+        let followup = try await answer("What color is its fur?", client: reopenedClient, sources: restored.selectedSourceIDs, history: restored.messages)
+        XCTAssertTrue(["orange", "ginger", "tan", "brown"].contains { followup.text.localizedCaseInsensitiveContains($0) }, followup.text)
+        let output = try await answer("Create a PDF describing the animal visible in the attached photo.", client: reopenedClient, sources: restored.selectedSourceIDs, history: restored.messages)
+        let pdf = try XCTUnwrap(output.outputs.first { $0.kind == .pdf })
+        let document = try XCTUnwrap(PDFDocument(url: try XCTUnwrap(pdf.fileURL)))
+        XCTAssertTrue((document.string ?? "").localizedCaseInsensitiveContains("cat"), document.string ?? "empty PDF")
     }
 
     func testFreshConversationMeaningCorrectionsAndIsolation() async throws {
@@ -207,7 +253,7 @@ final class LiveModelTests: XCTestCase {
         for (name, text) in documents {
             let url = root.appendingPathComponent(name)
             try text.write(to: url, atomically: true, encoding: .utf8)
-            let file = try await importer.prepare(Attachment(name: name, kind: .text, readiness: .importing, fileURL: url))
+            let file = try await importer.prepare(PumaWorkspace.Attachment(name: name, kind: .text, readiness: .importing, fileURL: url))
             selected.insert(file.id)
         }
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
@@ -257,6 +303,50 @@ final class LiveModelTests: XCTestCase {
             if format == "csv" {
                 let csv = try CSVTable.parse(String(contentsOf: url, encoding: .utf8))
                 XCTAssertEqual(try csv.summary(column: "amount", operation: "sum"), "4000.0")
+            }
+        }
+    }
+
+    func testConversationalPDFAndTXTRequestsCreateFiles() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        let topic = "Checks and balances: each transaction records matching debits and credits."
+        var history = [Message(role: .user, text: "Explain checks and balances in accounting."),
+                       Message(role: .assistant, text: topic)]
+        let pdfPrompt = "Can you put that in a PDF?"
+        let pdfReply = try await answer(pdfPrompt, client: client, history: history)
+        let pdf = try XCTUnwrap(pdfReply.outputs.first)
+        XCTAssertEqual(pdf.fileURL?.pathExtension, "pdf")
+        let doc = try XCTUnwrap(PDFDocument(url: XCTUnwrap(pdf.fileURL)))
+        XCTAssertTrue(doc.string?.contains("debits") == true)
+        history += [Message(role: .user, text: pdfPrompt), Message(role: .assistant, text: pdfReply.text, documentIDs: [pdf.id])]
+        let txt = try await answer("Txt I meant", client: client, history: history)
+        let txtFile = try XCTUnwrap(txt.outputs.first)
+        XCTAssertEqual(txtFile.fileURL?.pathExtension, "txt")
+        XCTAssertEqual(try String(contentsOf: XCTUnwrap(txtFile.fileURL), encoding: .utf8), topic)
+        let request = try await answer("Well can u give it to me in a file?", client: client, history: history)
+        XCTAssertEqual(request.outputs.count, 1)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: try XCTUnwrap(request.outputs.first?.fileURL).path))
+    }
+
+    func testCreatesReadableTextMarkdownAndJSONFiles() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        for (format, prompt) in [
+            ("txt", "Create a TXT file called packing with these three items: charger, notebook, headphones."),
+            ("md", "Create a Markdown file called checklist with a Packing heading and three checklist items: charger, notebook, headphones."),
+            ("json", "Create a JSON file called packing with an items array containing exactly charger, notebook, headphones.")
+        ] {
+            let result = try await answer(prompt, client: client)
+            let file = try XCTUnwrap(result.outputs.first)
+            let url = try XCTUnwrap(file.fileURL)
+            XCTAssertEqual(url.pathExtension, format)
+            let text = try String(contentsOf: url, encoding: .utf8)
+            for item in ["charger", "notebook", "headphones"] { XCTAssertTrue(text.contains(item), text) }
+            if format == "md" { XCTAssertTrue(text.contains("#"), text) }
+            if format == "json" {
+                let value = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+                XCTAssertEqual(value["items"] as? [String], ["charger", "notebook", "headphones"])
             }
         }
     }
@@ -356,7 +446,7 @@ final class LiveModelTests: XCTestCase {
         let url = root.appendingPathComponent("expenses.csv")
         try "item,amount\nroom,3200\ncatering,800\n".write(to: url, atomically: true, encoding: .utf8)
         let importer = LocalDocumentImporter(files: WorkspaceFiles(root: root), database: db, repository: files)
-        let source = try await importer.prepare(Attachment(name: "expenses.csv", kind: .spreadsheet, readiness: .importing, fileURL: url))
+        let source = try await importer.prepare(PumaWorkspace.Attachment(name: "expenses.csv", kind: .spreadsheet, readiness: .importing, fileURL: url))
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
         let result = try await answer("Use the calculation tool to sum the amount column in expenses.csv and report the total with its source.", client: client, sources: [source.id])
         XCTAssertTrue(result.text.contains("4,000") || result.text.contains("4000"))

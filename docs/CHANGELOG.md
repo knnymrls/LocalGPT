@@ -1,5 +1,25 @@
 # LocalGPT change log
 
+## 2026-10-04 — Repository handoff documentation
+
+- Reworked the README around capabilities, device setup, a fresh-chat walkthrough, architecture, privacy, and deliberate scope.
+- Distinguished the tested iOS 27 integration baseline from later build-only voice changes; marked older verification sections as historical.
+- Documented the current voice capture/reply ownership guards. Added the complete 2:52 iPhone demo with audio and a clickable README preview. The 165 MB original is preserved outside the repository; the web copy is approximately 9 MB.
+
+## 2026-10-04 — Voice layering and duplicate guards
+
+- Moved the voice aura above the progressive blur and raised live text; reserved space keeps the latest chat message clear of the fade.
+- Speech recognition replaces overlapping audio-range revisions rather than appending them when timestamps shift.
+- Voice retires capture before sending, follows a specific reply, and replaces existing playback observers. A blocked send no longer reads the previous answer again.
+- Device build succeeded and installed on the connected iPhone. Tests skipped per the user's request. Live reproduction of the intermittent duplication remains unverified.
+
+## 2026-10-04 — Voice composer polish
+
+- Replaced the voice keyboard glyph with a left-aligned “Ask me anything” typing handoff beside the plus button.
+- Lowered the live transcript and extended its progressive blur backdrop for readability.
+- Removed the chat title from the header; sidebar and chat actions remain.
+- Device build succeeded and installed on the connected iPhone. Tests and UI QA skipped at the user’s request.
+
 ## 2026-10-03 — Focused state and assistant ownership
 
 - Separated conversation persistence, attachment imports, and memory extraction lifetimes from the shared chat facade.
@@ -225,3 +245,30 @@ The scaffold has no database, model integration, actual audio, document extracti
 - Rewrote the design document around what was built, updated the PRD and architecture note where the interface deviated (Markdown comparisons instead of a card, the top-right module and menu, real pickers and Quick Look, read aloud, outputs as files, memories in the drawer), renamed decision 0004 to "Visual system", and added decision 0006 on system components.
 - Top-right module settled: one glass capsule with the menu's button laid over its last slot in Apple's clear glass style, so the "…" lights and grows into the menu with no black flash and no seam. Recorded and checked frame by frame on the simulator.
 - Top-right module returned to the whole-capsule version at Kenny's request: the capsule is the menu's own system glass button, with New chat and Outputs as tap targets over their glyphs.
+
+## 2026-10-03 — Physical-device attachment and export corrections
+
+- Pending attachments now belong to the sent user message and leave the composer; their source context remains available for follow-ups and relaunch. Compact input photos no longer reappear as assistant-generated images.
+- Explicit PDF/TXT/Markdown/JSON/CSV/R/chart/diagram requests now invoke application-owned saves after bounded content generation. Format corrections and conversational file requests are recognized; simple answer exports preserve the answer verbatim.
+- The add menu uses a more opaque semantic fill and regular glass. Photos without text are retained; object identification is explicitly unavailable in the current text-only build while the Xcode 27 upgrade is pending.
+
+## 2026-10-03 — System glass and compact voice/photo presentation
+
+- Replaced forced clear glass with regular native glass and removed the sheet opacity override so the system owns appearance adaptation. Kept the attachment menu's readable backing.
+- Kept one live voice transcript above the composer, with a keyboard handoff button in the composer. Dictation remains in its text field.
+- Sent photos use 120-point square crops with tap-to-open originals. Output images and composer thumbnails retain their existing layout.
+- Fixed the DEBUG voice snapshot fixture so asynchronous capture cannot clear its representative transcript.
+
+## 2026-10-03 — Base system glass only
+
+- Removed the custom directional rim, attachment menu backing fill, and glass tints. All chrome now delegates its material appearance to the system; touch interaction and semantic icon colors remain.
+- This supersedes the extra menu opacity introduced in the prior device fix. The user controls Liquid Glass appearance through iOS Settings.
+
+## 2026-10-04 — On-device image input
+
+- Added iOS 27 pixel-based prompting with capability checks, bounded cached decoding, and retained image context after reopening a chat.
+- Passed image prompts through document/chart/diagram generation; preserved the shared voice/text request path and iOS 26 OCR fallback.
+- Avoided the observed runtime failure in tokenCount for image prompts; text/tool budgeting retains an explicit image allowance.
+- Added a licensed photo fixture and live checks for identification, visual follow-up after reopening, and a real image-based PDF.
+
+- The Xcode 27 regression pass exposed an omitted source table. Explicit table requests now select a table schema directly, preserving deterministic Markdown rendering and citation validation.

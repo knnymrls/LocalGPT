@@ -8,6 +8,8 @@ struct Conversation: Identifiable, Hashable, Codable, Sendable {
     var messages: [Message]
     var draft: String
     var selectedSourceIDs: Set<UUID>
+    /// Pending composer inputs; nil migrates older chats without changing their source context.
+    var draftSourceIDs: Set<UUID>? = nil
     var modelID: String
     var notes: String
     /// Pinned chats stay at the top of the drawer.

@@ -21,7 +21,7 @@ Typing, dictation, and voice conversation share the active chat, draft, sources,
 | Chat | Stream real local answers; stop, retry, copy, read aloud; persist history and drafts; recover interrupted replies as stopped. |
 | Navigation | Preserve the approved drawer, composer, Outputs, file viewer, search, pin, rename, and delete interactions. |
 | Model | One Apple on-device system model. Show preparation, unsupported-device, disabled-model, and failure states truthfully. |
-| Inputs | Read selected PDFs, text, Markdown, code, JSON, CSV, and image text. OCR scanned PDF pages and photos. Preserve original files. Unsupported formats give an actionable explanation. |
+| Inputs | Read selected PDFs, text, Markdown, code, JSON, CSV, and images. On iOS 27, inspect image pixels using the on-device model; retain OCR for scanned PDF pages and photos on older systems. Preserve original files. Unsupported formats give an actionable explanation. |
 | Evidence | Only selected, ready sources enter a request. Numbered references open the supporting excerpt and source. Missing facts stay unknown. |
 | Revisions | Follow the latest question and changed requirements while keeping conversation context. Comparisons use readable Markdown tables. |
 | Memory | Save only stable preferences, enduring personal context, or explicit requests to remember. Most messages save nothing. Temporary task requirements, budgets, guest counts, and one-off plans stay in chat history. Retain supporting words and origin internally, reject questions/guesses/document facts, and deduplicate. |
@@ -54,7 +54,7 @@ The sidebar begins with four complete, authored conversations: meeting notes to 
 
 ## Scope
 
-This build targets iOS 26+ using the installed toolchain. General image reasoning on iOS 27 is a later integration; OCR is the available image input path. AI-generated pictures are deferred. Office documents should be exported to PDF/text/CSV. Audio/video file transcription, web browsing, accounts, cloud sync, unrestricted subagents, external actions, arbitrary code execution, and full-duplex voice are outside this release.
+This build targets iOS 26+ using the installed toolchain. Image reasoning uses the iOS 27 on-device vision capability. Older systems use OCR. AI-generated pictures are deferred. Office documents should be exported to PDF/text/CSV. Audio/video file transcription, web browsing, accounts, cloud sync, unrestricted subagents, external actions, arbitrary code execution, and full-duplex voice are outside this release.
 
 This is a bounded take-home implementation: large-history pagination, extensive multilingual evaluation, physical-device latency/energy measurement, and broad accessibility QA remain release-quality work. Current evidence belongs in [verification](verification.md), not inferred from a successful build.
 

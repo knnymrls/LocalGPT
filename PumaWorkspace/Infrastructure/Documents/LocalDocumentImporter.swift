@@ -7,7 +7,7 @@ actor LocalDocumentImporter: DocumentImporter {
     private let files: WorkspaceFiles
     private let database: WorkspaceDatabase
     private let repository: any AttachmentRepository
-    private static let processorVersion = "text-v1"
+    private static let processorVersion = "text-v3"
 
     init(files: WorkspaceFiles, database: WorkspaceDatabase, repository: any AttachmentRepository) {
         self.files = files; self.database = database; self.repository = repository
@@ -80,7 +80,10 @@ actor LocalDocumentImporter: DocumentImporter {
                     kCGImageSourceThumbnailMaxPixelSize:2000,
                     kCGImageSourceCreateThumbnailWithTransform:true
                   ] as CFDictionary) else { throw WorkspaceError.message("This image cannot be opened.") }
-            sections = [("Image text",try recognize(image))]
+            let text = try recognize(image)
+            sections = [("Image text", text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                ? "No readable text was detected by OCR."
+                : text)]
         case .text, .markdown, .code, .spreadsheet:
             let ext = url.pathExtension.lowercased()
             guard !["xlsx","xls","numbers","ods"].contains(ext) else {

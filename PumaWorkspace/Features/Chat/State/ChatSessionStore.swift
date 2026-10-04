@@ -81,11 +81,16 @@ final class ChatSessionStore {
     var selectedSourceIDs: Set<UUID> { active.selectedSourceIDs }
     var hasSelectedSources: Bool { !active.selectedSourceIDs.isEmpty }
 
-    /// What this chat can read: its selected sources, plus anything still importing.
+    /// Pending inputs are distinct from the sources retained for follow-up questions.
+    private var draftSourceIDs: Set<UUID> {
+        active.draftSourceIDs ?? active.selectedSourceIDs.subtracting(Set(messages.flatMap(\.documentIDs)))
+    }
+
+    /// Only unsent inputs appear in the composer.
     var chatSources: [Attachment] {
         attachments.filter {
             $0.readiness != .removed
-                && (isSelected($0.id) || ($0.conversationID == activeID && $0.readiness == .importing))
+                && (draftSourceIDs.contains($0.id) || ($0.conversationID == activeID && $0.readiness == .importing))
         }
     }
 
@@ -122,7 +127,7 @@ final class ChatSessionStore {
     // MARK: Chats
 
     func newChat() {
-        if active.messages.isEmpty, active.draft.isEmpty { return }
+        if active.messages.isEmpty, active.draft.isEmpty, chatSources.isEmpty { return }
         persistActive()
         cancelReply()
         conversationStore.create()
@@ -157,10 +162,21 @@ final class ChatSessionStore {
     // MARK: Sending
 
     func send() {
-        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty, !isStreaming else { return }
+        let typed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        let pending = chatSources
+        guard !typed.isEmpty || !pending.isEmpty, !isStreaming else { return }
+        guard !pending.contains(where: { $0.readiness == .importing }) else {
+            operationError = "Your attachment is still preparing. Please send again when it is ready."
+            return
+        }
+        guard !pending.contains(where: { $0.readiness == .failed }) else {
+            operationError = "An attachment could not be read. Remove it or retry its import before sending."
+            return
+        }
+        let text = typed.isEmpty ? "What is in this attachment?" : typed
         mutateActive {
-            $0.messages.append(Message(role: .user, text: text))
+            $0.messages.append(Message(role: .user, text: text, documentIDs: pending.map(\.id)))
+            $0.draftSourceIDs = []
             $0.draft = ""
             if $0.title == nil { $0.title = Self.title(from: text) }
             $0.updatedAt = .now
@@ -324,11 +340,15 @@ final class ChatSessionStore {
     func toggleSource(_ attachmentID: UUID) {
         guard let a = attachments.first(where: { $0.id == attachmentID }), a.readiness == .ready else { return }
         if active.selectedSourceIDs.contains(attachmentID) { cancelReply() }
+        let pending = draftSourceIDs
         mutateActive {
+            $0.draftSourceIDs = pending
             if $0.selectedSourceIDs.contains(attachmentID) {
                 $0.selectedSourceIDs.remove(attachmentID)
+                $0.draftSourceIDs?.remove(attachmentID)
             } else {
                 $0.selectedSourceIDs.insert(attachmentID)
+                $0.draftSourceIDs?.insert(attachmentID)
             }
         }
         persistActive()
@@ -345,7 +365,15 @@ final class ChatSessionStore {
             name: name, kind: kind, readiness: .importing,
             previewText: "", thumbnail: thumbnail, fileURL: fileURL
         )
-        item.conversationID = conversationID ?? activeID
+        let origin = conversationID ?? activeID
+        item.conversationID = origin
+        mutate(origin) {
+            if $0.draftSourceIDs == nil {
+                $0.draftSourceIDs = $0.selectedSourceIDs.subtracting(Set($0.messages.flatMap(\.documentIDs)))
+            }
+            $0.draftSourceIDs?.insert(item.id)
+        }
+        persist(origin)
         prepareAttachment(item)
         return item.id
     }

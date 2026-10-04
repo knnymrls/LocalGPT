@@ -1,4 +1,56 @@
-# Verification — 2026-10-03
+# Verification — 2026-10-04
+
+## Recorded walkthrough
+
+The [complete user-recorded iPhone walkthrough](media/localgpt-demo.mp4) is included in the README. The web copy retains the full recording and audio. It is a demonstration, not an automated evaluation. At approximately 1:53, the model incorrectly substitutes $225 for the supplied $20 food budget and reports $2,275 instead of $2,070. This is a visible ordinary-conversation arithmetic limitation; the recording has not been edited to remove it.
+
+## Latest voice and layout follow-ups
+
+Commits `b4de7ea` and `3c322c1` refine the voice typing prompt, remove the header title, raise the transcript, and put the blue/gray aura above the progressive blur. The latter also replaces overlapping recognition revisions and guards capture/reply ownership to avoid duplicate turns or stale playback. Both signed builds were installed and launched on the connected iPhone.
+
+These follow-ups were build-verified only; automated suites and UI QA were skipped at the user's request. The intermittent duplication has not been independently reproduced or confirmed resolved. The 48-test and nine-live-check results below belong to the preceding iOS 27 integration baseline (`31b6d9b`).
+
+Current limits include finite model context, possible incorrect answers, no AI picture generation or code execution, no full-duplex voice, and no independently observed disconnected-network acceptance run. Older sections below describe historical builds and may contain superseded feature limits.
+
+## iOS 27 image input
+
+Xcode **27.0 (27A266a)** is active. The connected iPhone 17 Pro Max runs iOS 27 and reports **AFM 3 Core Advanced**, an 8192-token context, and vision support. The app still targets iOS 26, with direct pixel input gated by runtime and model capability.
+
+**48 deterministic checks pass on the physical phone.** The first nine-check live regression run passed eight checks but failed the explicit source-table assertion; the model omitted the table while returning the facts. Source table requests now select the table schema directly. **The final nine-check live run passes with zero failures or skips.** The live run covers a minimal native image request; the application photo-import → identification → persisted-chat reopen → fur-color follow-up → PDF flow; PDF/TXT conversational corrections; TXT/Markdown/JSON; PDF/CSV/R; charts/diagrams and chart revision; ordinary conversation corrections/isolation; and source-backed comparison/revision. Output checks inspect saved bytes and supplied values. These are sampled checks, not arbitrary-prompt guarantees.
+
+The photo fixture is a licensed photograph with a neutral filename, no supplied visual caption, and no OCR text containing the expected animal name. The model identifies a cat, recognizes its fur color after reopening, and saves a PDF whose extracted text describes a cat. The fixture is only in the test target; attribution and license are in Tests/Live/Fixtures/README.md. The minimal response in the final run was “This is a cat.”
+
+The first integrated image run failed at tokenCount with “Unable to tokenize prompt.” A minimal native generation using the same image succeeded. The corrected path counts text/tools with an image allowance, while the model enforces its exact context limit. In the focused photo run, the three-turn flow completed in about 4.4 seconds total; JSON generation took about 21 seconds. These timings are examples from one device, not performance guarantees.
+
+Live microphone behavior, disconnected-network acceptance, and the full system Liquid Glass slider range were not tested by these checks. The current app now includes vision; the older OCR-only notes below describe earlier builds.
+
+## Historical verification — 2026-10-03
+
+All sections below are retained as development evidence. Their limitations apply to the build described in each section, not automatically to the current build.
+
+## Base glass correction — 2026-10-03
+
+The user clarified that glass appearance must come entirely from the system preference. The follow-up removes the custom rim, the menu's 85% backing, and control material tints. Existing screenshots below document the preceding revision and no longer represent final glass styling. Simulator and signed device builds pass. The base-glass build is installed and launched on the connected iPhone. Simulator review confirms the menu remains readable with its native material. The iOS 27 preference range still requires on-device visual acceptance.
+
+<img src="evidence/base-system-glass.png" width="260" alt="Native system glass without custom rim, material tint, or menu backing">
+
+## Physical-device attachment and output fixes — 2026-10-03
+
+On Kenny's connected **iPhone 17 Pro Max running iOS 27 beta (24A5430a)**, the six focused live file checks pass together with **zero failures or skips**. They cover fresh PDF/TXT/Markdown/JSON/CSV/R outputs, decoded chart/diagram PNGs, a chart value revision, source-backed comparison/revision with PDF, and the recording's conversational PDF → “Txt I meant” → “can u give it to me in a file” flow. Checks open the persisted bytes, parse PDF/CSV/JSON/PNG, and assert supplied content and numeric values. R is saved as source, not executed.
+
+Initial broader checks exposed two additional failures: the model skipped a chart operation, and JSON generated inside a string was malformed. Chart/diagram writes now run directly from structured data; JSON is parsed before saving and gets one isolated syntax-repair attempt. The final combined run passes; JSON still took about 22 seconds in this sample, whereas most simple file requests took about 1–3 seconds. These are sampled correctness checks, not guarantees for arbitrary prompts or file sizes.
+
+Simulator UI review used an actual image imported through Photos in a normal launch. Sending without a caption moved it into the user message, cleared the composer, and kept a 120 × 120 point square preview; no copy appeared under the assistant answer. The add menu has a readable opaque fill. The photo explanation clearly states the current build's limitation. Original files and saved chat context are retained.
+
+<img src="evidence/sent-photo-compact.png" width="260" alt="Compact sent photo in the user message and empty composer">
+<img src="evidence/attachment-menu-readable.png" width="260" alt="Camera, Photos and Files menu with readable background">
+
+The final UI revision passes **46 deterministic tests with zero failures**, and the signed device build succeeds. It is installed and launched on the connected iPhone. A DEBUG voice fixture confirms a single floating transcript and a keyboard handoff that retains the unsent draft; this is layout/state evidence, not microphone acceptance. Shared controls now use regular glass; sheets use their native material with no opacity override. The full iOS 27 Liquid Glass slider range still needs visual verification on the phone.
+
+<img src="evidence/voice-single-transcript.png" width="260" alt="DEBUG voice layout with one transcript and a keyboard handoff button">
+
+**Photo recognition is still pending the Mac/Xcode upgrade.** This build uses Xcode 26.6 and reads image text through OCR; it does not send pixels to the iOS 27 multimodal API. The iPhone's OS alone does not activate that API in this older compiled app. Live microphone and disconnected-device acceptance are not established by these file checks.
+
 
 ## Current architecture cleanup acceptance — source 45bd05d
 
@@ -126,7 +178,7 @@ The final source checks observed 3.29 s for the initial comparison, 0.21 s for t
 
 Whisper model assets occupied approximately 149 MB after installation; tokenizer/support files are additional. First-use download time depends on connection and asset availability. No phone memory, battery, or thermal measurement has been made.
 
-## Remaining checks and limits
+## Historical checks and limits (iOS 26 baseline)
 
 - **Live microphone:** recorded audio does not prove microphone capture; permissions, asset preparation, and recovery render, but the Simulator did not transcribe speech played through the Mac speakers. Recorded-audio inference passes. A real spoken microphone test remains pending; do not describe full voice conversation as verified end to end.
 - **Offline:** the implementation has no remote inference/transcription path and caches required assets. A network-disconnected end-to-end run has not been observed. Do not confuse cached-model tests with verified offline operation.

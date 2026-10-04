@@ -256,7 +256,7 @@ struct AddSurface: View {
                         .fill(.white)
                         .frame(width: pt(56), height: pt(56))
                         .padding(pt(4))
-                        .glassControl(in: Circle(), glass: .clear.interactive())
+                        .glassControl(in: Circle(), interactive: true)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Take photo"))
@@ -266,8 +266,8 @@ struct AddSurface: View {
         .padding(.bottom, pt(22))
     }
 
-    /// "All Photos" in quiet glass until something is ticked; then a solid
-    /// "Add 3 photos" that puts the ticked photos into the chat.
+    /// The label changes to "Add 3 photos" when there is a selection.
+    /// Both states keep the same system glass appearance.
     private var photosButton: some View {
         let count = picked.count
         return Button {
@@ -276,14 +276,11 @@ struct AddSurface: View {
             Text(count == 0 ? "All Photos" : "Add \(count) \(count == 1 ? "photo" : "photos")")
                 .font(.title)
                 .monospacedDigit()
-                .foregroundStyle(count == 0 ? Tokens.foreground : Tokens.foregroundInverse)
+                .foregroundStyle(Tokens.foreground)
                 .contentTransition(.numericText(value: Double(count)))
                 .padding(.horizontal, pt(18))
                 .frame(height: Tokens.scaled(44))
-                .glassControl(
-                    in: Capsule(),
-                    glass: count == 0 ? .clear.interactive() : .regular.tint(Tokens.foreground).interactive()
-                )
+                .glassControl(in: Capsule(), interactive: true)
         }
         .buttonStyle(.plain)
         .animation(.smooth(duration: 0.25), value: count)
