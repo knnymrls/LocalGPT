@@ -1,5 +1,9 @@
 # LocalGPT change log
 
+## 2026-10-04 — Repository rename
+
+- Renamed the GitHub repository to LocalGPT and updated clone instructions, video links, and the local Git remote. All handoff work is on `main`.
+
 ## 2026-10-04 — Repository handoff documentation
 
 - Reworked the README around capabilities, device setup, a fresh-chat walkthrough, architecture, privacy, and deliberate scope.
@@ -145,7 +149,7 @@ Record completed work and confirmed decisions. Distinguish a scaffold, implement
 - Created the project folder structure with reserved UI, shared domain, preview, assistant, local infrastructure, resource, and test areas.
 - Generated a Swift 6 / iOS 26 Xcode app project and shared scheme from `project.yml`.
 - Verified the scaffold builds for the generic iOS Simulator destination with signing disabled.
-- Created the private [Puma-Workspace repository](https://github.com/knnymrls/Puma-Workspace) and pushed the initial scaffold to `main`.
+- Created the private [Puma-Workspace repository](https://github.com/knnymrls/LocalGPT) and pushed the initial scaffold to `main`.
 - Added the minimal app entry point and an empty RootShell. The approved conversation interface is the next implementation step.
 
 - Implemented the first native SwiftUI interface in the shared visual system (decision 0004): ported tokens, Nucleo vector icons, and glass surfaces; push-reveal chat drawer; overlay top bar; feed with streaming, stopped, failed/retry, copy, and empty suggestions; glass composer with attachment menu, model pill, mic, and send/stop/voice button; voice mode with mute, exit, keyboard handoff, floating transcript, and water/rim aura; attachments, model, evidence, memory proposal, and saved memory sheets; comparison card with citation chips, revision marker, unknowns, and per-chat notes.

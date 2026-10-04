@@ -12,7 +12,7 @@ No account, API key, or application server is required.
 
 <a href="docs/media/localgpt-demo.mp4"><img src="docs/media/localgpt-demo-poster.jpg" width="280" alt="Play the LocalGPT iPhone demo: photo questions, voice, and chat"></a>
 
-The complete recording, with audio. Click the preview to open the video; [download the MP4](https://github.com/knnymrls/Puma-Workspace/raw/refs/heads/main/docs/media/localgpt-demo.mp4) if your browser does not play it inline.
+The complete recording, with audio. Click the preview to open the video; [download the MP4](https://github.com/knnymrls/LocalGPT/raw/refs/heads/main/docs/media/localgpt-demo.mp4) if your browser does not play it inline.
 
 ## What you can do
 
@@ -38,8 +38,8 @@ Four preloaded chats provide a quick way to explore plans, CSV expenses, a PDF c
 ### Setup
 
 ```sh
-git clone https://github.com/knnymrls/Puma-Workspace.git
-cd Puma-Workspace
+git clone https://github.com/knnymrls/LocalGPT.git
+cd LocalGPT
 open PumaWorkspace.xcodeproj
 ```
 
