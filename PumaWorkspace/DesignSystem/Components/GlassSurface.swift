@@ -8,8 +8,6 @@ import SwiftUI
 // optional control tint.
 
 enum GlassMaterial {
-    /// Only the sheet background fades; foreground text and controls stay opaque.
-    static let sheetOpacity = 0.55
     static let sheetCornerRadius: CGFloat = pt(40)
 
     /// The shared control tint, for the rare surface that wants a wash.
@@ -81,7 +79,7 @@ private struct GlassRim<S: InsettableShape>: ViewModifier {
     }
 }
 
-/// Shared chrome recipe: clearer native glass, no drawn shadow, and the
+/// Shared chrome recipe: system-adaptive native glass, no drawn shadow, and the
 /// directional rim. Every glass surface in the app goes through this, so they
 /// cannot drift apart.
 private struct GlassControl<S: InsettableShape>: ViewModifier {
@@ -98,7 +96,7 @@ private struct GlassControl<S: InsettableShape>: ViewModifier {
 extension View {
     /// Rim, native glass, and lift, in `shape`. Use this for every glass
     /// surface; do not call `glassEffect` directly.
-    func glassControl<S: InsettableShape>(in shape: S, glass: Glass = .clear) -> some View {
+    func glassControl<S: InsettableShape>(in shape: S, glass: Glass = .regular) -> some View {
         modifier(GlassControl(shape: shape, glass: glass))
     }
 }
@@ -155,7 +153,7 @@ struct GlassCircleButton: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .glassControl(in: Circle(), glass: .clear.interactive())
+        .glassControl(in: Circle(), glass: .regular.interactive())
         .sensoryFeedback(.impact(weight: .light), trigger: tapCount)
         .accessibilityLabel(Text(accessibilityLabel ?? icon.rawValue))
     }

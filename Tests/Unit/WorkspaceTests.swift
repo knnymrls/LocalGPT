@@ -17,6 +17,18 @@ final class WorkspaceTests: XCTestCase {
         XCTAssertFalse(ConversationResponder.echoesUser(explicit, request: request(explicit)))
     }
 
+    func testJSONOutputNormalizationPreservesStructureAndRejectsInvalidContent() throws {
+        let json = #"{"items":["charger","notebook"],"count":2,"ready":true,"extra":null}"#
+        let normalized = try DocumentResponder.validatedJSON(DocumentResponder.removeCodeFence("```json\n" + json + "\n```"))
+        let value = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(normalized.utf8)) as? [String: Any])
+        XCTAssertEqual(value["items"] as? [String], ["charger", "notebook"])
+        XCTAssertEqual(value["count"] as? Int, 2)
+        XCTAssertEqual(value["ready"] as? Bool, true)
+        XCTAssertTrue(value["extra"] is NSNull)
+        XCTAssertThrowsError(try DocumentResponder.validatedJSON("Here is your JSON file."))
+        XCTAssertThrowsError(try DocumentResponder.validatedJSON("{invalid}"))
+    }
+
     func testSeededConversationsPersistFilesAndRespectEditsAndDeletion() async throws {
         let directory = try root()
         let database = try WorkspaceDatabase(url: directory.appendingPathComponent("workspace.sqlite"))

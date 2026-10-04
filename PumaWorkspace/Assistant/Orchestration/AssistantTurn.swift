@@ -14,6 +14,14 @@ struct AssistantTurn {
         let sources = try await attachments.all()
         let selected = sources.filter { request.selectedSourceIDs.contains($0.id) && $0.readiness == .ready }
         let policy = ToolPolicy(request: request)
+        if !selected.isEmpty, selected.allSatisfy({ $0.kind == .image }),
+            !policy.files, !policy.charts, !policy.diagrams,
+            ImageInputSupport.needsVisualUnderstanding(request.prompt)
+        {
+            emit(.text(ImageInputSupport.explanation))
+            emit(.finished)
+            return
+        }
         let tools = tools(for: selected, policy: policy)
         let memoryContext = try await memories.context(for: request.prompt)
         let evidenceContext = try await service.initialEvidence()
@@ -28,6 +36,17 @@ struct AssistantTurn {
                 request, sources: sources, memories: memoryContext, evidence: evidenceContext, tools: tools)
         }
         try scope.check()
+        if policy.charts || policy.diagrams {
+            try await VisualOutputResponder.respond(
+                model: model, policy: policy, prompt: prompt, service: service, scope: scope, emit: emit)
+            return
+        }
+        if policy.files, let format = policy.fileFormat {
+            try await DocumentResponder.respond(
+                model: model, request: request, format: format, prompt: prompt,
+                service: service, scope: scope, emit: emit)
+            return
+        }
         let instructions =
             tools.isEmpty && selected.isEmpty ? ContextBuilder.conversationInstructions : ContextBuilder.instructions
         let session: LanguageModelSession

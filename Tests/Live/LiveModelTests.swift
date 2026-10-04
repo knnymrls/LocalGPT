@@ -261,6 +261,50 @@ final class LiveModelTests: XCTestCase {
         }
     }
 
+    func testConversationalPDFAndTXTRequestsCreateFiles() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        let topic = "Checks and balances: each transaction records matching debits and credits."
+        var history = [Message(role: .user, text: "Explain checks and balances in accounting."),
+                       Message(role: .assistant, text: topic)]
+        let pdfPrompt = "Can you put that in a PDF?"
+        let pdfReply = try await answer(pdfPrompt, client: client, history: history)
+        let pdf = try XCTUnwrap(pdfReply.outputs.first)
+        XCTAssertEqual(pdf.fileURL?.pathExtension, "pdf")
+        let doc = try XCTUnwrap(PDFDocument(url: XCTUnwrap(pdf.fileURL)))
+        XCTAssertTrue(doc.string?.contains("debits") == true)
+        history += [Message(role: .user, text: pdfPrompt), Message(role: .assistant, text: pdfReply.text, documentIDs: [pdf.id])]
+        let txt = try await answer("Txt I meant", client: client, history: history)
+        let txtFile = try XCTUnwrap(txt.outputs.first)
+        XCTAssertEqual(txtFile.fileURL?.pathExtension, "txt")
+        XCTAssertEqual(try String(contentsOf: XCTUnwrap(txtFile.fileURL), encoding: .utf8), topic)
+        let request = try await answer("Well can u give it to me in a file?", client: client, history: history)
+        XCTAssertEqual(request.outputs.count, 1)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: try XCTUnwrap(request.outputs.first?.fileURL).path))
+    }
+
+    func testCreatesReadableTextMarkdownAndJSONFiles() async throws {
+        let (_, db, files, memory, writer) = try workspace()
+        let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
+        for (format, prompt) in [
+            ("txt", "Create a TXT file called packing with these three items: charger, notebook, headphones."),
+            ("md", "Create a Markdown file called checklist with a Packing heading and three checklist items: charger, notebook, headphones."),
+            ("json", "Create a JSON file called packing with an items array containing exactly charger, notebook, headphones.")
+        ] {
+            let result = try await answer(prompt, client: client)
+            let file = try XCTUnwrap(result.outputs.first)
+            let url = try XCTUnwrap(file.fileURL)
+            XCTAssertEqual(url.pathExtension, format)
+            let text = try String(contentsOf: url, encoding: .utf8)
+            for item in ["charger", "notebook", "headphones"] { XCTAssertTrue(text.contains(item), text) }
+            if format == "md" { XCTAssertTrue(text.contains("#"), text) }
+            if format == "json" {
+                let value = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+                XCTAssertEqual(value["items"] as? [String], ["charger", "notebook", "headphones"])
+            }
+        }
+    }
+
     func testLocalSpeechFromRecordedAudio() async throws {
         let samples = try recordedSamples()
         let start = Date()

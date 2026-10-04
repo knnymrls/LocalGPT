@@ -1,5 +1,23 @@
 # Verification — 2026-10-03
 
+## Physical-device attachment and output fixes — 2026-10-03
+
+On Kenny's connected **iPhone 17 Pro Max running iOS 27 beta (24A5430a)**, the six focused live file checks pass together with **zero failures or skips**. They cover fresh PDF/TXT/Markdown/JSON/CSV/R outputs, decoded chart/diagram PNGs, a chart value revision, source-backed comparison/revision with PDF, and the recording's conversational PDF → “Txt I meant” → “can u give it to me in a file” flow. Checks open the persisted bytes, parse PDF/CSV/JSON/PNG, and assert supplied content and numeric values. R is saved as source, not executed.
+
+Initial broader checks exposed two additional failures: the model skipped a chart operation, and JSON generated inside a string was malformed. Chart/diagram writes now run directly from structured data; JSON is parsed before saving and gets one isolated syntax-repair attempt. The final combined run passes; JSON still took about 22 seconds in this sample, whereas most simple file requests took about 1–3 seconds. These are sampled correctness checks, not guarantees for arbitrary prompts or file sizes.
+
+Simulator UI review used an actual image imported through Photos in a normal launch. Sending without a caption moved it into the user message, cleared the composer, and kept a 120 × 120 point square preview; no copy appeared under the assistant answer. The add menu has a readable opaque fill. The photo explanation clearly states the current build's limitation. Original files and saved chat context are retained.
+
+<img src="evidence/sent-photo-compact.png" width="260" alt="Compact sent photo in the user message and empty composer">
+<img src="evidence/attachment-menu-readable.png" width="260" alt="Camera, Photos and Files menu with readable background">
+
+The final UI revision passes **46 deterministic tests with zero failures**, and the signed device build succeeds. It is installed and launched on the connected iPhone. A DEBUG voice fixture confirms a single floating transcript and a keyboard handoff that retains the unsent draft; this is layout/state evidence, not microphone acceptance. Shared controls now use regular glass; sheets use their native material with no opacity override. The full iOS 27 Liquid Glass slider range still needs visual verification on the phone.
+
+<img src="evidence/voice-single-transcript.png" width="260" alt="DEBUG voice layout with one transcript and a keyboard handoff button">
+
+**Photo recognition is still pending the Mac/Xcode upgrade.** This build uses Xcode 26.6 and reads image text through OCR; it does not send pixels to the iOS 27 multimodal API. The iPhone's OS alone does not activate that API in this older compiled app. Live microphone and disconnected-device acceptance are not established by these file checks.
+
+
 ## Current architecture cleanup acceptance — source 45bd05d
 
 On Xcode 26.6 / iOS 26.5, **39 deterministic tests and all 19 live integration tests pass, with no failures or skips**, followed by a successful generic Simulator **Release** build. The committed state/orchestration files also pass strict Swift formatter checks. No database migration or model-prompt change was introduced.

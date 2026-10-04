@@ -141,6 +141,7 @@ struct ChatFeed: View {
 // MARK: - Rows
 
 private struct UserBubble: View {
+    @Environment(ChatSessionStore.self) private var chat
     let message: Message
     let joinsAbove: Bool
     let joinsBelow: Bool
@@ -150,22 +151,31 @@ private struct UserBubble: View {
     var body: some View {
         HStack(spacing: 0) {
             Spacer(minLength: 0)
-            Text(FindHighlight.mark(AttributedString(message.text), query: highlight))
-                .font(.text)
-                .foregroundStyle(Tokens.foreground)
-                .padding(.horizontal, pt(14))
-                .padding(.vertical, pt(9))
-                .background(
-                    UnevenRoundedRectangle(
-                        topLeadingRadius: 20,
-                        bottomLeadingRadius: 20,
-                        bottomTrailingRadius: joinsBelow ? pt(8) : pt(20),
-                        topTrailingRadius: joinsAbove ? pt(8) : pt(20),
-                        style: .continuous
+            VStack(alignment: .trailing, spacing: pt(8)) {
+                ForEach(message.documentIDs.compactMap { chat.attachment($0) }) { document in
+                    if document.kind == .image {
+                        ReplyImage(document: document, compact: true)
+                    } else {
+                        ReplyDocumentRow(document: document)
+                    }
+                }
+                Text(FindHighlight.mark(AttributedString(message.text), query: highlight))
+                    .font(.text)
+                    .foregroundStyle(Tokens.foreground)
+                    .padding(.horizontal, pt(14))
+                    .padding(.vertical, pt(9))
+                    .background(
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: 20,
+                            bottomLeadingRadius: 20,
+                            bottomTrailingRadius: joinsBelow ? pt(8) : pt(20),
+                            topTrailingRadius: joinsAbove ? pt(8) : pt(20),
+                            style: .continuous
+                        )
+                        .fill(Tokens.userBubble)
                     )
-                    .fill(Tokens.userBubble)
-                )
-                .frame(maxWidth: maxWidth, alignment: .trailing)
+            }
+            .frame(maxWidth: maxWidth, alignment: .trailing)
         }
     }
 }
@@ -178,7 +188,7 @@ private struct AssistantRow: View {
     @State private var retries = 0
 
     private var documents: [Attachment] {
-        message.documentIDs.compactMap { chat.attachment($0) }
+        message.documentIDs.compactMap { chat.attachment($0) }.filter(\.isGenerated)
     }
 
     var body: some View {

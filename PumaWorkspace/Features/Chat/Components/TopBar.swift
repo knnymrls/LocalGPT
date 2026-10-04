@@ -112,7 +112,7 @@ struct TopBar: View {
                 moduleGlyph(.ballotCircle, filled: chat.outputCount > 0)
                 moduleGlyph(.more)
             }
-            .glassControl(in: Capsule(), glass: .clear.interactive())
+            .glassControl(in: Capsule(), glass: .regular.interactive())
         }
         .menuOrder(.fixed)
         .accessibilityLabel(Text("More"))

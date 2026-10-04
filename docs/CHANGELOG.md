@@ -225,3 +225,16 @@ The scaffold has no database, model integration, actual audio, document extracti
 - Rewrote the design document around what was built, updated the PRD and architecture note where the interface deviated (Markdown comparisons instead of a card, the top-right module and menu, real pickers and Quick Look, read aloud, outputs as files, memories in the drawer), renamed decision 0004 to "Visual system", and added decision 0006 on system components.
 - Top-right module settled: one glass capsule with the menu's button laid over its last slot in Apple's clear glass style, so the "…" lights and grows into the menu with no black flash and no seam. Recorded and checked frame by frame on the simulator.
 - Top-right module returned to the whole-capsule version at Kenny's request: the capsule is the menu's own system glass button, with New chat and Outputs as tap targets over their glyphs.
+
+## 2026-10-03 — Physical-device attachment and export corrections
+
+- Pending attachments now belong to the sent user message and leave the composer; their source context remains available for follow-ups and relaunch. Compact input photos no longer reappear as assistant-generated images.
+- Explicit PDF/TXT/Markdown/JSON/CSV/R/chart/diagram requests now invoke application-owned saves after bounded content generation. Format corrections and conversational file requests are recognized; simple answer exports preserve the answer verbatim.
+- The add menu uses a more opaque semantic fill and regular glass. Photos without text are retained; object identification is explicitly unavailable in the current text-only build while the Xcode 27 upgrade is pending.
+
+## 2026-10-03 — System glass and compact voice/photo presentation
+
+- Replaced forced clear glass with regular native glass and removed the sheet opacity override so the system owns appearance adaptation. Kept the attachment menu's readable backing.
+- Kept one live voice transcript above the composer, with a keyboard handoff button in the composer. Dictation remains in its text field.
+- Sent photos use 120-point square crops with tap-to-open originals. Output images and composer thumbnails retain their existing layout.
+- Fixed the DEBUG voice snapshot fixture so asynchronous capture cannot clear its representative transcript.

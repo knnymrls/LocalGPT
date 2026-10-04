@@ -214,6 +214,80 @@ final class InteractionTests: XCTestCase {
         XCTAssertLessThan(voice.energy, 0.2)
     }
 
+    func testSentAttachmentsMoveToUserMessageAndRemainAvailableForFollowups() async throws {
+        let assistant = RequestRecorder()
+        let conversations = InMemoryConversationRepository([])
+        let image = Attachment(name: "Photo.jpg", kind: .image, readiness: .ready, previewText: "Menu")
+        let container = AppContainer(assistant: assistant, speech: ControlledSpeech(), conversations: conversations,
+                                     attachments: InMemoryAttachmentRepository([image]), memories: InMemoryMemoryRepository([]),
+                                     modelCatalog: FixtureModelCatalog())
+        let chat = ChatSessionStore(container: container)
+        await chat.load()
+        chat.toggleSource(image.id)
+        XCTAssertEqual(chat.chatSources.map(\.id), [image.id])
+        chat.draft = "Read this photo"
+        chat.send()
+        await settle()
+        XCTAssertTrue(chat.draft.isEmpty)
+        XCTAssertTrue(chat.chatSources.isEmpty)
+        XCTAssertEqual(chat.messages.first?.documentIDs, [image.id])
+        XCTAssertEqual(assistant.requests.last?.selectedSourceIDs, [image.id])
+        chat.draft = "What was the text?"
+        chat.send()
+        await settle()
+        XCTAssertEqual(assistant.requests.last?.selectedSourceIDs, [image.id])
+        XCTAssertTrue(chat.messages.filter { $0.role == .user }.last?.documentIDs.isEmpty == true)
+        chat.flush()
+        await settle()
+        let reopened = ChatSessionStore(container: container)
+        await reopened.load()
+        XCTAssertTrue(reopened.chatSources.isEmpty)
+        XCTAssertEqual(reopened.messages.first?.documentIDs, [image.id])
+        XCTAssertEqual(reopened.selectedSourceIDs, [image.id])
+    }
+
+    func testAttachmentOnlySendAndOldSourceSelectionMigration() async throws {
+        let assistant = RequestRecorder()
+        let image = Attachment(name: "Photo.jpg", kind: .image, readiness: .ready)
+        let container = AppContainer(assistant: assistant, speech: ControlledSpeech(), conversations: InMemoryConversationRepository([]),
+                                     attachments: InMemoryAttachmentRepository([image]), memories: InMemoryMemoryRepository([]),
+                                     modelCatalog: FixtureModelCatalog())
+        let chat = ChatSessionStore(container: container)
+        await chat.load()
+        chat.toggleSource(image.id)
+        chat.send()
+        await settle()
+        XCTAssertEqual(chat.messages.first?.documentIDs, [image.id])
+        XCTAssertFalse(assistant.requests.last?.prompt.isEmpty ?? true)
+        XCTAssertTrue(chat.chatSources.isEmpty)
+        // Legacy replies carried the source ID; do not restore their old composer selection.
+        let legacy = Conversation(messages: [Message(role: .assistant, text: "Source text", documentIDs: [image.id])],
+                                  selectedSourceIDs: [image.id], modelID: "test")
+        let old = AppContainer(assistant: assistant, speech: ControlledSpeech(), conversations: InMemoryConversationRepository([legacy]),
+                               attachments: InMemoryAttachmentRepository([image]), memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
+        let migrated = ChatSessionStore(container: old)
+        await migrated.load()
+        XCTAssertTrue(migrated.chatSources.isEmpty)
+        XCTAssertTrue(migrated.selectedSourceIDs.contains(image.id))
+    }
+
+    func testSendWhileImportingPreservesDraftAndDoesNotStartIncompleteRequest() async throws {
+        var image = Attachment(name: "Photo.jpg", kind: .image, readiness: .importing)
+        let assistant = RequestRecorder()
+        let container = AppContainer(assistant: assistant, speech: ControlledSpeech(), conversations: InMemoryConversationRepository([]),
+                                     attachments: InMemoryAttachmentRepository([]), memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
+        let chat = ChatSessionStore(container: container)
+        await chat.load()
+        image.conversationID = chat.activeID
+        chat.attachmentStore.receive(image)
+        chat.draft = "What is this?"
+        chat.send()
+        XCTAssertEqual(chat.draft, "What is this?")
+        XCTAssertTrue(chat.messages.isEmpty)
+        XCTAssertTrue(assistant.requests.isEmpty)
+        XCTAssertNotNil(chat.operationError)
+    }
+
     private func makeContainer(speech: any SpeechClient, assistant: any AssistantClient = ControlledAssistant()) -> AppContainer {
         AppContainer(assistant: assistant, speech: speech, conversations: InMemoryConversationRepository([]),
                      attachments: InMemoryAttachmentRepository([]), memories: InMemoryMemoryRepository([]), modelCatalog: FixtureModelCatalog())
@@ -274,4 +348,14 @@ private struct ControlledAssistant: AssistantClient {
     let events: AsyncStream<ReplyEvent>.Continuation
     init() { (stream, events) = AsyncStream.makeStream(of: ReplyEvent.self) }
     func send(_ request: ReplyRequest) -> AsyncStream<ReplyEvent> { stream }
+}
+
+private final class RequestRecorder: AssistantClient, @unchecked Sendable {
+    private let lock = NSLock()
+    private var recorded: [ReplyRequest] = []
+    var requests: [ReplyRequest] { lock.withLock { recorded } }
+    func send(_ request: ReplyRequest) -> AsyncStream<ReplyEvent> {
+        lock.withLock { recorded.append(request) }
+        return AsyncStream { $0.yield(.text("Received")); $0.yield(.finished); $0.finish() }
+    }
 }

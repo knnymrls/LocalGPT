@@ -284,8 +284,9 @@ final class VoiceSessionController {
     #if DEBUG
     /// Freezes a representative listening frame for screenshots.
     func debugShowListening(transcript: String, energy: Double) {
-        start()
-        captureTask?.cancel(); captureTask = nil
+        exit()
+        state = .listening
+        startEnvelope()
         liveTranscript = transcript
         chat.draft = transcript
         targetLevel = energy
@@ -294,9 +295,9 @@ final class VoiceSessionController {
 
     /// Freezes the assistant-speaking look for screenshots.
     func debugShowSpeaking(energy: Double) {
-        start()
-        captureTask?.cancel(); captureTask = nil
+        exit()
         state = .speaking
+        startEnvelope()
         liveTranscript = ""
         targetLevel = energy
         self.energy = energy

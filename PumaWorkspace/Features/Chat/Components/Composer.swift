@@ -28,7 +28,7 @@ struct Composer: View {
     private var primaryAction: PrimaryAction {
         if voice.isDictating { return .confirm }
         if chat.isStreaming { return .stop }
-        return chat.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .voice : .send
+        return chat.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && chat.chatSources.isEmpty ? .voice : .send
     }
 
     var body: some View {
@@ -109,7 +109,7 @@ struct Composer: View {
 
             Group {
                 if voice.isActive {
-                    voiceTranscript
+                    keyboardHandoff
                 } else if voice.isDictating {
                     DictationBars()
                         .padding(.horizontal, pt(4))
@@ -134,24 +134,21 @@ struct Composer: View {
         .frame(height: Self.buttonSize)
     }
 
-    /// Voice mode: the live transcript (the shared draft) and the keyboard
-    /// handoff. Tapping either returns to typing without sending.
-    private var voiceTranscript: some View {
-        Text(chat.draft.isEmpty ? " " : chat.draft)
-            .font(.text)
-            .foregroundStyle(Tokens.foreground)
-            .lineLimit(1)
-            .truncationMode(.head)
-            .padding(.trailing, pt(10))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                lightTaps += 1
-                handoffToKeyboard()
-            }
-            .accessibilityLabel(Text(chat.draft.isEmpty ? "Use keyboard" : chat.draft))
-            .accessibilityHint(Text("Switches to the keyboard"))
-            .accessibilityAddTraits(.isButton)
+    /// The transcript appears once above the composer. This retains an explicit
+    /// way to switch to typing without sending or discarding the partial draft.
+    private var keyboardHandoff: some View {
+        Button {
+            lightTaps += 1
+            handoffToKeyboard()
+        } label: {
+            Icon(.keyboard, size: Self.glyphSize, color: Tokens.foregroundSecondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                .padding(.trailing, pt(8))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.pressable)
+        .accessibilityLabel("Use keyboard")
+        .accessibilityHint("Keeps the unfinished transcript as a draft")
     }
 
     // MARK: Controls
@@ -273,7 +270,7 @@ struct Composer: View {
     }
 
     private var muteGlass: Glass {
-        voice.isMuted ? .regular.tint(Tokens.recording).interactive() : .clear.interactive()
+        voice.isMuted ? .regular.tint(Tokens.recording).interactive() : .regular.interactive()
     }
 
     private func statusHint(_ reason: String) -> some View {
