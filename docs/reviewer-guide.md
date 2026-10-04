@@ -4,11 +4,11 @@ LocalGPT is an iPhone prototype of a private assistant: send a message, follow u
 
 ## Run it
 
-1. Open `PumaWorkspace.xcodeproj` with Xcode 26.6 or newer. Swift Package Manager resolves the pinned dependencies.
+1. Open `PumaWorkspace.xcodeproj` with Xcode 27 or newer. Swift Package Manager resolves the pinned dependencies.
 2. Select the `PumaWorkspace` scheme and an Apple Intelligence-capable iPhone, or a compatible Simulator. Enable Apple Intelligence and let its system model finish preparing. Device builds need your signing team.
 3. Run normally. No account, API key, backend, or special launch flag is required. The composer explains model availability if setup is incomplete.
 
-The checked toolchain is Xcode 26.6 with iOS 26.5 Simulator. Deployment starts at iOS 26; this build does not depend on iOS 27 APIs. Speech may download public model assets on first use. Do not use `-preview` or `-uiState` for a live demonstration: those are explicit DEBUG fixtures.
+Build with Xcode 27. Deployment starts at iOS 26; pixel-based image understanding is runtime-gated to iOS 27 and a vision-capable system model. Speech may download public model assets on first use. Do not use `-preview` or `-uiState` for a live demonstration: those are explicit DEBUG fixtures.
 
 ## Try the core first
 
@@ -36,6 +36,6 @@ Private prompts and documents have no application cloud inference path. Workspac
 
 ## Deliberate limits
 
-This is a prototype. The local model can misunderstand, omit information, or generate incorrect facts. Recent ordinary-chat context is bounded to four complete exchanges and may shrink further to fit the model. Saved memory is selective and separate from chat history. Images are currently read through OCR; arbitrary scene understanding and generated pictures are not implemented. There is no web browsing, cloud sync, desktop client, code execution, or full-duplex voice interruption.
+This is a prototype. The local model can misunderstand, omit information, or generate incorrect facts. Recent ordinary-chat context is bounded to four complete exchanges and may shrink further to fit the model. Saved memory is selective and separate from chat history. Image pixels are passed to the on-device model on supported iOS 27 devices; older systems use OCR. Scene descriptions can be incorrect. Generated pictures remain out of scope. There is no web browsing, cloud sync, desktop client, code execution, or full-duplex voice interruption.
 
 Detailed evidence and remaining checks: [verification](verification.md). Full design: [architecture](architecture.md).

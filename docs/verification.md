@@ -1,4 +1,18 @@
-# Verification — 2026-10-03
+# Verification — 2026-10-04
+
+## iOS 27 image input
+
+Xcode **27.0 (27A266a)** is active. The connected iPhone 17 Pro Max runs iOS 27 and reports **AFM 3 Core Advanced**, an 8192-token context, and vision support. The app still targets iOS 26, with direct pixel input gated by runtime and model capability.
+
+**48 deterministic checks pass on the physical phone.** The first nine-check live regression run passed eight checks but failed the explicit source-table assertion; the model omitted the table while returning the facts. Source table requests now select the table schema directly. **The final nine-check live run passes with zero failures or skips.** The live run covers a minimal native image request; the application photo-import → identification → persisted-chat reopen → fur-color follow-up → PDF flow; PDF/TXT conversational corrections; TXT/Markdown/JSON; PDF/CSV/R; charts/diagrams and chart revision; ordinary conversation corrections/isolation; and source-backed comparison/revision. Output checks inspect saved bytes and supplied values. These are sampled checks, not arbitrary-prompt guarantees.
+
+The photo fixture is a licensed photograph with a neutral filename, no supplied visual caption, and no OCR text containing the expected animal name. The model identifies a cat, recognizes its fur color after reopening, and saves a PDF whose extracted text describes a cat. The fixture is only in the test target; attribution and license are in Tests/Live/Fixtures/README.md. The minimal response in the final run was “This is a cat.”
+
+The first integrated image run failed at tokenCount with “Unable to tokenize prompt.” A minimal native generation using the same image succeeded. The corrected path counts text/tools with an image allowance, while the model enforces its exact context limit. In the focused photo run, the three-turn flow completed in about 4.4 seconds total; JSON generation took about 21 seconds. These timings are examples from one device, not performance guarantees.
+
+Live microphone behavior, disconnected-network acceptance, and the full system Liquid Glass slider range were not tested by these checks. The current app now includes vision; the older OCR-only notes below describe earlier builds.
+
+## Prior verification — 2026-10-03
 
 ## Base glass correction — 2026-10-03
 

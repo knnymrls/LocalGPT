@@ -138,6 +138,27 @@ final class CoordinationTests: XCTestCase {
         XCTAssertNil(DocumentResponder.exportContent(for: revision))
     }
 
+    func testExplicitTablePresentationRespectsNegation() {
+        XCTAssertTrue(SourceAnswer.requestsTable("Compare these in a table"))
+        XCTAssertTrue(SourceAnswer.requestsTable("Use a tabular comparison"))
+        XCTAssertFalse(SourceAnswer.requestsTable("Is this stable?"))
+        XCTAssertFalse(SourceAnswer.requestsTable("Compare these without a table"))
+        XCTAssertFalse(SourceAnswer.requestsTable("Don't use a table"))
+    }
+
+    func testImageInputRejectsMissingAndExcessImages() async throws {
+        guard #available(iOS 27.0, *) else { return }
+        let missing = Attachment(name: "missing.jpg", kind: .image, readiness: .ready)
+        for images in [[missing], Array(repeating: missing, count: 5)] {
+            do {
+                _ = try await ImageInputSupport.prompt(text: "Describe", images: images, model: .default, tools: [])
+                XCTFail("Missing and excessive image input must fail explicitly")
+            } catch {
+                XCTAssertTrue(error.localizedDescription.contains(images.count > 4 ? "four images" : "could not be opened"))
+            }
+        }
+    }
+
     func testImageCapabilityNoticeDoesNotInterceptTextOrGeneralQuestions() {
         XCTAssertTrue(ImageInputSupport.needsVisualUnderstanding("What's this?"))
         XCTAssertTrue(ImageInputSupport.needsVisualUnderstanding("What is in this attachment?"))

@@ -60,6 +60,21 @@ struct LocalAssistantClient: AssistantClient {
     }
 
     private static func message(for error: Error) -> String {
+        if #available(iOS 27.0, *), let modelError = error as? LanguageModelError {
+            switch modelError {
+            case .contextSizeExceeded:
+                return
+                    "This request exceeds the local model's context. Select fewer images or sources, or start a new chat."
+            case .unsupportedCapability:
+                return
+                    "The current on-device model does not support this request. Check Apple Intelligence setup and iOS updates."
+            case .guardrailViolation, .refusal:
+                return "The on-device model declined this request. Try a different question."
+            case .rateLimited:
+                return "The on-device model is busy. Wait a moment and retry."
+            default: break
+            }
+        }
         guard let error = error as? LanguageModelSession.GenerationError else {
             if (error as NSError).domain.hasPrefix("FoundationModels.") {
                 return "The on-device model could not finish this answer. Please retry or simplify the question."

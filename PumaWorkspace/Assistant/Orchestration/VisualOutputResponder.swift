@@ -21,7 +21,7 @@ enum VisualOutputResponder {
     }
 
     static func respond(
-        model: SystemLanguageModel, policy: ToolPolicy, prompt: String,
+        model: SystemLanguageModel, policy: ToolPolicy, prompt: Prompt,
         service: WorkspaceToolService, scope: RequestScope, emit: (ReplyEvent) -> Void
     ) async throws {
         let session = LanguageModelSession(

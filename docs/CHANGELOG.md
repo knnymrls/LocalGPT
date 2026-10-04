@@ -243,3 +243,12 @@ The scaffold has no database, model integration, actual audio, document extracti
 
 - Removed the custom directional rim, attachment menu backing fill, and glass tints. All chrome now delegates its material appearance to the system; touch interaction and semantic icon colors remain.
 - This supersedes the extra menu opacity introduced in the prior device fix. The user controls Liquid Glass appearance through iOS Settings.
+
+## 2026-10-04 — On-device image input
+
+- Added iOS 27 pixel-based prompting with capability checks, bounded cached decoding, and retained image context after reopening a chat.
+- Passed image prompts through document/chart/diagram generation; preserved the shared voice/text request path and iOS 26 OCR fallback.
+- Avoided the observed runtime failure in tokenCount for image prompts; text/tool budgeting retains an explicit image allowance.
+- Added a licensed photo fixture and live checks for identification, visual follow-up after reopening, and a real image-based PDF.
+
+- The Xcode 27 regression pass exposed an omitted source table. Explicit table requests now select a table schema directly, preserving deterministic Markdown rendering and citation validation.

@@ -36,7 +36,7 @@ flowchart TD
 
 `ChatSessionStore` is the shared presentation facade. `ConversationStore` owns active selection, draft debouncing, revisions and persistence; `AttachmentStore` owns import tasks and attachment state; `MemoryCaptureCoordinator` owns cancellable extraction through a domain protocol. Replacement-task identities reject old callbacks without allowing their cleanup to remove a newer task. Errors from child stores are surfaced by the shell. Model defaults come from the injected catalog.
 
-`LocalAssistantClient` owns stream lifetime, deadlines and error handling. `AssistantTurn` selects the conversation, source or tool response path and validates the final answer. `SourceResponder` separates evidence gathering from source-backed writing. `ConversationResponder` preserves the native-history and bounded-recovery policy. Read Aloud is provided by the composition root through the view environment; voice receives a stop-reading callback instead of reaching into the concrete reader singleton.
+`LocalAssistantClient` owns stream lifetime, deadlines and error handling. `AssistantTurn` selects the conversation, source or tool response path and validates the final answer. `SourceResponder` separates evidence gathering from source-backed writing. Explicit source-table requests select a table schema directly so the model cannot replace the requested table with prose; cell data still comes from source evidence. `ConversationResponder` preserves the native-history and bounded-recovery policy. Read Aloud is provided by the composition root through the view environment; voice receives a stop-reading callback instead of reaching into the concrete reader singleton.
 
 ## Shared glass rendering
 
@@ -98,4 +98,12 @@ The deterministic test scheme covers persistence, stale writes, deletion, cachin
 
 ## Device attachment corrections — 2026-10-03
 
-Conversation.draftSourceIDs separates unsent composer inputs from selectedSourceIDs retained for follow-up context. Optional decoding keeps old chats readable; legacy source receipts are excluded from the composer. Sending writes the input IDs onto the user message and clears only the pending list. Importing or failed inputs cannot be silently omitted. Assistant file rows render generated outputs only; source access remains in citations and Outputs. Photos without OCR text retain their originals and may be sent, with an explicit text-only capability response for scene-identification questions until the iOS 27 image API is integrated.
+Conversation.draftSourceIDs separates unsent composer inputs from selectedSourceIDs retained for follow-up context. Optional decoding keeps old chats readable; legacy source receipts are excluded from the composer. Sending writes the input IDs onto the user message and clears only the pending list. Importing or failed inputs cannot be silently omitted. Assistant file rows render generated outputs only; source access remains in citations and Outputs. Photos without OCR text retain their originals and may be sent, with an explicit OCR-only capability response on older systems.
+
+## Image prompting — 2026-10-04
+
+On iOS 27, ImageInputSupport checks the system model's vision capability and builds a multimodal Prompt from selected ready images and the same bounded conversation/source context. The shared preview cache decodes orientation-corrected images at up to 1200 pixels off the UI actor. Original files remain durable; cached previews are disposable. Up to four selected images are accepted, subject to context limits; unreadable inputs fail explicitly instead of silently disappearing.
+
+Ordinary visual answers stream from the image-capable session. File/chart/diagram responders accept the same Prompt, so image-based export requests reach the existing validated writers. Reopened chats resolve image files against the current sandbox and retain source selection. Voice and typing enter the same AssistantTurn.
+
+The tested iOS 27 runtime accepts image generation requests but rejects tokenCount on an image-bearing Prompt. Preflight counts text and tools, reserves 1024 tokens per bounded image plus 2400 for instructions/schema/output, and leaves exact multimodal context enforcement to the framework. This is an allowance, not an exact image token count. Typed iOS 27 context/capability errors produce actionable user messages. No Private Cloud Compute or other remote inference provider is used.

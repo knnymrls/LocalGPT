@@ -6,11 +6,11 @@ Start with the [reviewer guide](docs/reviewer-guide.md) for setup, a short archi
 
 ## Run
 
-1. Open `PumaWorkspace.xcodeproj` in Xcode 26.6 or newer and select the **PumaWorkspace** scheme.
+1. Open `PumaWorkspace.xcodeproj` in Xcode 27 or newer and select the **PumaWorkspace** scheme.
 2. Choose an Apple Intelligence-capable iPhone or compatible Simulator with Apple Intelligence enabled and its model downloaded. Device builds require your signing team. The app explains model unavailability in the composer.
 3. Build and run. Allow microphone access when trying voice. Speech assets may download on first use; subsequent recognition is local.
 
-The deployment target is iOS 26. The verified environment is Xcode 26.6 / iOS 26.5 Simulator. iOS 27 direct image understanding is not implemented in this build: images are read with OCR. This Mac's current OS cannot install the current Xcode 27 release without an OS upgrade.
+The deployment target remains iOS 26. Build with Xcode 27. On iOS 27, a vision-capable system model receives image pixels for scene questions, visual follow-ups, and document exports. Older runtimes retain image OCR. Photo identification, saved-chat follow-up, and image-to-PDF generation have been checked on a physical iPhone; see [verification](docs/verification.md) for current evidence.
 
 Private inputs are processed locally. Public speech-model assets are the only application-initiated network download. There is no cloud inference fallback, analytics SDK, account, or sync. See [architecture](docs/architecture.md) for boundaries and [verification](docs/verification.md) for observed results and remaining checks.
 

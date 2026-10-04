@@ -7,7 +7,7 @@ actor LocalDocumentImporter: DocumentImporter {
     private let files: WorkspaceFiles
     private let database: WorkspaceDatabase
     private let repository: any AttachmentRepository
-    private static let processorVersion = "text-v2"
+    private static let processorVersion = "text-v3"
 
     init(files: WorkspaceFiles, database: WorkspaceDatabase, repository: any AttachmentRepository) {
         self.files = files; self.database = database; self.repository = repository
@@ -82,7 +82,7 @@ actor LocalDocumentImporter: DocumentImporter {
                   ] as CFDictionary) else { throw WorkspaceError.message("This image cannot be opened.") }
             let text = try recognize(image)
             sections = [("Image text", text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                ? "No readable text was detected. This image is attached, but its visual contents are not available to the text-only model."
+                ? "No readable text was detected by OCR."
                 : text)]
         case .text, .markdown, .code, .spreadsheet:
             let ext = url.pathExtension.lowercased()

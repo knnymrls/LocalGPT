@@ -14,7 +14,7 @@ enum DocumentResponder {
 
     static func respond(
         model: SystemLanguageModel, request: ReplyRequest, format: String,
-        prompt: String, service: WorkspaceToolService, scope: RequestScope,
+        prompt: Prompt, allowVerbatimExport: Bool = true, service: WorkspaceToolService, scope: RequestScope,
         emit: (ReplyEvent) -> Void
     ) async throws {
         emit(.step("Preparing \(format.uppercased()) document"))
@@ -30,7 +30,7 @@ enum DocumentResponder {
                 For JSON, output valid JSON. For R, output code only; it will not be executed. Do not wrap content in code fences.
                 """)
         let draft: Draft
-        if ["pdf", "txt", "md"].contains(format), let text = exportContent(for: request) {
+        if allowVerbatimExport, ["pdf", "txt", "md"].contains(format), let text = exportContent(for: request) {
             draft = Draft(title: "Conversation notes", content: text)
         } else {
             draft = try await session.respond(
@@ -55,7 +55,10 @@ enum DocumentResponder {
                         Preserve the requested keys, values, arrays and types. Correct the JSON syntax of the draft if possible.
                         """)
                 let fixed = try await repair.respond(
-                    to: "Request and context:\n\(prompt)\nDraft JSON:\n\(String(content.prefix(6000)))",
+                    to: Prompt {
+                        prompt
+                        "Draft JSON to repair: \(String(content.prefix(6000)))"
+                    },
                     options: GenerationOptions(sampling: .greedy, maximumResponseTokens: 1400))
                 try scope.check()
                 content = try Self.validatedJSON(Self.removeCodeFence(fixed.content))

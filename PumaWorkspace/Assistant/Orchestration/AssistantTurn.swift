@@ -14,7 +14,7 @@ struct AssistantTurn {
         let sources = try await attachments.all()
         let selected = sources.filter { request.selectedSourceIDs.contains($0.id) && $0.readiness == .ready }
         let policy = ToolPolicy(request: request)
-        if !selected.isEmpty, selected.allSatisfy({ $0.kind == .image }),
+        if !ImageInputSupport.supportsPixels, !selected.isEmpty, selected.allSatisfy({ $0.kind == .image }),
             !policy.files, !policy.charts, !policy.diagrams,
             ImageInputSupport.needsVisualUnderstanding(request.prompt)
         {
@@ -36,26 +36,39 @@ struct AssistantTurn {
                 request, sources: sources, memories: memoryContext, evidence: evidenceContext, tools: tools)
         }
         try scope.check()
+        let images = selected.filter { $0.kind == .image }
+        let hasPixels = ImageInputSupport.supportsPixels && !images.isEmpty
+        let modelPrompt: Prompt
+        if #available(iOS 27.0, *), hasPixels {
+            emit(.step("Reading images"))
+            modelPrompt = try await ImageInputSupport.prompt(text: prompt, images: images, model: model, tools: tools)
+        } else {
+            modelPrompt = Prompt(prompt)
+        }
+        try scope.check()
         if policy.charts || policy.diagrams {
             try await VisualOutputResponder.respond(
-                model: model, policy: policy, prompt: prompt, service: service, scope: scope, emit: emit)
+                model: model, policy: policy, prompt: modelPrompt, service: service, scope: scope, emit: emit)
             return
         }
         if policy.files, let format = policy.fileFormat {
             try await DocumentResponder.respond(
-                model: model, request: request, format: format, prompt: prompt,
+                model: model, request: request, format: format, prompt: modelPrompt,
+                allowVerbatimExport: !hasPixels,
                 service: service, scope: scope, emit: emit)
             return
         }
         let instructions =
-            tools.isEmpty && selected.isEmpty ? ContextBuilder.conversationInstructions : ContextBuilder.instructions
+            hasPixels
+            ? ContextBuilder.imageInstructions
+            : tools.isEmpty && selected.isEmpty ? ContextBuilder.conversationInstructions : ContextBuilder.instructions
         let session: LanguageModelSession
         if let conversation {
             session = LanguageModelSession(model: model, transcript: conversation.transcript)
         } else {
             session = LanguageModelSession(model: model, tools: tools, instructions: instructions)
         }
-        let structuredAnswer = !selected.isEmpty && !policy.files && !policy.charts && !policy.diagrams
+        let structuredAnswer = !hasPixels && !selected.isEmpty && !policy.files && !policy.charts && !policy.diagrams
         var answer = ""
         if structuredAnswer {
             let result = try await SourceResponder.respond(
@@ -75,7 +88,7 @@ struct AssistantTurn {
             }
         } else {
             for try await snapshot in session.streamResponse(
-                to: prompt, options: GenerationOptions(maximumResponseTokens: 1200))
+                to: modelPrompt, options: GenerationOptions(maximumResponseTokens: 1200))
             {
                 try scope.check()
                 answer = snapshot.content
@@ -96,7 +109,7 @@ struct AssistantTurn {
         }
         let evidence = await service.collectedEvidence()
         let cited = ReplyValidation.referenceNumbers(in: answer)
-        if !structuredAnswer, !evidence.isEmpty, cited.isEmpty {
+        if !hasPixels, !structuredAnswer, !evidence.isEmpty, cited.isEmpty {
             let revision = try await session.respond(
                 to:
                     "Add inline square-bracket citations to your last answer using the supplied passage numbers. Preserve the answer to this current question: \(request.prompt)\nDo not call tools again or revive an earlier question.",
