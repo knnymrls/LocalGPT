@@ -1,5 +1,11 @@
 # LocalGPT change log
 
+## 2026-10-04 — Repository handoff documentation
+
+- Reworked the README around capabilities, device setup, a fresh-chat walkthrough, architecture, privacy, and deliberate scope.
+- Distinguished the tested iOS 27 integration baseline from later build-only voice changes; marked older verification sections as historical.
+- Documented the current voice capture/reply ownership guards. Demo video integration is pending receipt of the recording.
+
 ## 2026-10-04 — Voice layering and duplicate guards
 
 - Moved the voice aura above the progressive blur and raised live text; reserved space keeps the latest chat message clear of the fade.

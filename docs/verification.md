@@ -1,5 +1,13 @@
 # Verification — 2026-10-04
 
+## Latest voice and layout follow-ups
+
+Commits `b4de7ea` and `3c322c1` refine the voice typing prompt, remove the header title, raise the transcript, and put the blue/gray aura above the progressive blur. The latter also replaces overlapping recognition revisions and guards capture/reply ownership to avoid duplicate turns or stale playback. Both signed builds were installed and launched on the connected iPhone.
+
+These follow-ups were build-verified only; automated suites and UI QA were skipped at the user's request. The intermittent duplication has not been independently reproduced or confirmed resolved. The 48-test and nine-live-check results below belong to the preceding iOS 27 integration baseline (`31b6d9b`).
+
+Current limits include finite model context, possible incorrect answers, no AI picture generation or code execution, no full-duplex voice, and no independently observed disconnected-network acceptance run. Older sections below describe historical builds and may contain superseded feature limits.
+
 ## iOS 27 image input
 
 Xcode **27.0 (27A266a)** is active. The connected iPhone 17 Pro Max runs iOS 27 and reports **AFM 3 Core Advanced**, an 8192-token context, and vision support. The app still targets iOS 26, with direct pixel input gated by runtime and model capability.
@@ -12,7 +20,9 @@ The first integrated image run failed at tokenCount with “Unable to tokenize p
 
 Live microphone behavior, disconnected-network acceptance, and the full system Liquid Glass slider range were not tested by these checks. The current app now includes vision; the older OCR-only notes below describe earlier builds.
 
-## Prior verification — 2026-10-03
+## Historical verification — 2026-10-03
+
+All sections below are retained as development evidence. Their limitations apply to the build described in each section, not automatically to the current build.
 
 ## Base glass correction — 2026-10-03
 
@@ -164,7 +174,7 @@ The final source checks observed 3.29 s for the initial comparison, 0.21 s for t
 
 Whisper model assets occupied approximately 149 MB after installation; tokenizer/support files are additional. First-use download time depends on connection and asset availability. No phone memory, battery, or thermal measurement has been made.
 
-## Remaining checks and limits
+## Historical checks and limits (iOS 26 baseline)
 
 - **Live microphone:** recorded audio does not prove microphone capture; permissions, asset preparation, and recovery render, but the Simulator did not transcribe speech played through the Mac speakers. Recorded-audio inference passes. A real spoken microphone test remains pending; do not describe full voice conversation as verified end to end.
 - **Offline:** the implementation has no remote inference/transcription path and caches required assets. A network-disconnected end-to-end run has not been observed. Do not confuse cached-model tests with verified offline operation.
