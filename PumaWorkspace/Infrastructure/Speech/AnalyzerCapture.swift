@@ -9,7 +9,12 @@ final class AnalyzerCapture {
     private let analyzer: SpeechAnalyzer
     private let input: AsyncStream<AnalyzerInput>.Continuation
     private var results: Task<Void, Never>?
-    private var fragments: [Double: String] = [:]
+    private struct Fragment {
+        let start: Double
+        let end: Double
+        let text: String
+    }
+    private var fragments: [Fragment] = []
     let feed: @Sendable (AVAudioPCMBuffer) -> Void
 
     private init(analyzer: SpeechAnalyzer, input: AsyncStream<AnalyzerInput>.Continuation,
@@ -43,8 +48,15 @@ final class AnalyzerCapture {
             do {
                 for try await result in transcriber.results {
                     guard !Task.isCancelled, let capture else { return }
-                    capture.fragments[result.range.start.seconds] = String(result.text.characters)
-                    let text = capture.fragments.sorted { $0.key < $1.key }.map(\.value).joined(separator: " ")
+                    let start = result.range.start.seconds
+                    let end = start + result.range.duration.seconds
+                    // Progressive results revise an audio range, whose start can shift.
+                    // Replace overlapping hypotheses instead of appending the same speech.
+                    capture.fragments.removeAll {
+                        $0.start == start || ($0.start < end && start < $0.end)
+                    }
+                    capture.fragments.append(Fragment(start: start, end: end, text: String(result.text.characters)))
+                    let text = capture.fragments.sorted { $0.start < $1.start }.map(\.text).joined(separator: " ")
                     onText(text)
                 }
             } catch is CancellationError {} catch { onError(error.localizedDescription) }

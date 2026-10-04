@@ -1,5 +1,12 @@
 # LocalGPT change log
 
+## 2026-10-04 — Voice layering and duplicate guards
+
+- Moved the voice aura above the progressive blur and raised live text; reserved space keeps the latest chat message clear of the fade.
+- Speech recognition replaces overlapping audio-range revisions rather than appending them when timestamps shift.
+- Voice retires capture before sending, follows a specific reply, and replaces existing playback observers. A blocked send no longer reads the previous answer again.
+- Device build succeeded and installed on the connected iPhone. Tests skipped per the user's request. Live reproduction of the intermittent duplication remains unverified.
+
 ## 2026-10-04 — Voice composer polish
 
 - Replaced the voice keyboard glyph with a left-aligned “Ask me anything” typing handoff beside the plus button.

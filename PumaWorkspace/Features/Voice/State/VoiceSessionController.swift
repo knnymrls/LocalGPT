@@ -202,6 +202,7 @@ final class VoiceSessionController {
             }
             return
         }
+        guard state == .listening else { return }
         switch event {
         case .preparing(let text): liveTranscript = text
         case .ready: liveTranscript = ""
@@ -225,13 +226,26 @@ final class VoiceSessionController {
 
     /// End of an utterance in voice mode sends the turn, then speaks the reply.
     private func submitUtterance() {
-        captureTask?.cancel()
+        // Retire capture before submitting so late recognition events cannot resend it.
+        session = UUID()
+        captureTask?.cancel(); captureTask = nil
+        let previousReplyID = chat.messages.last?.id
         chat.send()
+        guard chat.messages.last?.id != previousReplyID else {
+            // A blocked attachment send must never replay the preceding answer.
+            state = .unavailable(chat.operationError ?? "This message could not be sent. Continue in text mode to retry.")
+            liveTranscript = ""
+            return
+        }
         awaitReply()
     }
 
     private func awaitReply() {
+        playbackTask?.cancel()
+        session = UUID()
         let token = session
+        guard let pendingReply = chat.messages.last, pendingReply.role == .assistant else { listen(); return }
+        let replyID = pendingReply.id
         state = .finalizing
         liveTranscript = ""
         playbackTask = Task { [weak self] in
@@ -240,7 +254,7 @@ final class VoiceSessionController {
                 do { try await Task.sleep(for: .milliseconds(100)) } catch { return }
             }
             guard let self, !Task.isCancelled, self.session == token else { return }
-            guard let reply = self.chat.messages.last, reply.role == .assistant else { self.listen(); return }
+            guard let reply = self.chat.messages.last, reply.id == replyID, reply.role == .assistant else { self.listen(); return }
             guard reply.status == .complete else { self.state = .unavailable(reply.errorDescription ?? "The reply did not finish. Continue in text mode or try again."); return }
             self.state = .speaking
             var finished = false
