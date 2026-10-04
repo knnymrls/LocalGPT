@@ -4,7 +4,7 @@
 
 - Reworked the README around capabilities, device setup, a fresh-chat walkthrough, architecture, privacy, and deliberate scope.
 - Distinguished the tested iOS 27 integration baseline from later build-only voice changes; marked older verification sections as historical.
-- Documented the current voice capture/reply ownership guards. Demo video integration is pending receipt of the recording.
+- Documented the current voice capture/reply ownership guards. Added the complete 2:52 iPhone demo with audio and a clickable README preview. The 165 MB original is preserved outside the repository; the web copy is approximately 9 MB.
 
 ## 2026-10-04 — Voice layering and duplicate guards
 

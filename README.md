@@ -6,6 +6,14 @@ Built for the [Puma take-home](https://puma.tech/take-home-task/). The core is s
 
 No account, API key, or application server is required.
 
+## Watch the demo
+
+[**▶ Watch the full iPhone walkthrough · 2 min 52 sec**](docs/media/localgpt-demo.mp4)
+
+<a href="docs/media/localgpt-demo.mp4"><img src="docs/media/localgpt-demo-poster.jpg" width="280" alt="Play the LocalGPT iPhone demo: photo questions, voice, and chat"></a>
+
+The complete recording, with audio. Click the preview to open the video; [download the MP4](https://github.com/knnymrls/Puma-Workspace/raw/refs/heads/main/docs/media/localgpt-demo.mp4) if your browser does not play it inline.
+
 ## What you can do
 
 | Capability | How it works |

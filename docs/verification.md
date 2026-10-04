@@ -1,5 +1,9 @@
 # Verification — 2026-10-04
 
+## Recorded walkthrough
+
+The [complete user-recorded iPhone walkthrough](media/localgpt-demo.mp4) is included in the README. The web copy retains the full recording and audio. It is a demonstration, not an automated evaluation. At approximately 1:53, the model incorrectly substitutes $225 for the supplied $20 food budget and reports $2,275 instead of $2,070. This is a visible ordinary-conversation arithmetic limitation; the recording has not been edited to remove it.
+
 ## Latest voice and layout follow-ups
 
 Commits `b4de7ea` and `3c322c1` refine the voice typing prompt, remove the header title, raise the transcript, and put the blue/gray aura above the progressive blur. The latter also replaces overlapping recognition revisions and guards capture/reply ownership to avoid duplicate turns or stale playback. Both signed builds were installed and launched on the connected iPhone.
