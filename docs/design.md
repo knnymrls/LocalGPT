@@ -22,7 +22,7 @@ Opening the drawer pushes the whole chat surface to the right with rounded corne
 
 ## Top bar
 
-- **Left:** the chats button, then the chat's title in medium weight.
+- **Left:** the chats button. The header has no chat title.
 - **Right:** one glass capsule using the same native material as the left circle, with three controls: New chat, Outputs, and a menu. The Outputs glyph is outlined when the chat has no outputs and filled when it has some.
 - **Menu** (system): Pin or Unpin, Uploaded files, Find in chat, Delete. Each has an icon. Delete asks for confirmation.
 
@@ -49,7 +49,7 @@ Explicit DEBUG fixture launches show "UI preview" in place of "On-device", with 
 
 - The primary button is voice when the field is empty, send when there is text, a filled stop square while a reply is running, and a tick while dictating.
 - The microphone dictates into the field until the user taps Finish; sentence boundaries and quiet windows do not stop it. Finish flushes remaining audio, and the waveform uses perceptual input levels in a fixed-height row. Voice mode is a continuous spoken conversation with a mute and an exit control and an aura behind the feed. Every completed spoken reply returns to listening. Silence and opening an output leave the call active. Leaving voice keeps the draft and never sends it.
-- Voice shows its live transcript once above the composer. A keyboard icon in the composer preserves the partial draft when switching to text. Dictation stays in the text field without a second floating transcript.
+- Voice shows its live transcript once, 32 scaled points above the composer, with an extended progressive blur behind it. A left-aligned “Ask me anything” prompt beside the plus preserves the partial draft when switching to text. Dictation stays in the text field without a second floating transcript.
 - Sending attaches the pending inputs to the user message and clears their composer cards. Sent sources remain available for follow-up questions. A preparing or failed import blocks sending with a specific explanation. A photo can be sent without typing a caption.
 - Source cards scroll sideways. A file card shows its type glyph and name; a photo card shows the image. Each has an X, removing one slides the rest left, and tapping a card opens the file. Open and Remove are separate accessible buttons.
 - Four preloaded conversations live in the ordinary sidebar history, with natural titles and no special labels or section. Each contains two exchanges; the CSV, PDF, and chart chats include openable files. The empty composer has no starter-prompt list. Opening a chat or an output does not add generated files to the composer; its cards represent selected input files.

@@ -90,9 +90,9 @@ struct ChatScreen: View {
             Composer()
                 .padding(.horizontal, pt(16))
                 .overlay(alignment: .top) {
-                    // Transcript bottom sits 96pt above the composer's top edge.
+                    // Keep live speech close to the composer, above its controls.
                     FloatingTranscript()
-                        .alignmentGuide(.top) { $0[.bottom] + 96 }
+                        .alignmentGuide(.top) { $0[.bottom] + pt(32) }
                 }
         }
         .padding(.top, pt(8))
@@ -112,12 +112,11 @@ struct ChatScreen: View {
         }
         .animation(.easeOut(duration: 0.2), value: navigation.feedAtLatest)
         .background(alignment: .bottom) {
-            // In voice mode the aura owns the bottom edge; the blur's page
-            // wash would paint over it, so it steps aside.
-            ProgressiveBlur(edge: .bottom)
-                .padding(.top, -pt(28))
+            // Extend the fade behind live speech so feed text stays quiet.
+            // A lighter page wash keeps the voice aura visible underneath.
+            ProgressiveBlur(edge: .bottom, washOpacity: voice.isActive ? 0.55 : 0.82)
+                .padding(.top, -pt(voice.isActive ? 180 : 28))
                 .ignoresSafeArea(edges: .bottom)
-                .opacity(voice.isActive ? 0 : 1)
                 .animation(.easeInOut(duration: 0.3), value: voice.isActive)
         }
     }

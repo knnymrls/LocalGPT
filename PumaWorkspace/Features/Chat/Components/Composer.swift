@@ -140,14 +140,14 @@ struct Composer: View {
             lightTaps += 1
             handoffToKeyboard()
         } label: {
-            Icon(.keyboard, size: Self.glyphSize, color: Tokens.foregroundSecondary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-                .padding(.trailing, pt(8))
+            Text("Ask me anything")
+                .font(.text)
+                .foregroundStyle(Tokens.foregroundSecondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.pressable)
-        .accessibilityLabel("Use keyboard")
-        .accessibilityHint("Keeps the unfinished transcript as a draft")
+        .accessibilityHint("Switches to typing and keeps the unfinished transcript as a draft")
     }
 
     // MARK: Controls

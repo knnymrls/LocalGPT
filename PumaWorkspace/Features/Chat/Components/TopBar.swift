@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Floating top bar over the feed: chats on the left, a quiet title, and on
+/// Floating top bar over the feed: chats on the left, and on
 /// the right one glass module holding new chat, this chat's outputs, and the
 /// chat's menu. While finding in the chat, the find bar takes its place.
 /// Place it in a safe-area-respecting overlay aligned `.top`; the bar's
@@ -54,14 +54,6 @@ struct TopBar: View {
                 navigation.toggleDrawer()
             }
 
-            if let title = chat.title {
-                Text(title)
-                    .font(.title)
-                    .foregroundStyle(Tokens.foreground)
-                    .lineLimit(1)
-                    .accessibilityAddTraits(.isHeader)
-            }
-
             Spacer(minLength: 0)
 
             module
@@ -70,7 +62,7 @@ struct TopBar: View {
 
     /// New chat, outputs, and the chat's menu, in one piece of glass.
     ///
-    /// The label owns the same glass and rim as the left control. Keep the
+    /// The label owns the same native glass as the left control. Keep the
     /// system Menu itself plain so it does not add a second filled capsule.
     /// New chat and Outputs have independent transparent tap targets.
     private var module: some View {

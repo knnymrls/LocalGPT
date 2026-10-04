@@ -1,5 +1,12 @@
 # LocalGPT change log
 
+## 2026-10-04 — Voice composer polish
+
+- Replaced the voice keyboard glyph with a left-aligned “Ask me anything” typing handoff beside the plus button.
+- Lowered the live transcript and extended its progressive blur backdrop for readability.
+- Removed the chat title from the header; sidebar and chat actions remain.
+- Device build succeeded and installed on the connected iPhone. Tests and UI QA skipped at the user’s request.
+
 ## 2026-10-03 — Focused state and assistant ownership
 
 - Separated conversation persistence, attachment imports, and memory extraction lifetimes from the shared chat facade.
