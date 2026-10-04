@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "95DC5FF0FE0807BFA5F3F42C"
-               BuildableName = "PumaWorkspace.app"
-               BlueprintName = "PumaWorkspace"
-               ReferencedContainer = "container:PumaWorkspace.xcodeproj">
+               BlueprintIdentifier = "1EFC41FDCA8BC5D71087CBBE"
+               BuildableName = "LocalGPT.app"
+               BlueprintName = "LocalGPT"
+               ReferencedContainer = "container:LocalGPT.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "95DC5FF0FE0807BFA5F3F42C"
-            BuildableName = "PumaWorkspace.app"
-            BlueprintName = "PumaWorkspace"
-            ReferencedContainer = "container:PumaWorkspace.xcodeproj">
+            BlueprintIdentifier = "1EFC41FDCA8BC5D71087CBBE"
+            BuildableName = "LocalGPT.app"
+            BlueprintName = "LocalGPT"
+            ReferencedContainer = "container:LocalGPT.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -44,10 +44,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FFAE2498E41DB07D7FD974B5"
-               BuildableName = "PumaWorkspaceTests.xctest"
-               BlueprintName = "PumaWorkspaceTests"
-               ReferencedContainer = "container:PumaWorkspace.xcodeproj">
+               BlueprintIdentifier = "DB00B94FBB86DA08A378068F"
+               BuildableName = "LocalGPTTests.xctest"
+               BlueprintName = "LocalGPTTests"
+               ReferencedContainer = "container:LocalGPT.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "95DC5FF0FE0807BFA5F3F42C"
-            BuildableName = "PumaWorkspace.app"
-            BlueprintName = "PumaWorkspace"
-            ReferencedContainer = "container:PumaWorkspace.xcodeproj">
+            BlueprintIdentifier = "1EFC41FDCA8BC5D71087CBBE"
+            BuildableName = "LocalGPT.app"
+            BlueprintName = "LocalGPT"
+            ReferencedContainer = "container:LocalGPT.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -87,10 +87,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "95DC5FF0FE0807BFA5F3F42C"
-            BuildableName = "PumaWorkspace.app"
-            BlueprintName = "PumaWorkspace"
-            ReferencedContainer = "container:PumaWorkspace.xcodeproj">
+            BlueprintIdentifier = "1EFC41FDCA8BC5D71087CBBE"
+            BuildableName = "LocalGPT.app"
+            BlueprintName = "LocalGPT"
+            ReferencedContainer = "container:LocalGPT.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

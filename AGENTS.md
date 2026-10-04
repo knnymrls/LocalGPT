@@ -1,4 +1,4 @@
-# Puma Workspace contributor guide
+# LocalGPT contributor guide
 
 Read `docs/prd.md`, `docs/design.md`, and `docs/architecture.md` before making changes. The current phase integrates real on-device services into the approved native UI. Preserve the approved compact shell and shared voice/text conversation.
 

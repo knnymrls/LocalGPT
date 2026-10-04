@@ -1,5 +1,10 @@
 # LocalGPT change log
 
+## 2026-10-04 — Consistent LocalGPT naming
+
+- Renamed source directory, app entry point, Swift module, Xcode project, schemes, and test targets to LocalGPT; updated setup commands, file links, and internal labels. App and both test targets compile; tests were not executed.
+- Regenerated the project with the existing package pins. Kept the installed app identity and legacy storage lookup so updates preserve existing chats and files; new storage uses LocalGPT.
+
 ## 2026-10-04 — Repository rename
 
 - Renamed the GitHub repository to LocalGPT and updated clone instructions, video links, and the local Git remote. All handoff work is on `main`.
@@ -149,7 +154,7 @@ Record completed work and confirmed decisions. Distinguish a scaffold, implement
 - Created the project folder structure with reserved UI, shared domain, preview, assistant, local infrastructure, resource, and test areas.
 - Generated a Swift 6 / iOS 26 Xcode app project and shared scheme from `project.yml`.
 - Verified the scaffold builds for the generic iOS Simulator destination with signing disabled.
-- Created the private [Puma-Workspace repository](https://github.com/knnymrls/LocalGPT) and pushed the initial scaffold to `main`.
+- Created the private [LocalGPT repository](https://github.com/knnymrls/LocalGPT) and pushed the initial scaffold to `main`.
 - Added the minimal app entry point and an empty RootShell. The approved conversation interface is the next implementation step.
 
 - Implemented the first native SwiftUI interface in the shared visual system (decision 0004): ported tokens, Nucleo vector icons, and glass surfaces; push-reveal chat drawer; overlay top bar; feed with streaming, stopped, failed/retry, copy, and empty suggestions; glass composer with attachment menu, model pill, mic, and send/stop/voice button; voice mode with mute, exit, keyboard handoff, floating transcript, and water/rim aura; attachments, model, evidence, memory proposal, and saved memory sheets; comparison card with citation chips, revision marker, unknowns, and per-chat notes.
@@ -206,9 +211,9 @@ The scaffold has no database, model integration, actual audio, document extracti
 - Sidebar button uses Nucleo menu-left and New chat uses Nucleo chat-task, both copied verbatim from nucleo-ui-outline-18.
 - Chrome circles (top bar, sheets, jump-to-latest) raised from 40pt with a 20pt glyph to 44pt with a 22pt glyph on the iPhone 17 Pro baseline.
 - Outputs uses Nucleo ballot-circle on the top-right control and in the sheet's empty state.
-- Drawer restructured: "Puma" title with a search button that filters chats by title and message text, the chat list, and a bottom-left "Chat" pill for a new chat. The top New chat row and divider were removed. Search checked through the accessibility outline.
+- Drawer restructured: "LocalGPT" title with a search button that filters chats by title and message text, the chat list, and a bottom-left "Chat" pill for a new chat. The top New chat row and divider were removed. Search checked through the accessibility outline.
 - Softened the chat surface's shadow over the drawer: opacity 0.06 light and 0.16 dark (was 0.14 and 0.30), radius 16 and 4pt offset (was 24 and 8).
-- Drawer header shares the top bar's row, so "Puma", the search button, and the menu button sit on one centre line. The "Chat" pill's bottom edge matches the composer card's. "Puma" and "Chat" are semibold, the only two semibold uses; drawer chat rows are regular.
+- Drawer header shares the top bar's row, so "LocalGPT", the search button, and the menu button sit on one centre line. The "Chat" pill's bottom edge matches the composer card's. "LocalGPT" and "Chat" are semibold, the only two semibold uses; drawer chat rows are regular.
 - Glass controls (chrome circles, composer card, voice circles) gained a fine rim: a hairline edge and a top highlight drawn inside the native glass, so they read as glass on a flat page.
 - Glass rim sharpened (defined outer edge, bright top specular with fast falloff, darker bottom line) and a tight shadow added. All glass surfaces, including the drawer's search field, now go through one `glassControl` modifier.
 - Glass rim is now top and bottom only: a highlight along the top edge and a shade along the bottom, both fading out at the sides. The even outer line was removed.

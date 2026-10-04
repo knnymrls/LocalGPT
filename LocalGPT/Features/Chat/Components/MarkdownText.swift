@@ -19,7 +19,7 @@ struct MarkdownText: View {
         .foregroundStyle(Tokens.foreground)
         .textSelection(.enabled)
         .environment(\.openURL, OpenURLAction { url in
-            guard url.scheme == "puma-evidence", let number = Int(url.host ?? ""),
+            guard url.scheme == "localgpt-evidence", let number = Int(url.host ?? ""),
                   let citation = citations.first(where: { $0.number == number }) else { return .systemAction }
             navigation.present(.evidence(citation))
             return .handled
@@ -134,7 +134,7 @@ struct MarkdownText: View {
             let marker = "[\(citation.number)]"
             var search = attributed.startIndex..<attributed.endIndex
             while let range = attributed[search].range(of: marker) {
-                attributed[range].link = URL(string: "puma-evidence://\(citation.number)")
+                attributed[range].link = URL(string: "localgpt-evidence://\(citation.number)")
                 attributed[range].foregroundColor = Tokens.foreground
                 search = range.upperBound..<attributed.endIndex
             }

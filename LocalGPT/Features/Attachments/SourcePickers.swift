@@ -538,7 +538,7 @@ private enum Thumbnail {
 private final class CameraSession: NSObject, AVCapturePhotoCaptureDelegate, @unchecked Sendable {
     let session = AVCaptureSession()
     private let output = AVCapturePhotoOutput()
-    private let queue = DispatchQueue(label: "puma.camera")
+    private let queue = DispatchQueue(label: "localgpt.camera")
     private var configured = false
     private var onPhoto: (@Sendable (Data) -> Void)?
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct PumaWorkspaceApp: App {
+struct LocalGPTApp: App {
     var body: some Scene { WindowGroup { WorkspaceStartup() } }
 }
 

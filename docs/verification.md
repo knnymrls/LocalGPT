@@ -1,5 +1,9 @@
 # Verification — 2026-10-04
 
+## LocalGPT project rename
+
+The LocalGPT app, LocalGPTTests, and LocalGPTLiveTests targets compile successfully with Xcode 27 for a generic iOS Simulator. Both LocalGPT and LocalGPTLiveChecks schemes complete build-for-testing. These checks compile the renamed modules and test imports; no tests were executed for this naming-only pass. Dependency pins are unchanged. The application bundle identifier stays stable, and existing private storage is retained for upgrade compatibility.
+
 ## Recorded walkthrough
 
 The [complete user-recorded iPhone walkthrough](media/localgpt-demo.mp4) is included in the README. The web copy retains the full recording and audio. It is a demonstration, not an automated evaluation. At approximately 1:53, the model incorrectly substitutes $225 for the supplied $20 food budget and reports $2,275 instead of $2,070. This is a visible ordinary-conversation arithmetic limitation; the recording has not been edited to remove it.
@@ -58,14 +62,14 @@ On Xcode 26.6 / iOS 26.5, **39 deterministic tests and all 19 live integration t
 
 New deterministic coverage exercises replaced import failures, deleted imports' late completions, stable attachment order, canceled/replaced memory receipts, concurrent memory deduplication, active conversation/draft invariants, and output capability isolation. The additional live check creates a chart and then revises its values without repeating the output type; the second file is a distinct readable image with Monday 15 and Friday 20. An initial assertion incorrectly required an exact label spelling; it now parses each rendered label/value row and checks the actual numeric values.
 
-Normal Simulator UI review confirmed existing history, the inline chart, and an unsent draft after relaunch; starting a new chat; opening the drawer and switching back with the original draft retained; and Read Aloud's visible playback controls appearing and dismissing through the injected reader. The app remains installed on **Puma – Audio QA**.
+Normal Simulator UI review confirmed existing history, the inline chart, and an unsent draft after relaunch; starting a new chat; opening the drawer and switching back with the original draft retained; and Read Aloud's visible playback controls appearing and dismissing through the injected reader. The app remains installed on **Audio QA**.
 
 Model-quality limit observed during that UI check: after being told the project was called Birch, the response gave the right name but incorrectly added that LocalGPT was developing it. This is not semantic acceptance of every reply. The unchanged model/context limits, live-microphone gate, and disconnected-physical-device gate below still apply. Whole-conversation storage and bounded intent parsing remain deliberate prototype limits, documented in decision 0017.
 
 
 ## Previous core acceptance — 2026-10-03, source 74f84a4
 
-On Xcode 26.6 / iOS 26.5, the dedicated **Puma – Audio QA** Simulator completed **32 deterministic checks and all 18 live checks with no failures or skips**. The live suite used the real local model for ordinary conversation, source-backed comparison and revision, selective memory, CSV calculations, and real PDF/CSV/R/PNG outputs. Two recorded voice turns used actual recognition, inference, and synthesis, and returned to listening. Recorded input is not live microphone acceptance.
+On Xcode 26.6 / iOS 26.5, the dedicated **Audio QA** Simulator completed **32 deterministic checks and all 18 live checks with no failures or skips**. The live suite used the real local model for ordinary conversation, source-backed comparison and revision, selective memory, CSV calculations, and real PDF/CSV/R/PNG outputs. Two recorded voice turns used actual recognition, inference, and synthesis, and returned to listening. Recorded input is not live microphone acceptance.
 
 Fresh conversation checks retained the spaceship name Juniper, changed Omar's deadline from Wednesday to Friday while preserving Maya's Tuesday deadline, recalled Miso/Sundays within a chat, and treated the plant name as unknown in a separate chat. A conversation saved through SQLite reopened with its draft and history intact; its project remained Cedar while its release day changed from Monday to Thursday. These checks use temporary empty workspaces, not the preloaded transcripts.
 
@@ -125,7 +129,7 @@ All 27 deterministic tests pass on the repaired revision. The four affected live
 - **Deterministic checks:** 25 tests pass. Dictation accumulates sentences across capture windows and silence, stays separate from sending, and flushes the last transcript on Finish. Microphone level mapping and the smoothed visual envelope are covered.
 - **Actual audio services:** three targeted checks pass together: finishing recorded dictation flushes pending PCM through Whisper; Read Aloud speaks two consecutive replies with system synthesis callbacks and completion; two recorded voice turns use real recognition and synthesis with scripted assistant replies and return to listening.
 - **Visual checks:** the Thinking highlight visibly moves across its text; dictation bars respond and scroll. A DEBUG mock-input session remained dictating for over a minute without sending a message, then Finish restored the composer. The GIFs below use DEBUG fixtures, not live microphone input.
-- **Release:** the generic Simulator Release build passes. Manual checks use a separate “Puma – Audio QA” Simulator so the user's existing session is undisturbed.
+- **Release:** the generic Simulator Release build passes. Manual checks use a separate “Audio QA” Simulator so the user's existing session is undisturbed.
 - **Asset preparation:** the first audio run timed out while acquiring speech assets; subsequent checks prepare assets before measuring conversational behavior. This is not a first-install latency claim.
 - **Limits:** full microphone-to-model conversation and disconnected-network acceptance remain pending. The Apple model-catalog blocker was subsequently resolved as described above.
 
@@ -143,7 +147,7 @@ Kenny’s latest feedback supersedes broad automatic memory and the detailed Edi
 ## Environment
 
 - Xcode 26.6; iOS 26.5 Simulator on macOS 26.5.1.
-- Dedicated “Puma Workspace – UI” Simulator; normal live service configuration.
+- Dedicated “dedicated UI” Simulator; normal live service configuration.
 - The system language model was available and generated real responses. No fixture assistant was used in the opt-in live suite.
 - No physical-device performance claim. Current Xcode 27 requires a Mac OS update on this machine; direct image-model integration remains deferred.
 
@@ -193,7 +197,7 @@ Whisper model assets occupied approximately 149 MB after installation; tokenizer
 
 ## Reproduce
 
-Use the commands in [README](../README.md). The default scheme does not require a model or network. `PumaWorkspaceLiveChecks` requires available Foundation Models and local speech assets; a missing system model skips its model-dependent cases with an explicit reason. The recorded-audio case tests speech separately and may acquire public assets on first use.
+Use the commands in [README](../README.md). The default scheme does not require a model or network. `LocalGPTLiveChecks` requires available Foundation Models and local speech assets; a missing system model skips its model-dependent cases with an explicit reason. The recorded-audio case tests speech separately and may acquire public assets on first use.
 
 Run automated tests before manual Simulator inspection: Xcode intentionally relaunches the test host. For a manual pass, launch the app without `-preview`/`-uiState`, then follow the PRD demonstration. Turn off capture when finished.
 

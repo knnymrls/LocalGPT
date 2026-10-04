@@ -96,7 +96,7 @@ Voice retires a capture token before sending, follows the specific resulting rep
 
 ## Verification and remaining platform gates
 
-The deterministic test scheme covers persistence, stale writes, deletion, caching, memory receipts, CSV/PDF/files, and voice handoff. `PumaWorkspaceLiveChecks` invokes the real Foundation Models service and checks document comparison, memory extraction/recall, and output files. Run it separately because model availability and quality are runtime-dependent. See `docs/verification.md` for observed results and remaining gates; a successful compile alone does not validate inference, microphone audio, or device performance.
+The deterministic test scheme covers persistence, stale writes, deletion, caching, memory receipts, CSV/PDF/files, and voice handoff. `LocalGPTLiveChecks` invokes the real Foundation Models service and checks document comparison, memory extraction/recall, and output files. Run it separately because model availability and quality are runtime-dependent. See `docs/verification.md` for observed results and remaining gates; a successful compile alone does not validate inference, microphone audio, or device performance.
 
 ## Device attachment corrections — 2026-10-03
 

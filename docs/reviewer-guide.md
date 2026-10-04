@@ -4,8 +4,8 @@ LocalGPT is an iPhone prototype of a private assistant: send a message, follow u
 
 ## Run it
 
-1. Open `PumaWorkspace.xcodeproj` with Xcode 27 or newer. Swift Package Manager resolves the pinned dependencies.
-2. Select the `PumaWorkspace` scheme and an Apple Intelligence-capable iPhone, or a compatible Simulator. Enable Apple Intelligence and let its system model finish preparing. Device builds need your signing team.
+1. Open `LocalGPT.xcodeproj` with Xcode 27 or newer. Swift Package Manager resolves the pinned dependencies.
+2. Select the `LocalGPT` scheme and an Apple Intelligence-capable iPhone, or a compatible Simulator. Enable Apple Intelligence and let its system model finish preparing. Device builds need your signing team.
 3. Run normally. No account, API key, backend, or special launch flag is required. The composer explains model availability if setup is incomplete.
 
 Build with Xcode 27. Deployment starts at iOS 26; pixel-based image understanding is runtime-gated to iOS 27 and a vision-capable system model. Speech may download public model assets on first use. Do not use `-preview` or `-uiState` for a live demonstration: those are explicit DEBUG fixtures.

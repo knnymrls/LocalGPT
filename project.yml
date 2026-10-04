@@ -1,4 +1,4 @@
-name: PumaWorkspace
+name: LocalGPT
 options:
   minimumXcodeGenVersion: 2.46.0
   createIntermediateGroups: true
@@ -6,7 +6,7 @@ options:
   deploymentTarget:
     iOS: "26.0"
 fileGroups:
-  - PumaWorkspace
+  - LocalGPT
   - README.md
   - AGENTS.md
   - docs
@@ -24,11 +24,11 @@ packages:
     url: https://github.com/argmaxinc/WhisperKit.git
     exactVersion: 0.15.0
 targets:
-  PumaWorkspace:
+  LocalGPT:
     type: application
     platform: iOS
     sources:
-      - path: PumaWorkspace
+      - path: LocalGPT
         excludes:
           - "**/.gitkeep"
           - "**/*.md"
@@ -37,8 +37,9 @@ targets:
       - package: WhisperKit
     settings:
       base:
+        # Keep the installed identity so updates retain existing chats and files.
         PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.PumaWorkspace
-        PRODUCT_NAME: PumaWorkspace
+        PRODUCT_NAME: LocalGPT
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: LocalGPT
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
@@ -52,44 +53,44 @@ targets:
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
-  PumaWorkspaceTests:
+  LocalGPTTests:
     type: bundle.unit-test
     platform: iOS
     sources:
       - Tests/Unit
     dependencies:
-      - target: PumaWorkspace
+      - target: LocalGPT
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.PumaWorkspaceTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.LocalGPTTests
         GENERATE_INFOPLIST_FILE: YES
-  PumaWorkspaceLiveTests:
+  LocalGPTLiveTests:
     type: bundle.unit-test
     platform: iOS
     sources:
       - Tests/Live
     dependencies:
-      - target: PumaWorkspace
+      - target: LocalGPT
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.PumaWorkspaceLiveTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.knnymrls.LocalGPTLiveTests
         GENERATE_INFOPLIST_FILE: YES
 schemes:
-  PumaWorkspace:
+  LocalGPT:
     build:
       targets:
-        PumaWorkspace: all
+        LocalGPT: all
     run:
       config: Debug
     test:
       targets:
-        - PumaWorkspaceTests
+        - LocalGPTTests
     archive:
       config: Release
-  PumaWorkspaceLiveChecks:
+  LocalGPTLiveChecks:
     build:
       targets:
-        PumaWorkspace: all
+        LocalGPT: all
     test:
       targets:
-        - PumaWorkspaceLiveTests
+        - LocalGPTLiveTests

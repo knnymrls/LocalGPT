@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import PumaWorkspace
+@testable import LocalGPT
 
 @MainActor
 final class CoordinationTests: XCTestCase {

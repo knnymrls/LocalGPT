@@ -4,8 +4,12 @@ import CryptoKit
 struct WorkspaceFiles: Sendable {
     let root: URL
     static var applicationRoot: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("PumaWorkspace", isDirectory: true)
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        // Keep existing installations' database and files in their original directory.
+        // Fresh installations use the current product name.
+        let legacy = support.appendingPathComponent("PumaWorkspace", isDirectory: true)
+        return FileManager.default.fileExists(atPath: legacy.path)
+            ? legacy : support.appendingPathComponent("LocalGPT", isDirectory: true)
     }
     static let maximumImportBytes = 30 * 1024 * 1024
 

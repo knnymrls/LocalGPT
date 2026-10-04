@@ -3,7 +3,7 @@ import FoundationModels
 import PDFKit
 import ImageIO
 import AVFoundation
-@testable import PumaWorkspace
+@testable import LocalGPT
 
 /// Explicit opt-in suite: these checks call the real local system model, never a fixture assistant.
 final class LiveModelTests: XCTestCase {
@@ -20,7 +20,7 @@ final class LiveModelTests: XCTestCase {
     private struct Answer {
         var text = ""
         var citations: [Citation] = []
-        var outputs: [PumaWorkspace.Attachment] = []
+        var outputs: [LocalGPT.Attachment] = []
         var steps: [String] = []
         var complete = false
     }
@@ -44,7 +44,7 @@ final class LiveModelTests: XCTestCase {
         let (root, db, files, memory, writer) = try workspace()
         let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "photo", withExtension: "jpg"))
         let importer = LocalDocumentImporter(files: WorkspaceFiles(root: root), database: db, repository: files)
-        let source = try await importer.prepare(PumaWorkspace.Attachment(name: "photo.jpg", kind: .image, readiness: .importing, fileURL: fixture))
+        let source = try await importer.prepare(LocalGPT.Attachment(name: "photo.jpg", kind: .image, readiness: .importing, fileURL: fixture))
         XCTAssertFalse(source.previewText.localizedCaseInsensitiveContains("cat"), "OCR must not supply the expected visual answer")
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
         let first = try await answer("What animal is in this photo?", client: client, sources: [source.id])
@@ -253,7 +253,7 @@ final class LiveModelTests: XCTestCase {
         for (name, text) in documents {
             let url = root.appendingPathComponent(name)
             try text.write(to: url, atomically: true, encoding: .utf8)
-            let file = try await importer.prepare(PumaWorkspace.Attachment(name: name, kind: .text, readiness: .importing, fileURL: url))
+            let file = try await importer.prepare(LocalGPT.Attachment(name: name, kind: .text, readiness: .importing, fileURL: url))
             selected.insert(file.id)
         }
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
@@ -446,7 +446,7 @@ final class LiveModelTests: XCTestCase {
         let url = root.appendingPathComponent("expenses.csv")
         try "item,amount\nroom,3200\ncatering,800\n".write(to: url, atomically: true, encoding: .utf8)
         let importer = LocalDocumentImporter(files: WorkspaceFiles(root: root), database: db, repository: files)
-        let source = try await importer.prepare(PumaWorkspace.Attachment(name: "expenses.csv", kind: .spreadsheet, readiness: .importing, fileURL: url))
+        let source = try await importer.prepare(LocalGPT.Attachment(name: "expenses.csv", kind: .spreadsheet, readiness: .importing, fileURL: url))
         let client = LocalAssistantClient(database: db, attachments: files, memories: MemoryService(repository: memory), writer: writer)
         let result = try await answer("Use the calculation tool to sum the amount column in expenses.csv and report the total with its source.", client: client, sources: [source.id])
         XCTAssertTrue(result.text.contains("4,000") || result.text.contains("4000"))

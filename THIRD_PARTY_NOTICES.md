@@ -1,6 +1,6 @@
 # Third-party notices
 
-The complete license and notice texts are included in [ThirdPartyNotices.txt](PumaWorkspace/Resources/ThirdPartyNotices.txt), which is bundled with the app. Exact dependency revisions are recorded in `Package.resolved`.
+The complete license and notice texts are included in [ThirdPartyNotices.txt](LocalGPT/Resources/ThirdPartyNotices.txt), which is bundled with the app. Exact dependency revisions are recorded in `Package.resolved`.
 
 - GRDB and WhisperKit: MIT.
 - Swift Collections, Argument Parser, Crypto, ASN.1, Transformers, and Jinja: see bundled upstream license texts and notices.

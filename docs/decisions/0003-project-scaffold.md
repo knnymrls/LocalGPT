@@ -1,15 +1,15 @@
 # 0003 Project scaffold and product name
 
-Status: selected for the initial project.
+Status: scaffold selected; naming superseded by decision 0020.
 Date: 2026-10-03.
 
 ## Context
 
-Kenny requested a focused PRD, the actual folder structure, and a GitHub repository named Puma Workspace before beginning the interface implementation.
+Kenny requested a focused PRD, the actual folder structure, and a GitHub repository before beginning the interface implementation.
 
 ## Decision
 
-Use Puma Workspace as the project name, `PumaWorkspace` for the Swift target, and `Puma-Workspace` for the GitHub repository. Create a private repository under Kenny's authenticated personal account.
+Start with a private repository under Kenny's authenticated personal account. The current public repository, Swift target, and project are named LocalGPT; see decision 0020.
 
 Commit a minimal, buildable SwiftUI scaffold and an XcodeGen specification. The initial UI target uses Swift 6 and iOS 26 with the available Xcode 26.6 toolchain. Reserve feature, shared domain, preview, assistant, infrastructure, resource, and test folders without implementing their services.
 

@@ -2,7 +2,7 @@ import XCTest
 import PDFKit
 import ImageIO
 import FoundationModels
-@testable import PumaWorkspace
+@testable import LocalGPT
 
 final class WorkspaceTests: XCTestCase {
     func testConversationEchoDetectionAllowsRequestedCopiesAndGreetings() {

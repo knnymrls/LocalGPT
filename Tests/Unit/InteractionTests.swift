@@ -1,5 +1,5 @@
 import XCTest
-@testable import PumaWorkspace
+@testable import LocalGPT
 
 @MainActor
 final class InteractionTests: XCTestCase {

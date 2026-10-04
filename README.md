@@ -2,7 +2,7 @@
 
 **A private AI workspace for iPhone.** Chat by text or voice, ask questions about your photos and documents, and turn answers into files you can use—all with inference on the device.
 
-Built for the [Puma take-home](https://puma.tech/take-home-task/). The core is simple: send a message, get a streamed local reply, and return to the same conversation later. Documents, memory, and voice build on that shared conversation.
+The core is simple: send a message, get a streamed local reply, and return to the same conversation later. Documents, memory, and voice build on that shared conversation.
 
 No account, API key, or application server is required.
 
@@ -40,17 +40,17 @@ Four preloaded chats provide a quick way to explore plans, CSV expenses, a PDF c
 ```sh
 git clone https://github.com/knnymrls/LocalGPT.git
 cd LocalGPT
-open PumaWorkspace.xcodeproj
+open LocalGPT.xcodeproj
 ```
 
 1. Let Xcode resolve the pinned Swift packages.
-2. Select the **PumaWorkspace** scheme and your iPhone. Set your team under **Signing & Capabilities**; use a unique bundle identifier if your signing setup requires it.
+2. Select the **LocalGPT** scheme and your iPhone. Set your team under **Signing & Capabilities**; use a unique bundle identifier if your signing setup requires it.
 3. Build and run. The installed app is named **LocalGPT**.
 4. Allow microphone access for voice, and camera/photo access when adding images. Speech assets may download on first use.
 
 The app explains when the system model is unavailable or still preparing. Launch normally for live inference: `-preview` and `-uiState` are DEBUG-only fixture flags.
 
-The project and scheme retain the internal name `PumaWorkspace`; the product name is LocalGPT. XcodeGen is only needed when changing the project structure, not to open the committed Xcode project.
+XcodeGen is only needed when changing the project structure, not to open the committed Xcode project.
 
 ## A short walkthrough
 
@@ -111,18 +111,18 @@ Subsequent voice/layout changes were built and installed, but the test suites we
 
 ```sh
 # Compile without device signing.
-xcodebuild -project PumaWorkspace.xcodeproj \
-  -scheme PumaWorkspace -destination 'generic/platform=iOS Simulator' \
+xcodebuild -project LocalGPT.xcodeproj \
+  -scheme LocalGPT -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
 
 # Run deterministic checks. Replace <UDID> with a booted Simulator identifier.
-xcodebuild -project PumaWorkspace.xcodeproj \
-  -scheme PumaWorkspace -destination 'platform=iOS Simulator,id=<UDID>' \
+xcodebuild -project LocalGPT.xcodeproj \
+  -scheme LocalGPT -destination 'platform=iOS Simulator,id=<UDID>' \
   -parallel-testing-enabled NO test
 
 # Opt-in integration checks; require available local models and speech assets.
-xcodebuild -project PumaWorkspace.xcodeproj \
-  -scheme PumaWorkspaceLiveChecks -destination 'platform=iOS Simulator,id=<UDID>' \
+xcodebuild -project LocalGPT.xcodeproj \
+  -scheme LocalGPTLiveChecks -destination 'platform=iOS Simulator,id=<UDID>' \
   -parallel-testing-enabled NO test
 ```
 
@@ -131,7 +131,7 @@ Use an iOS 27 physical device for the full image path. Simulator results do not 
 ## Repository map
 
 ```text
-PumaWorkspace/
+LocalGPT/
 ├── App/              Startup, dependency wiring, navigation, lifecycle
 ├── DesignSystem/     Semantic tokens and reusable controls
 ├── Features/         Screens and observable presentation state
